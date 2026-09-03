@@ -9,10 +9,10 @@ const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
 const w = dom.window, d = w.document;
 
 ['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/data/ladder.js', 'js/data/quests.js', 'js/core/save.js', 'js/core/score.js', 'js/core/battle.js',
+ 'js/data/dungeons.js', 'js/data/ladder.js', 'js/data/quests.js', 'js/core/save.js', 'js/core/score.js', 'js/core/pack.js', 'js/core/battle.js',
  'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
  'js/ui/screen_deck.js', 'js/ui/screen_gallery.js', 'js/ui/screen_dungeon.js',
- 'js/ui/screen_craft.js', 'js/ui/screen_ladder.js', 'js/ui/screen_quest.js', 'js/main.js'].forEach(function (p) {
+ 'js/ui/screen_craft.js', 'js/ui/screen_pack.js', 'js/ui/screen_ladder.js', 'js/ui/screen_quest.js', 'js/main.js'].forEach(function (p) {
   const s = d.createElement('script');
   s.textContent = fs.readFileSync(path.join(root, p), 'utf8');
   d.body.appendChild(s);
@@ -42,17 +42,18 @@ console.log('══════ 頁面結構完整 ══════');
 {
   // 每個畫面與關鍵元件都要在。之前改 index.html 時整段刪掉過畫面，加這層防呆。
   ['scr-title', 'scr-menu', 'scr-battle-setup', 'scr-battle', 'scr-rules',
-   'scr-deck', 'scr-gallery', 'scr-dungeon', 'scr-floor', 'scr-craft', 'scr-ladder',
-   'scr-quest', 'scr-settings'
+   'scr-deck', 'scr-gallery', 'scr-dungeon', 'scr-floor', 'scr-craft', 'scr-pack',
+   'scr-ladder', 'scr-quest', 'scr-settings'
   ].forEach(id => ok(!!$(id), '畫面存在：' + id));
   ['fieldMine', 'fieldFoe', 'hand', 'log', 'coinFx', 'btnReady', 'btnShuffle',
    'btnSpeed', 'btnQuit', 'resultOverlay', 'btnAgain', 'detail', 'rulesBody',
-   'toast', 'saveStatus', 'btnReset', 'saveText', 'btnExport', 'btnImport'
+   'toast', 'saveStatus', 'btnReset', 'saveText', 'btnExport', 'btnImport',
+   'pkTickets', 'btnPull1', 'btnPull10', 'pkResult', 'pkSpareList', 'btnDisAll'
   ].forEach(id => ok(!!$(id), '元件存在：' + id));
 
   // 從大廳點進去的畫面，返回鈕都要回大廳（不是回標題）
   ['scr-battle-setup', 'scr-dungeon', 'scr-deck', 'scr-gallery', 'scr-craft',
-   'scr-ladder', 'scr-quest', 'scr-settings']
+   'scr-pack', 'scr-ladder', 'scr-quest', 'scr-settings']
     .forEach(id => {
       const backs = Array.from($(id).querySelectorAll('[data-go]'))
         .filter(b => /返回|回大廳|回標題/.test(b.textContent));
@@ -474,6 +475,57 @@ console.log('══════ 合成工房 ══════');
   // 素材庫存有列出來
   ok(/白色礦石/.test($('cfBag').textContent), '素材庫存有列出白色礦石');
   ok($('cReady').checked === false, '「只看素材足夠」可切換');
+}
+
+console.log('══════ 卡包 ══════');
+{
+  const S = w.SG.Save;
+  d.querySelector('[data-go="pack"]').click();
+  eq(active(), 'scr-pack', '進入卡包畫面');
+
+  S.data.packs.tickets = 0;
+  w.SG.renderPack();
+  ok($('btnPull1').disabled && $('btnPull10').disabled, '沒點數時兩個抽卡鈕都關著');
+
+  S.addTickets(1);
+  w.SG.renderPack();
+  ok(!$('btnPull1').disabled, '有 1 點可以抽一包');
+  ok($('btnPull10').disabled, '1 點還不能十連抽');
+
+  $('btnPull1').click();
+  const cards = d.querySelectorAll('#pkResult .pk-card');
+  ok(cards.length > 0 && cards.length <= w.SG._pack.CARDS_PER_PACK,
+     '開出 ' + cards.length + ' 種卡（一包 ' + w.SG._pack.CARDS_PER_PACK + ' 張）');
+  eq(S.data.packs.tickets, 0, '抽完點數扣掉');
+
+  /* 十連 */
+  S.addTickets(10);
+  w.SG.renderPack();
+  ok(!$('btnPull10').disabled, '10 點可以十連抽');
+  const own0 = Object.keys(S.data.owned).reduce((n, k) => n + S.data.owned[k], 0);
+  $('btnPull10').click();
+  eq(S.data.packs.tickets, 0, '十連扣 10 點');
+  const own1 = Object.keys(S.data.owned).reduce((n, k) => n + S.data.owned[k], 0);
+  eq(own1 - own0, 10 * w.SG._pack.CARDS_PER_PACK, '十連拿到 30 張卡');
+
+  /* 分解 */
+  const spares = Object.keys(S.data.owned)
+    .filter(k => w.SG.spareCount(k, S.data.owned) > 0);
+  ok(spares.length > 0, '抽完之後有多餘的卡可以分解：' + spares.length + ' 種');
+  w.SG.renderPack();
+  ok(!$('btnDisAll').disabled, '「全部分解」可以按');
+  const matBefore = Object.keys(S.data.materials)
+    .reduce((n, k) => n + S.data.materials[k], 0);
+  $('btnDisAll').click();
+  const matAfter = Object.keys(S.data.materials)
+    .reduce((n, k) => n + S.data.materials[k], 0);
+  ok(matAfter > matBefore, '分解會拿到素材（' + matBefore + ' → ' + matAfter + '）');
+  ok(Object.keys(S.data.owned).every(k => w.SG.spareCount(k, S.data.owned) === 0),
+     '全部分解之後沒有多餘的卡');
+  ok(Object.keys(S.data.owned).every(k => {
+       const c = w.SG.getCard(k);
+       return !c || S.data.owned[k] <= (c.limit || 3);
+     }), '分解不會拆掉還組得進牌組的張數');
 }
 
 console.log('══════ 存檔 ══════');

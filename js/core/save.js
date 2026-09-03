@@ -41,6 +41,7 @@ var SG = window.SG || (window.SG = {});
       achieved: {},
       materials: {},
       dungeons: {},
+      packs: { tickets: 0, pulls: 0, sinceRare: 0 },
       decks: starterDecks(),
       activeDeck: 0,
       settings: { speed: 1 }
@@ -123,6 +124,10 @@ var SG = window.SG || (window.SG = {});
       if (!Array.isArray(d.daily.quests)) d.daily.quests = [];
       d.materials = d.materials || {};
       d.dungeons = d.dungeons || {};
+      d.packs = d.packs || { tickets: 0, pulls: 0, sinceRare: 0 };
+      if (!(d.packs.tickets >= 0)) d.packs.tickets = 0;
+      if (!(d.packs.pulls >= 0)) d.packs.pulls = 0;
+      if (!(d.packs.sinceRare >= 0)) d.packs.sinceRare = 0;
       Object.keys(d.materials).forEach(function (k) {
         if (!SG.MATERIALS[k] || !(d.materials[k] > 0)) delete d.materials[k];
       });
@@ -265,6 +270,73 @@ var SG = window.SG || (window.SG = {});
       return true;
     },
 
+    /* ══════ 卡包 ══════ */
+
+    addTickets: function (n) {
+      var p = SG.Save.data.packs;
+      p.tickets = Math.max(0, p.tickets + (n || 0));
+      SG.Save.save();
+      return p.tickets;
+    },
+
+    /* 抽 n 包。點數不足回傳 null。
+       回傳 { cards:[卡], gained:{slug:張數}, fresh:[第一次拿到的卡] } */
+    openPacks: function (n, rnd) {
+      n = Math.max(1, n | 0);
+      var p = SG.Save.data.packs;
+      var cost = n >= 10 ? SG._pack.TEN_COST : n;
+      if (p.tickets < cost) return null;
+
+      var owned = SG.Save.data.owned;
+      var before = {};
+      Object.keys(owned).forEach(function (k) { before[k] = owned[k]; });
+
+      var cards = SG.pullPacks(n, p, rnd);
+      p.tickets -= cost;
+      p.pulls += cards.length;
+
+      var gained = {};
+      cards.forEach(function (c) {
+        owned[c.slug] = (owned[c.slug] || 0) + 1;
+        gained[c.slug] = (gained[c.slug] || 0) + 1;
+      });
+      SG.Save.bump('pack', n);
+      SG.Save.save();
+      return {
+        cards: cards, gained: gained,
+        fresh: cards.filter(function (c) { return !before[c.slug]; })
+      };
+    },
+
+    /* ══════ 分解 ══════
+       只有超過牌組上限的多餘張數可以分解，不會讓玩家把還用得到的卡拆掉。 */
+    disenchant: function (slug, count) {
+      var spare = SG.spareCount(slug, SG.Save.data.owned);
+      count = Math.min(spare, Math.max(1, count | 0));
+      if (count <= 0) return null;
+      var val = SG.disenchantValue(slug);
+      if (!val) return null;
+      var got = val.map(function (m) { return { mat: m.mat, n: m.n * count }; });
+      SG.Save.data.owned[slug] -= count;
+      SG.Save.addMaterials(got);        // 內含 save()
+      SG.Save.bump('disenchant', count);
+      SG.Save.save();
+      return { count: count, got: got };
+    },
+
+    /* 全部多餘的卡一次分解 */
+    disenchantAllSpare: function () {
+      var owned = SG.Save.data.owned, total = 0, bag = {};
+      Object.keys(owned).forEach(function (slug) {
+        var r = SG.Save.disenchant(slug, SG.spareCount(slug, owned));
+        if (!r) return;
+        total += r.count;
+        r.got.forEach(function (m) { bag[m.mat] = (bag[m.mat] || 0) + m.n; });
+      });
+      return { count: total,
+               got: Object.keys(bag).map(function (k) { return { mat: k, n: bag[k] }; }) };
+    },
+
     /* 這張卡還值不值得做（超過牌組上限就沒必要了） */
     craftUseful: function (slug) {
       var card = SG.getCard(slug);
@@ -395,6 +467,10 @@ var SG = window.SG || (window.SG = {});
       var ore = SG.scoreDrops(score && score.total ? score.total : 0, dg, faction);
 
       SG.Save.bump('dungeonWin');
+      /* 卡包點數：打贏一關 +1，打贏 BOSS +2 */
+      res.tickets = (st.floor >= last) ? 2 : 1;
+      SG.Save.data.packs.tickets += res.tickets;
+
       if (st.floor >= last) {
         res.cleared = true;
         SG.Save.bump('dungeonClear');

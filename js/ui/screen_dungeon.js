@@ -167,7 +167,8 @@ var SG = window.SG || (window.SG = {});
       '<div class="rs-dg">' +
       (win.cleared ? '★ 通關！累計 ' + st.clears + ' 次（樓層回到第 1 層）'
                    : '往上一層 → 第 ' + st.floor + ' 層') + '</div>' +
-      '<div class="rs-drops">' + drops + '</div>';
+      '<div class="rs-drops">' + drops +
+      '<span class="drop drop-tk">卡包點數 ×' + win.tickets + '</span></div>';
     if (win.gotReward) {
       html += '<div class="rs-reward">🎉 通關 10 次！獲得角色卡「' +
               SG.getCard(dg.reward).name + '」</div>';

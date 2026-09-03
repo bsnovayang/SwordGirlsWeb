@@ -15,6 +15,7 @@ var SG = window.SG || (window.SG = {});
     dungeon:        function () { SG.bindDungeon(); SG.renderDungeonList(); },
     floor:          function () { SG.bindDungeon(); SG.renderFloor(); },
     craft:          function () { SG.bindCraft(); SG.renderCraft(); },
+    pack:           function () { SG.bindPack(); SG.renderPack(); },
     ladder:         function () { SG.bindLadder(); SG.renderLadder(); },
     quest:          function () { SG.bindQuests(); SG.renderQuests(); },
     settings:       renderSettings,
@@ -173,6 +174,17 @@ var SG = window.SG || (window.SG = {});
     toastTimer = setTimeout(function () { el.className = 'toast'; }, okWrite ? 1400 : 4000);
   }
 
+  /* 一般用途的提示（抽卡、分解等），跟自動儲存共用同一條 toast */
+  SG.toast = function (text, ms) {
+    var el = $('toast');
+    if (!el) return;
+    lastToast = Date.now();
+    el.textContent = text;
+    el.className = 'toast show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.className = 'toast'; }, ms || 2200);
+  };
+
   /* ────────── 規則頁 ────────── */
   function rules() {
     $('rulesBody').innerHTML =
@@ -238,7 +250,18 @@ var SG = window.SG || (window.SG = {});
       '所以越深的樓層越划算，長副本不會吃虧。</p>' +
       '<p class="hint left">發放量是回推的：<b>一場中等評價 ≈ 做得出一張基本卡</b>' +
       '（Episode 1 的普通卡是 12 單位素材）。陣營礦石一律發<b>你角色的陣營</b>，' +
-      '不會發到用不到的顏色。</p>';
+      '不會發到用不到的顏色。</p>' +
+
+      '<h3>卡包與分解</h3><ul>' +
+      '<li>副本每贏一關 <b>+1 點</b>，打贏 BOSS <b>+2 點</b></li>' +
+      '<li>一包 <b>1 點</b>，開 3 張；<b>十連抽 10 點</b>，保證至少一張稀有以上</li>' +
+      '<li>連續 30 張沒開到稀有以上會<b>保底</b></li>' +
+      '<li>稀有度機率：普通 70%／罕見 22%／稀有 7%／雙稀有 1%</li>' +
+      '<li>副本通關 10 次的獎勵角色卡<b>不在卡池裡</b>，只能靠通關拿</li>' +
+      '<li><b>分解</b>：超過牌組上限的多餘張數可以拆成素材（回收配方的 1/4）</li>' +
+      '</ul>' +
+      '<p class="hint left">合成是「補齊你缺的那幾張」，卡包是「立刻開出東西」——' +
+      '抽到重複的也不浪費，拆掉就變成合成的素材。</p>';
   }
 
   /* ────────── 啟動 ────────── */

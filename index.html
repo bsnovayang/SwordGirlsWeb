@@ -57,6 +57,7 @@
       <button data-go="ladder">模擬天梯</button>
       <button data-go="battle-setup">自由對戰</button>
       <button data-go="deck">牌組編輯</button>
+      <button data-go="pack" id="btnPackMenu">卡　包</button>
       <button data-go="craft">合成工房</button>
       <button data-go="gallery">卡片圖鑑</button>
       <button data-go="quest" id="btnQuestMenu">任務 / 成就</button>
@@ -122,6 +123,31 @@
       <div id="cfBag" class="cf-bag"></div>
     </aside>
   </div>
+  <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+</section>
+
+<section id="scr-pack" class="screen">
+  <h2>卡　包</h2>
+  <div class="pk-top">
+    <div class="pk-tickets">卡包點數 <b id="pkTickets">0</b></div>
+    <div class="pk-buy">
+      <button id="btnPull1">抽 1 包<span class="pk-cost">1 點</span></button>
+      <button id="btnPull10">十 連 抽<span class="pk-cost">10 點</span></button>
+    </div>
+    <p class="hint" id="pkHint"></p>
+  </div>
+
+  <div class="pk-result" id="pkResult"></div>
+
+  <section class="pk-spare">
+    <h3>多餘的卡可以分解<span class="hint">　超過牌組上限的張數才能拆</span></h3>
+    <div class="pk-spare-bar">
+      <span id="pkSpareCount"></span>
+      <button id="btnDisAll" class="ghost">全部分解</button>
+    </div>
+    <div class="pool" id="pkSpareList"></div>
+  </section>
+
   <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
 </section>
 
@@ -343,6 +369,7 @@
 <script src="js/core/effects.js"></script>
 <script src="js/core/effects_ep1.js"></script>
 <script src="js/core/score.js"></script>
+<script src="js/core/pack.js"></script>
 <script src="js/core/ai.js"></script>
 <script src="js/ui/card_ui.js"></script>
 <script src="js/ui/battle_ui.js"></script>
@@ -350,6 +377,7 @@
 <script src="js/ui/screen_gallery.js"></script>
 <script src="js/ui/screen_dungeon.js"></script>
 <script src="js/ui/screen_craft.js"></script>
+<script src="js/ui/screen_pack.js"></script>
 <script src="js/ui/screen_ladder.js"></script>
 <script src="js/ui/screen_quest.js"></script>
 <script src="js/main.js"></script>

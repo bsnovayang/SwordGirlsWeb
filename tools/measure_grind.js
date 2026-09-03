@@ -5,7 +5,7 @@ global.window = global;
 const R = path.join(__dirname, '..');
 ['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_npc.js', 'js/data/materials.js',
  'js/data/decks.js', 'js/data/dungeons.js', 'js/data/ladder.js', 'js/core/battle.js',
- 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/ai.js', 'js/core/score.js']
+ 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/ai.js', 'js/core/score.js', 'js/core/pack.js']
   .forEach(p => eval(fs.readFileSync(path.join(R, p), 'utf8')));
 
 const N = parseInt(process.argv[2] || '40', 10);
@@ -101,3 +101,68 @@ perDungeon.forEach(p => {
   const n = Math.max.apply(null, Object.keys(need).map(m => need[m] / rate[m]));
   console.log('   ' + p.dg.name.padEnd(8) + ' ' + Math.ceil(n) + ' 場');
 });
+
+/* ── 完整模擬：一個玩家從零開始刷，多久能組出一副 EP1 牌組 ──
+   每場：拿素材（依評價）＋ 1 點（BOSS 2 點）；累到 10 點就十連抽；
+   只分解超過牌組上限的多餘卡；能合成缺的卡就合成。          */
+(function simulate() {
+  const FAC = 'vita';
+  const want = {};            // 目標牌組：EP1 該陣營，每種取上限
+  SG.collectibleCards()
+    .filter(c => c.ep === 1 && c.faction === FAC && c.type !== 'character')
+    .forEach(c => { want[c.slug] = Math.min(c.limit, 3); });
+
+  let owned = {}, bag = {}, tickets = 0, pity = { sinceRare: 0 };
+  const rnd = (function (s) {           // 固定種子，結果可重現
+    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  })(12345);
+
+  const dg = SG.getDungeon('bamboo'), floors = SG.dungeonFloors(dg);
+  const dgR = SG.getDungeon('frontier'), floorsR = SG.dungeonFloors(dgR);
+
+  function have(slug) { return owned[slug] || 0; }
+  function done() { return Object.keys(want).every(s => have(s) >= want[s]); }
+
+  let battles = 0;
+  while (!done() && battles < 5000) {
+    battles++;
+    /* 交替刷竹林鄉與邊境遺跡（EP1 兩種特產都要） */
+    const useR = battles % 3 === 0;
+    const D = useR ? dgR : dg, F = useR ? floorsR : floors;
+    const floor = 1 + (battles % F);
+    const isBoss = floor >= F;
+    /* 用中等表現當代表：留一半生命、6 回合、擊破 3 張 */
+    const sc = SG.battleScore(
+      { turn: 6, winner: 0, stats: { kills: [0, 3] },
+        players: [{ character: { life: 15, maxLife: 30 } }, {}] },
+      { dungeon: D, floor: floor, floors: F, isBoss: isBoss });
+    SG.scoreDrops(sc.total, D, FAC).forEach(m => bag[m.mat] = (bag[m.mat] || 0) + m.n);
+    tickets += isBoss ? 2 : 1;
+
+    if (tickets >= 10) {
+      tickets -= 10;
+      SG.pullPacks(10, pity, rnd).forEach(c => owned[c.slug] = (owned[c.slug] || 0) + 1);
+      /* 多餘的分解 */
+      Object.keys(owned).forEach(slug => {
+        const sp = SG.spareCount(slug, owned);
+        if (sp <= 0) return;
+        owned[slug] -= sp;
+        (SG.disenchantValue(slug) || []).forEach(m => bag[m.mat] = (bag[m.mat] || 0) + m.n * sp);
+      });
+    }
+    /* 合成還缺的 */
+    Object.keys(want).forEach(slug => {
+      while (have(slug) < want[slug] && SG.canCraft(SG.getCard(slug), bag)) {
+        SG.recipeOf(slug).forEach(r => bag[r.mat] -= r.n);
+        owned[slug] = have(slug) + 1;
+      }
+    });
+  }
+
+  const total = Object.keys(want).reduce((s, k) => s + want[k], 0);
+  const got = Object.keys(want).reduce((s, k) => s + Math.min(have(k), want[k]), 0);
+  console.log('');
+  console.log('=== 完整模擬（素材 ＋ 卡包 ＋ 分解）===');
+  console.log('湊齊一副 EP1 公立牌組（' + total + ' 張）：' +
+              (done() ? battles + ' 場' : '未完成（' + got + '/' + total + '，跑了 ' + battles + ' 場）'));
+})();
