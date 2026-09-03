@@ -7,8 +7,15 @@
 
    點數：打贏一關 +1，打贏 BOSS +2。一包 1 點，十連抽 10 點。
 
+   ★ 卡包依「陣營 × 章節」分開，不是一個大池。
+     全部混在一起的話，指定一張雙稀有要 267 包，而同一張用合成只要 6 場 ——
+     卡包會完全沒有存在意義。分開之後縮到約 33 包，
+     仍然是「合成精準、卡包碰運氣」的分工，但不再是天壤之別。
+
    ★ 副本通關 10 次的獎勵角色卡不會進卡池 ——
      那是通關的專屬獎勵，能抽到的話就沒意義了。
+
+   ★ Episode 2 的卡包要先通關一座 Normal 難度的副本才開放。
    ═══════════════════════════════════════════════════════════ */
 var SG = window.SG || (window.SG = {});
 
@@ -19,7 +26,7 @@ var SG = window.SG || (window.SG = {});
   var TEN_COST = 10;
 
   /* 稀有度權重。分層跟合成配方用的是同一套（依分數）。 */
-  var WEIGHT = { 'Common': 70, 'Uncommon': 22, 'Rare': 7, 'Double Rare': 1 };
+  var WEIGHT = { 'Common': 66, 'Uncommon': 23, 'Rare': 9, 'Double Rare': 2 };
 
   /* 保底：連續這麼多張沒開出稀有以上，下一張保證稀有以上 */
   var PITY = 30;
@@ -33,13 +40,49 @@ var SG = window.SG || (window.SG = {});
   }
   SG.rarityOf = rarityOf;
 
-  /* 卡池：可收集、且不是通關獎勵卡 */
-  function pool() {
+  /* 卡包種類：陣營 × 章節。值為 null／'' ＝ 不限。 */
+  SG.PACK_FACTIONS = ['', 'vita', 'academy', 'crux', 'darklore'];
+  SG.PACK_EPISODES = ['', 0, 1, 2];
+
+  /* Episode 2 要先通關一座 Normal 副本才開放 */
+  SG.packEpisodeLocked = function (ep, save) {
+    if (ep !== 2) return null;
+    var d = (save || (SG.Save && SG.Save.data) || {}).dungeons || {};
+    var ok = (SG.DUNGEONS || []).some(function (dg) {
+      return dg.tier !== 'Easy' && d[dg.id] && d[dg.id].clears > 0;
+    });
+    return ok ? null : '要先通關一座 Normal 難度的副本';
+  };
+
+  /* 卡池：可收集、不是通關獎勵卡，再依 filter 篩選
+     filter ＝ { faction, ep }，欄位留空就是不限                */
+  function pool(filter) {
+    filter = filter || {};
     var rewards = {};
     (SG.DUNGEONS || []).forEach(function (d) { rewards[d.reward] = 1; });
-    return SG.collectibleCards().filter(function (c) { return !rewards[c.slug]; });
+    return SG.collectibleCards().filter(function (c) {
+      if (rewards[c.slug]) return false;
+      if (filter.faction && c.faction !== filter.faction) return false;
+      if (filter.ep !== '' && filter.ep !== null && filter.ep !== undefined &&
+          (c.ep || 0) !== filter.ep) return false;
+      return true;
+    });
   }
   SG.packPool = pool;
+
+  /* 這個卡包各稀有度的張數與「抽到指定一張」的期望包數，給 UI 顯示 */
+  SG.packOdds = function (filter) {
+    var by = {};
+    pool(filter).forEach(function (c) {
+      var r = rarityOf(c);
+      by[r] = (by[r] || 0) + 1;
+    });
+    return Object.keys(WEIGHT).map(function (r) {
+      var n = by[r] || 0;
+      return { rarity: r, n: n, weight: WEIGHT[r],
+               packs: n ? Math.round(1 / ((WEIGHT[r] / 100 / n) * CARDS_PER_PACK)) : 0 };
+    });
+  };
 
   /* 依稀有度分組 */
   function byRarity(list) {
@@ -73,10 +116,10 @@ var SG = window.SG || (window.SG = {});
      state ＝ { sinceRare } 保底計數，會被就地更新
      rnd   ＝ 亂數函式（測試可以傳固定序列進來）
      回傳抽到的卡陣列（依抽出順序）                            */
-  SG.pullPacks = function (n, state, rnd) {
+  SG.pullPacks = function (n, state, rnd, filter) {
     rnd = rnd || Math.random;
     state = state || { sinceRare: 0 };
-    var groups = byRarity(pool());
+    var groups = byRarity(pool(filter));
     var out = [], i, guaranteed = n >= 10;   // 十連保底至少一張稀有以上
     var gotHigh = false;
     var totalCards = n * CARDS_PER_PACK;

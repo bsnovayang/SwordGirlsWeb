@@ -542,10 +542,63 @@ console.log('══════ 卡包 ══════');
   w.SG.renderPack();
   ok(!$('btnPull10').disabled, '10 點可以十連抽');
   const own0 = Object.keys(S.data.owned).reduce((n, k) => n + S.data.owned[k], 0);
-  $('btnPull10').click();
+  const mat0 = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+  const ten = S.openPacks(10, null, {});
   eq(S.data.packs.tickets, 0, '十連扣 10 點');
+  eq(ten.cards.length, 10 * w.SG._pack.CARDS_PER_PACK, '十連開出 30 張');
   const own1 = Object.keys(S.data.owned).reduce((n, k) => n + S.data.owned[k], 0);
-  eq(own1 - own0, 10 * w.SG._pack.CARDS_PER_PACK, '十連拿到 30 張卡');
+  eq(own1 - own0 + ten.converted.length, ten.cards.length,
+     '入手的張數＋自動折算的張數＝開出的張數');
+  if (ten.converted.length) {
+    const mat1 = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+    ok(mat1 > mat0, '已達上限的卡自動折成素材（' + mat0 + ' → ' + mat1 + '）');
+  }
+  /* 這次抽卡拿到的每一張，都不會被推到超過牌組上限
+     （合成本身沒有擋上限，所以不能檢查整份持有清單） */
+  ok(Object.keys(ten.gained).every(k => {
+       const c = w.SG.getCard(k);
+       return !c || S.data.owned[k] <= (c.limit || 3);
+     }), '抽卡入手的卡都沒有超過牌組上限');
+  w.SG.renderPack();
+
+
+  /* ── 卡包分陣營 × 分章節 ── */
+  {
+    const fs2 = $('pkFaction'), es = $('pkEp');
+    ok(fs2.options.length === w.SG.PACK_FACTIONS.length, '陣營選單有 5 個選項');
+    ok(es.options.length === w.SG.PACK_EPISODES.length, '章節選單有 4 個選項');
+
+    const all = w.SG.packPool({}).length;
+    const dark = w.SG.packPool({ faction: 'darklore' }).length;
+    const ep2 = w.SG.packPool({ ep: 2 }).length;
+    const both = w.SG.packPool({ faction: 'darklore', ep: 2 }).length;
+    ok(dark < all && ep2 < all, '篩選後池子會變小：全部 ' + all + '／暗黑 ' + dark + '／EP2 ' + ep2);
+    ok(both < dark && both < ep2, '兩軸都選會更小：' + both + ' 張');
+
+    /* 指定卡包的命中率要比大池好 */
+    const oAll = w.SG.packOdds({}).find(o => o.rarity === 'Double Rare');
+    const oBoth = w.SG.packOdds({ faction: 'darklore', ep: 2 }).find(o => o.rarity === 'Double Rare');
+    ok(oBoth.packs < oAll.packs,
+       '分包後抽到指定雙稀有變快：' + oAll.packs + ' 包 → ' + oBoth.packs + ' 包');
+
+    /* 選了陣營就只會開出那個陣營的卡 */
+    S.addTickets(5);
+    const r = S.openPacks(5, null, { faction: 'crux' });
+    ok(!!r && r.cards.every(c => c.faction === 'crux'), '南十字卡包只會開出南十字的卡');
+
+    /* EP2 卡包要先通關 Normal 副本 */
+    w.SG.DUNGEONS.forEach(d => { S.dungeon(d.id).clears = 0; });
+    ok(!!w.SG.packEpisodeLocked(2), '沒通關 Normal 副本時 EP2 卡包是鎖的');
+    ok(!w.SG.packEpisodeLocked(1), 'EP1 卡包一開始就開放');
+    S.addTickets(2);
+    eq(S.openPacks(1, null, { ep: 2 }), null, '鎖著的時候抽不動');
+
+    const nor = w.SG.DUNGEONS.find(d => d.tier !== 'Easy');
+    S.dungeon(nor.id).clears = 1;
+    ok(!w.SG.packEpisodeLocked(2), '通關 Normal 副本後 EP2 卡包開放');
+    const r2 = S.openPacks(1, null, { ep: 2 });
+    ok(!!r2 && r2.cards.every(c => c.ep === 2), '開放後只會開出 EP2 的卡');
+  }
 
   /* 分解 */
   const spares = Object.keys(S.data.owned)

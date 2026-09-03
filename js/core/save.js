@@ -279,31 +279,50 @@ var SG = window.SG || (window.SG = {});
       return p.tickets;
     },
 
-    /* 抽 n 包。點數不足回傳 null。
-       回傳 { cards:[卡], gained:{slug:張數}, fresh:[第一次拿到的卡] } */
-    openPacks: function (n, rnd) {
+    /* 抽 n 包。點數不足或該卡包還沒開放就回傳 null。
+       filter ＝ { faction, ep }，決定要開哪一種卡包。
+       抽到「已經達到牌組上限」的卡會自動轉成素材 ——
+       開包永遠不會是純浪費，也免去開到第 4 張同名卡的挫折。
+       回傳 { cards, gained, fresh, converted, mats, filter }        */
+    openPacks: function (n, rnd, filter) {
       n = Math.max(1, n | 0);
+      filter = filter || {};
       var p = SG.Save.data.packs;
       var cost = n >= 10 ? SG._pack.TEN_COST : n;
       if (p.tickets < cost) return null;
+      if (SG.packEpisodeLocked(filter.ep)) return null;
+      if (!SG.packPool(filter).length) return null;
 
       var owned = SG.Save.data.owned;
       var before = {};
       Object.keys(owned).forEach(function (k) { before[k] = owned[k]; });
 
-      var cards = SG.pullPacks(n, p, rnd);
+      var cards = SG.pullPacks(n, p, rnd, filter);
       p.tickets -= cost;
       p.pulls += cards.length;
 
-      var gained = {};
+      var gained = {}, converted = [], bag = {};
       cards.forEach(function (c) {
-        owned[c.slug] = (owned[c.slug] || 0) + 1;
+        var have = owned[c.slug] || 0;
+        if (have >= (c.limit || 3)) {
+          /* 已經滿了 → 直接折成素材 */
+          converted.push(c);
+          (SG.disenchantValue(c) || []).forEach(function (m) {
+            bag[m.mat] = (bag[m.mat] || 0) + m.n;
+          });
+          return;
+        }
+        owned[c.slug] = have + 1;
         gained[c.slug] = (gained[c.slug] || 0) + 1;
       });
+
+      var mats = Object.keys(bag).map(function (k) { return { mat: k, n: bag[k] }; });
+      if (mats.length) SG.Save.addMaterials(mats);      // 內含 save()
+
       SG.Save.bump('pack', n);
       SG.Save.save();
       return {
-        cards: cards, gained: gained,
+        cards: cards, gained: gained, converted: converted, mats: mats, filter: filter,
         fresh: cards.filter(function (c) { return !before[c.slug]; })
       };
     },
