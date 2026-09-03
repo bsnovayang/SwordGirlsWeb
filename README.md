@@ -128,17 +128,33 @@ node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷
 | 來源 | 提供的內容 |
 |---|---|
 | [SwordGirls@wiki（繁中）](https://w.atwiki.jp/swordgirls/) | 官方繁中卡名、日文卡名、效果、風味文字、SIZE／分數／張數上限，以及三個陣營的攻/防/體 |
-| [Sword Girls Wiki（英文，archive.org 存檔）](https://swordgirls.fandom.com/wiki/Sword_Girls_Wiki) | 卡號、英文卡名、南十字陣營隨從的攻/防/體（繁中 wiki 該欄是空的） |
+| [Sword Girls Wiki（英文）](https://swordgirls.fandom.com/) | 卡號、英文卡名、繁中 wiki 空白欄位的攻/防/體、真實合成配方 |
 
 隨從數值來源統計：**繁中 wiki 24 張、英文 wiki 6 張、估算 2 張**。
 
-估算的兩張是 `新入騎士團員`(New Knight) 與 `騎士團的旗手、佛雷特`(Flag Knight Frett) 的
-攻/防/體 —— 繁中 wiki 該欄空白，且這兩頁 archive.org 沒有存檔、Fandom 本站擋抓取。
-它們在 `cards.js` 標了 `prov: true`，遊戲內詳情面板會顯示「※ 數值為暫定值」。
-其餘欄位（SIZE、分數、上限、效果）仍是原始資料。
+估算的兩張是 `新入騎士團員`(New Knight) 與 `騎士團的旗手、佛雷特`(Flag Knight Frett)
+的攻/防/體。它們在 `cards.js` 標了 `prov: true`，遊戲內詳情面板會顯示
+「※ 數值為暫定值」。其餘欄位（SIZE、分數、上限、效果）仍是原始資料。
+
+> 這兩張的真實數值後來在英文 wiki 找到了（見下），尚未套用回 `cards.js`。
 
 另有一處兩邊矛盾：繁中 wiki 標 `閃失`(Accident) 張數上限 1，但新手牌組收 2 張，
 英文卡片頁也寫 3 —— 採用 3。
+
+### 尚未匯入的完整卡表
+
+英文 Sword Girls Wiki 的線上版可直接讀取（先前只試過 archive.org 存檔，
+那邊多數卡頁沒存到）。它的卡片頁是結構化的 `{{CardTable}}` 模板，補上了
+繁中 wiki 從 Episode 1 起就留空的「攻/防/體」欄位。
+
+已抓下來存成 `tools/fandom_cards.json`：**526 張**（隨從 244 / 咒語 236 / 角色 46），
+523 張數值完整、524 張有卡號、457 張有真實合成配方，橫跨 Episode 0～6。
+
+抓取方式刻意放輕（MediaWiki API 批次、548 張只用 11 次請求、落地快取），
+交叉驗證顯示兩個來源在 65 張共有卡上只有 3 筆不一致。
+細節與重跑指令見 [tools/README.md](tools/README.md)。
+
+**這批資料尚未匯入遊戲**，目前卡池仍是上面列的 Episode 0＋1。
 
 ### 副本與素材的關係
 
