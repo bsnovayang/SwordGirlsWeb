@@ -334,6 +334,45 @@ console.log('══════ 副本畫面 ══════');
   ok(/挑戰/.test($('btnChallenge').textContent), '挑戰鈕：' + $('btnChallenge').textContent);
   ok(!$('btnChallenge').disabled, '牌組可用時挑戰鈕可按');
 
+  /* 打過的樓層要能點選重打 */
+  {
+    const dg = w.SG.getDungeon('beginner');
+    const st = w.SG.Save.dungeon(dg.id);
+    eq(st.floor, 1, '一開始在第 1 層');
+    ok(d.querySelectorAll('#flFloors .fl-row.locked').length === 2,
+       '還沒到的樓層是鎖著的');
+
+    /* 爬到第 3 層 */
+    w.SG.Save.dungeonWin(dg, { total: 300 }, 'vita', 1);
+    w.SG.Save.dungeonWin(dg, { total: 300 }, 'vita', 2);
+    w.SG.renderFloor();
+    eq(st.floor, 3, '爬到第 3 層');
+    const open = d.querySelectorAll('#flFloors .fl-row.open');
+    eq(open.length, 3, '三層都可以點選');
+    ok(/挑戰 BOSS/.test($('btnChallenge').textContent),
+       '預設挑戰目前這層：' + $('btnChallenge').textContent);
+
+    /* 點第 1 層 → 挑戰目標要跟著改 */
+    const f1 = d.querySelector('#flFloors .fl-row[data-floor="1"]');
+    ok(!!f1, '第 1 層那列可以點');
+    f1.click();
+    ok(/1F/.test($('btnChallenge').textContent) && /重打/.test($('btnChallenge').textContent),
+       '選了打過的樓層，挑戰鈕標示重打：' + $('btnChallenge').textContent);
+    ok(f1.classList.contains('sel') ||
+       !!d.querySelector('#flFloors .fl-row[data-floor="1"].sel'), '被選的那層有標示');
+    eq(st.floor, 3, '只是選樓層，進度沒有被改動');
+
+    /* 選回目前這層 */
+    d.querySelector('#flFloors .fl-row[data-floor="3"]').click();
+    ok(!/重打/.test($('btnChallenge').textContent),
+       '選回目前這層就不是重打：' + $('btnChallenge').textContent);
+
+    /* 還原進度，不要影響後面的測試 */
+    st.floor = 1; st.clears = 0;
+    w.SG.Save.save();
+    w.SG.renderFloor();
+  }
+
   // 出戰牌組可以直接在副本畫面挑
   const dsel = $('flDeck');
   ok(dsel.options.length >= 4, '副本畫面可以選出戰牌組：' + dsel.options.length + ' 副');

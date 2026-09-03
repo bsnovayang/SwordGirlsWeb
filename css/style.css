@@ -698,3 +698,13 @@ button.has-pending{position:relative;border-color:var(--ok);
   .pk-buy{flex-direction:column;align-items:stretch}
 }
 .drop-tk{background:#fffbe9;border-color:var(--gold);color:#8a6d0b}
+
+/* ── 樓層可點選（打過的關可以重打）───────────────────── */
+.fl-hint{max-width:620px;margin:0 auto 8px;text-align:center}
+.fl-row.open{cursor:pointer}
+.fl-row.open:hover{background:#f3ede0}
+.fl-row.locked{opacity:.38}
+.fl-row.done{opacity:.72}
+.fl-row.sel{outline:2px solid var(--gold);background:#fff8e2}
+.fl-row.sel.done{opacity:1}
+.fl-row.sel .fl-no{font-weight:700}

@@ -245,6 +245,54 @@ console.log('══════ 副本進度 ══════');
   ok(Object.keys(S.data.materials).length >= 3, '掉落有多種素材');
 }
 
+console.log('══════ 打過的樓層可以重打 ══════');
+{
+  const S = SG.Save;
+  S.reset();
+  const dg = SG.getDungeon('bamboo'), max = SG.dungeonFloors(dg);
+  const st = S.dungeon(dg.id);
+  const SC = { total: 336 };
+
+  /* 先爬三層 */
+  S.dungeonWin(dg, SC, 'vita'); S.dungeonWin(dg, SC, 'vita'); S.dungeonWin(dg, SC, 'vita');
+  eq(st.floor, 4, '連贏三場 → 進度到第 4 層');
+
+  /* 重打舊樓層：拿得到素材與點數，但進度不動 */
+  const mat0 = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+  const tk0 = S.data.packs.tickets;
+  const r = S.dungeonWin(dg, SC, 'vita', 2);
+  eq(st.floor, 4, '重打第 2 層贏了，進度不變');
+  eq(r.progress, false, '結果標記為「非進度挑戰」');
+  ok(r.tickets === 1, '重打一樣拿得到卡包點數');
+  const mat1 = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+  ok(mat1 > mat0, '重打一樣拿得到素材');
+  ok(S.data.packs.tickets > tk0, '點數有增加');
+
+  /* 重打舊樓層輸了不會退層 */
+  const lose = S.dungeonLose(dg, 2);
+  eq(st.floor, 4, '重打舊樓層輸了不退層');
+  eq(lose.progress, false, '輸的結果也標記為非進度挑戰');
+
+  /* 打目前這層才會推進 */
+  S.dungeonWin(dg, SC, 'vita', 4);
+  eq(st.floor, 5, '打贏目前的樓層才會往上');
+
+  /* 打目前這層輸了會退 */
+  S.dungeonLose(dg, 5);
+  eq(st.floor, 4, '打目前這層輸了退一層');
+
+  /* 重打 BOSS 層不能刷通關次數 —— 進度沒到 BOSS 就不算通關 */
+  st.floor = max; st.clears = 0;
+  const c1 = S.dungeonWin(dg, SC, 'vita', max);
+  eq(c1.cleared, true, '進度到 BOSS 層打贏＝通關');
+  eq(st.clears, 1, '通關次數 +1');
+  eq(st.floor, 1, '通關後回到第 1 層');
+
+  const c2 = S.dungeonWin(dg, SC, 'vita', 1);
+  eq(c2.cleared, false, '回到第 1 層後重打第 1 層不算通關');
+  eq(st.clears, 1, '通關次數沒有被灌水');
+}
+
 console.log('══════ BOSS 與獎勵卡的效果 ══════');
 {
   ['boss_nold', 'boss_cannelle', 'boss_gart', 'nold', 'cannelle', 'gart'].forEach(slug => {

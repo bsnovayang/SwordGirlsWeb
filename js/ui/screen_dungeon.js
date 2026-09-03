@@ -7,6 +7,9 @@ var SG = window.SG || (window.SG = {});
   'use strict';
 
   var $ = function (id) { return document.getElementById(id); };
+  /* 這次要打第幾層。null ＝ 跟著目前進度層走；只有玩家點了樓層才會設值，
+     這樣爬上去之後預設仍然是挑戰新的那一層，不會黏在舊選擇上。 */
+  var picked = null;
   var current = null;                 // 目前進入的副本
 
   /* ────────── S3 副本清單 ────────── */
@@ -39,6 +42,7 @@ var SG = window.SG || (window.SG = {});
 
   function enter(id) {
     current = SG.getDungeon(id);
+    picked = null;
     SG.go('floor');
   }
 
@@ -55,23 +59,42 @@ var SG = window.SG || (window.SG = {});
       '<span class="chip">通關次數 <b>' + st.clears + ' / 10</b></span>' +
       '<span class="chip">獎勵 <b>' + reward.name + '</b>' + (got ? '（已取得）' : '') + '</span>';
 
+    /* 打過的樓層可以重打（1 ～ 目前進度層），但不能跳過還沒到的樓層。
+       選過的樓層若已經高於現在的進度（例如輸了退層），就退回跟著進度。 */
+    if (picked !== null && !(picked >= 1 && picked <= st.floor)) picked = null;
+    var cur = picked === null ? st.floor : picked;
+
     var host = $('flFloors');
     host.innerHTML = '';
     for (var f = max; f >= 1; f--) {
       var foe = SG.dungeonFoe(dg, f);
       var ch = SG.getCard(foe.deck.character);
+      var open = f <= st.floor;
       var row = document.createElement('div');
       row.className = 'fl-row' + (f === st.floor ? ' now' : '') +
-                      (f < st.floor ? ' done' : '') + (foe.boss ? ' boss' : '');
+                      (f < st.floor ? ' done' : '') + (foe.boss ? ' boss' : '') +
+                      (open ? ' open' : ' locked') + (f === cur ? ' sel' : '');
       row.innerHTML =
         '<span class="fl-no">' + (f === max ? 'BOSS' : f + 'F') + '</span>' +
         '<span class="fl-foe">' + foe.name +
           (ch.tl ? '<i class="fl-tl" title="名稱為暫譯">暫譯</i>' : '') + '</span>' +
         '<span class="fl-life">♥ ' + ch.life + '</span>' +
         (ch.effect ? '<span class="fl-eff">' + ch.effect + '</span>' : '<span class="fl-eff"></span>');
+      if (open) {
+        row.dataset.floor = f;
+        row.addEventListener('click', function () {
+          picked = +this.dataset.floor;
+          SG.renderFloor();
+        });
+      }
       SG.UI.attachTip(row, ch, 'floor' + f);
       host.appendChild(row);
     }
+
+    $('flHint').innerHTML = st.floor > 1
+      ? '打過的樓層可以點選重打（練功、刷素材），<b>輸了不會退層、贏了也不會推進進度</b>。' +
+        '要往上就打目前的第 ' + st.floor + ' 層。'
+      : '往上一層要先打贏目前這層。打過之後就能回頭重打。';
 
     renderDeckPicker(st, max);
   };
@@ -111,11 +134,12 @@ var SG = window.SG || (window.SG = {});
       (errs.length ? '　<span class="bad">' + errs[0] + '</span>' : '');
 
     var usable = data.decks.filter(function (x) { return !SG.deckErrors(x).length; }).length;
+    var f = (picked !== null && picked >= 1 && picked <= st.floor) ? picked : st.floor;
     $('btnChallenge').disabled = errs.length > 0;
     $('btnChallenge').textContent = !usable
       ? '沒有可用的牌組'
       : errs.length ? '這副牌組不可用'
-      : '挑戰 ' + (st.floor >= max ? 'BOSS' : st.floor + 'F');
+      : '挑戰 ' + (f >= max ? 'BOSS' : f + 'F') + (f < st.floor ? '（重打）' : '');
   }
 
   /* ────────── 挑戰 ────────── */
@@ -125,10 +149,12 @@ var SG = window.SG || (window.SG = {});
     var st = SG.Save.dungeon(dg.id);
     var dk = SG.Save.activeDeck();
     if (!dk || SG.deckErrors(dk).length) return;
-    var foe = SG.dungeonFoe(dg, st.floor);
+    var floor = (picked !== null && picked >= 1 && picked <= st.floor) ? picked : st.floor;
+    var foe = SG.dungeonFoe(dg, floor);
 
     SG.go('battle');
-    SG.startBattle(dk, foe.deck, '', { onEnd: function (g) { return settle(dg, g, dk); } });
+    SG.startBattle(dk, foe.deck, '',
+      { onEnd: function (g) { return settle(dg, g, dk, floor); } });
   }
 
   /* 評價明細（參考遊戲王 Duel Links 的結算加分） */
@@ -146,19 +172,22 @@ var SG = window.SG || (window.SG = {});
 
   /* 戰鬥結束 → 結算副本進度，回傳要顯示在結算視窗的 HTML
      ※ 樓層要在 dungeonWin() 推進之前先讀，評價的樓層倍率算的是「這場打的那層」 */
-  function settle(dg, g, dk) {
+  function settle(dg, g, dk, floor) {
     var st = SG.Save.dungeon(dg.id);
+    if (!(floor >= 1)) floor = st.floor;
     if (g.winner !== 0) {
-      var lose = SG.Save.dungeonLose(dg);
+      var lose = SG.Save.dungeonLose(dg, floor);
       return '<div class="rs-dg">' +
-        (lose.wasBoss ? '敗給 BOSS —— 退回第 1 層' : '往下一層 → 第 ' + lose.floor + ' 層') +
+        (!lose.progress ? '重打失敗 —— 樓層進度不變（仍在第 ' + lose.floor + ' 層）'
+         : lose.wasBoss ? '敗給 BOSS —— 退回第 1 層'
+         : '往下一層 → 第 ' + lose.floor + ' 層') +
         '</div>';
     }
-    var floors = SG.dungeonFloors(dg), floor = st.floor;
+    var floors = SG.dungeonFloors(dg);
     var sc = SG.battleScore(g, {
       dungeon: dg, floor: floor, floors: floors, isBoss: floor >= floors
     });
-    var win = SG.Save.dungeonWin(dg, sc, SG.Save.deckFaction(dk));
+    var win = SG.Save.dungeonWin(dg, sc, SG.Save.deckFaction(dk), floor);
     var drops = win.drops.map(function (m) {
       return '<span class="drop">' + SG.matName(m.mat) + ' ×' + m.n + '</span>';
     }).join('');
@@ -166,7 +195,8 @@ var SG = window.SG || (window.SG = {});
     var html = scoreHtml(sc) +
       '<div class="rs-dg">' +
       (win.cleared ? '★ 通關！累計 ' + st.clears + ' 次（樓層回到第 1 層）'
-                   : '往上一層 → 第 ' + st.floor + ' 層') + '</div>' +
+       : !win.progress ? '重打第 ' + floor + ' 層　樓層進度不變（仍在第 ' + st.floor + ' 層）'
+       : '往上一層 → 第 ' + st.floor + ' 層') + '</div>' +
       '<div class="rs-drops">' + drops +
       '<span class="drop drop-tk">卡包點數 ×' + win.tickets + '</span></div>';
     if (win.gotReward) {

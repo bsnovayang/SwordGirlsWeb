@@ -459,19 +459,25 @@ var SG = window.SG || (window.SG = {});
     /* 打贏一場：BOSS 層 → 通關（回第 1 層、次數 +1），否則往上一層
        score ＝ SG.battleScore() 的結果，faction ＝ 玩家角色的陣營。
        掉落量由評價分數決定，見 js/core/score.js。                       */
-    dungeonWin: function (dg, score, faction) {
+    dungeonWin: function (dg, score, faction, floor) {
       var st = SG.Save.dungeon(dg.id);
       var last = SG.dungeonFloors(dg);
-      var res = { cleared: false, gotReward: false, drops: [] };
+      /* floor ＝ 這一場實際打的樓層。沒傳就當作打的是目前進度層。
+         打「已經過關的舊樓層」是純練功：照樣拿素材與點數，但不推進進度，
+         也不算通關 —— 否則就能一直重打 BOSS 刷通關次數。            */
+      if (!(floor >= 1)) floor = st.floor;
+      var isProgress = floor >= st.floor;
+      var res = { cleared: false, gotReward: false, drops: [], floor: floor,
+                  progress: isProgress };
 
       var ore = SG.scoreDrops(score && score.total ? score.total : 0, dg, faction);
 
       SG.Save.bump('dungeonWin');
       /* 卡包點數：打贏一關 +1，打贏 BOSS +2 */
-      res.tickets = (st.floor >= last) ? 2 : 1;
+      res.tickets = (floor >= last) ? 2 : 1;
       SG.Save.data.packs.tickets += res.tickets;
 
-      if (st.floor >= last) {
+      if (isProgress && st.floor >= last) {
         res.cleared = true;
         SG.Save.bump('dungeonClear');
         var extra = st.clears >= 10 ? dg.clearDropAfter : dg.clearDrop;
@@ -482,7 +488,7 @@ var SG = window.SG || (window.SG = {});
           SG.Save.addOwned(dg.reward, 1);
           res.gotReward = true;
         }
-      } else {
+      } else if (isProgress) {
         st.floor++;
       }
       res.drops = ore;
@@ -492,13 +498,16 @@ var SG = window.SG || (window.SG = {});
     },
 
     /* 輸了：往下一層；輸給 BOSS 直接退回第 1 層 */
-    dungeonLose: function (dg) {
+    dungeonLose: function (dg, floor) {
       var st = SG.Save.dungeon(dg.id);
       var last = SG.dungeonFloors(dg);
+      if (!(floor >= 1)) floor = st.floor;
+      /* 重打舊樓層輸了不會倒退 —— 那不是進度挑戰 */
+      if (floor < st.floor) return { wasBoss: false, floor: st.floor, progress: false };
       var wasBoss = st.floor >= last;
       st.floor = wasBoss ? 1 : Math.max(1, st.floor - 1);
       SG.Save.save();
-      return { wasBoss: wasBoss, floor: st.floor };
+      return { wasBoss: wasBoss, floor: st.floor, progress: true };
     },
 
     /* ── 匯出 / 匯入 ── */
