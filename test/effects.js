@@ -881,6 +881,51 @@ console.log('══════ 「攻擊前」拿得到防禦目標（走完整
 }
 
 console.log('');
+console.log('══════ 技能可以被拿掉／給予／複製 ══════');
+{
+  /* Episode 2 起有卡片會「發動後失去技能」「把技能給別人」「複製對手的技能」，
+     所以能力要跟著場上這張實體走，不能只看卡片定義。 */
+  const g = board();
+  const a = put(g, 0, 0, 'striker');          // 攻擊前：防禦隨從體力 -1
+  const plain = put(g, 0, 1, 'kouhai');       // 純數值卡，沒有技能
+  const d = put(g, 1, 0, 'kouhai');
+
+  ok(SG.hasSkill(a), '有效果的卡帶著技能');
+  ok(!SG.hasSkill(plain), '純數值卡沒有技能');
+
+  /* 拿掉技能之後就不再發動 */
+  const sta0 = d.sta;
+  fire(g, 0, 0, 'beforeAttack', { defender: d });
+  eq(d.sta, sta0 - 1, '拿掉之前效果正常發動');
+  a.skills = [];
+  ok(!SG.hasSkill(a), '技能被拿掉了');
+  fire(g, 0, 0, 'beforeAttack', { defender: d });
+  eq(d.sta, sta0 - 1, '技能拿掉後不再發動');
+
+  /* 給予技能：把前鋒的技能給沒有技能的下級生 */
+  plain.skills = ['striker'];
+  ok(SG.hasSkill(plain), '被授予技能後算「有技能」');
+  fire(g, 0, 1, 'beforeAttack', { defender: d });
+  eq(d.sta, sta0 - 2, '被授予的技能會發動');
+
+  /* 一張卡可以同時帶多個技能，會依序發動 */
+  const multi = put(g, 0, 2, 'kouhai');
+  multi.skills = ['striker', '2s_assistant_asmis'];   // 防禦者 -1 體、自己 +1 攻
+  const atk0 = multi.atk, sta1 = d.sta;
+  fire(g, 0, 2, 'beforeAttack', { defender: d });
+  eq(d.sta, sta1 - 1, '多技能：第一個技能生效');
+  eq(multi.atk, atk0 + 1, '多技能：第二個技能也生效');
+}
+
+{
+  /* 推演用的複製不能共用 skills 陣列，否則 AI 想一想就會改到真正的對局 */
+  const g = board();
+  const a = put(g, 0, 0, 'striker');
+  const g2 = SG.cloneGame(g, 'clone1');
+  g2.players[0].field[0].skills = [];
+  ok(a.skills.length === 1, 'cloneGame 之後改副本的技能，不會影響本體');
+}
+
 console.log('══════ 涵蓋率 ══════');
 {
   const all = SG.allCards();

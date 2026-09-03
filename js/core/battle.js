@@ -42,7 +42,11 @@ var SG = window.SG || (window.SG = {});
       size: d.size,
       atk: d.atk | 0, def: d.def | 0, sta: d.sta | 0,
       baseAtk: d.atk | 0, baseDef: d.def | 0, baseSta: d.sta | 0,
-      activated: false, faceDown: false
+      activated: false, faceDown: false,
+      /* 這張卡目前帶的技能（SG.Effects 的鍵）。
+         Episode 2 起有卡片會「發動後失去技能」「把技能給別人」「複製對手的技能」，
+         所以能力不能只看卡片定義，要跟著場上的這一張實體走。      */
+      skills: SG.Effects && SG.Effects[cardId] ? [cardId] : []
     };
   }
 
@@ -547,18 +551,64 @@ var SG = window.SG || (window.SG = {});
         if (s2 >= 0) toGrave(g, ev, op, s2, true);
       },
       move: function (fromPi, fromSlot, toPi) { return moveCard(g, ev, fromPi, fromSlot, toPi); },
-      slotOf: function (target) { var op = sideOf(g, target); return slotOfCard(g, op, target); }
+      slotOf: function (target) { var op = sideOf(g, target); return slotOfCard(g, op, target); },
+
+      /* ── 技能的增刪（Episode 2 起才有的機制）──────────────
+         技能用 SG.Effects 的鍵表示，跟著場上這張實體走。       */
+      hasSkill: function (target) { return SG.hasSkill(target); },
+
+      /* 拿掉技能。不帶參數＝拿掉自己的（「發動後失去此技能」） */
+      loseSkills: function (target) {
+        var t = target || card;
+        if (!t || !t.skills || !t.skills.length) return false;
+        t.skills = [];
+        E(ev, g, { t: 'skill', player: pi, card: t, mode: 'lose' });
+        return true;
+      },
+
+      /* 給予技能。key ＝ SG.Effects 的鍵（通常借用另一張卡的 id） */
+      grantSkill: function (target, key) {
+        if (!target || !SG.Effects[key]) return false;
+        target.skills = (target.skills || []).slice();
+        if (target.skills.indexOf(key) < 0) target.skills.push(key);
+        E(ev, g, { t: 'skill', player: pi, card: target, mode: 'grant', key: key });
+        return true;
+      },
+
+      /* 複製 from 身上的技能給 to（最多 n 個） */
+      copySkills: function (from, to, n) {
+        if (!from || !to || !from.skills || !from.skills.length) return false;
+        var take = from.skills.slice(0, n || from.skills.length);
+        to.skills = (to.skills || []).slice();
+        take.forEach(function (k) { if (to.skills.indexOf(k) < 0) to.skills.push(k); });
+        E(ev, g, { t: 'skill', player: pi, card: to, mode: 'copy', n: take.length });
+        return take.length > 0;
+      }
     };
   }
 
   function fireAbility(g, ev, card, pi, slot, when, extra) {
-    var e = SG.Effects[card.id];
-    if (!e) return false;
-    if (e.dungeonOnly) return true;        // 副本限定：一般對戰不發動，但算「已處理」
-    if (typeof e[when] !== 'function') return false;
-    e[when](makeCtx(g, ev, card, pi, slot, extra));
-    return true;
+    var list = card.skills || (SG.Effects[card.id] ? [card.id] : []);
+    var handled = false;
+    for (var i = 0; i < list.length; i++) {
+      var e = SG.Effects[list[i]];
+      if (!e) continue;
+      if (e.dungeonOnly) { handled = true; continue; }   // 副本限定：不發動但算已處理
+      if (typeof e[when] !== 'function') continue;
+      e[when](makeCtx(g, ev, card, pi, slot, extra));
+      handled = true;
+      /* 效果可能讓這張卡離場（自爆、被送墓），離場就別再跑後面的技能 */
+      if (g.players[pi].field[slot] !== card) break;
+    }
+    return handled;
   }
+
+  /* 這張卡身上還有沒有技能（Episode 2 有卡片專門針對「有技能的隨從」） */
+  SG.hasSkill = function (card) {
+    if (!card || !card.skills) return false;
+    for (var i = 0; i < card.skills.length; i++) if (SG.Effects[card.skills[i]]) return true;
+    return false;
+  };
 
   /* ── 複製整個對局，給 AI 推演用 ──
      rnd 是 closure 沒辦法直接複製，所以用新的種子重建；
@@ -567,6 +617,7 @@ var SG = window.SG || (window.SG = {});
     if (!c) return null;
     var o = {};
     for (var k in c) o[k] = c[k];
+    if (c.skills) o.skills = c.skills.slice();   // 陣列要另外複製，不然推演會改到本體
     return o;
   }
 

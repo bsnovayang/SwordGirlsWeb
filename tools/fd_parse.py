@@ -36,6 +36,10 @@ def parse(title):
     if mats:
         c['materials'] = mats
     c.pop('image', None)
+    # 有些頁面的 name 欄直接寫 {{PAGENAME}}（照頁名帶入），
+    # 解析出來會變成字面上的 '{{PAGENAME'，此時真名要用頁面標題。
+    if not c.get('name') or c['name'].startswith('{{'):
+        c['name'] = title
     return c
 
 if __name__ == '__main__':

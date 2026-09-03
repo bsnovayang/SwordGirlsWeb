@@ -2543,7 +2543,7 @@
  },
  {
   "title": "Child Sita",
-  "name": "{{PAGENAME",
+  "name": "Child Sita",
   "faction": "Vita",
   "id": "100050",
   "type": "Character",
@@ -7505,7 +7505,7 @@
  {
   "title": "Gart",
   "id": "100009",
-  "name": "{{PAGENAME",
+  "name": "Gart",
   "type": "Character",
   "points": 25,
   "limit": 1,
@@ -7583,7 +7583,7 @@
  {
   "title": "Ginger",
   "id": "100006",
-  "name": "{{PAGENAME",
+  "name": "Ginger",
   "type": "Character",
   "points": 25,
   "limit": 1,
@@ -7824,7 +7824,7 @@
  {
   "title": "Head Knight Jaina",
   "id": "100043",
-  "name": "{{PAGENAME",
+  "name": "Head Knight Jaina",
   "type": "Character",
   "points": 20,
   "limit": 1,
@@ -8997,7 +8997,7 @@
  {
   "title": "Laevateinn",
   "id": "100041",
-  "name": "{{PAGENAME",
+  "name": "Laevateinn",
   "type": "Character",
   "points": 25,
   "limit": 1,
@@ -10401,7 +10401,7 @@
  {
   "title": "Luthica's Ward",
   "id": "200061",
-  "name": "{{PAGENAME",
+  "name": "Luthica's Ward",
   "type": "Spell",
   "size": 2,
   "points": 50,
@@ -13945,7 +13945,7 @@
  {
   "title": "Rio",
   "id": "120014",
-  "name": "{{PAGENAME",
+  "name": "Rio",
   "type": "Character",
   "points": 1,
   "limit": 0,
@@ -18986,7 +18986,7 @@
  {
   "title": "Visitor Ophelia",
   "id": "300105",
-  "name": "{{PAGENAME",
+  "name": "Visitor Ophelia",
   "type": "Follower",
   "size": 4,
   "points": 50,
