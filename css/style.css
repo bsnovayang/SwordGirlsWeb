@@ -621,3 +621,38 @@ button.has-pending{position:relative;border-color:var(--ok);
   .log{min-height:70px;max-height:90px}
   .slot{min-height:78px}
 }
+
+/* ── 副本結算的戰鬥評價 ───────────────────────────────── */
+.rs-score {
+  margin: 0 auto 14px;
+  max-width: 300px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  text-align: left;
+}
+.sc-head {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-bottom: 6px;
+}
+.sc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  padding: 2px 0;
+}
+.sc-row b { font-variant-numeric: tabular-nums; }
+.sc-mul b { color: var(--gold); }
+.sc-total {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+}
+.sc-total b { color: var(--gold); font-size: 18px; }

@@ -384,16 +384,15 @@ var SG = window.SG || (window.SG = {});
       return d[id];
     },
 
-    /* 打贏一場：BOSS 層 → 通關（回第 1 層、次數 +1），否則往上一層 */
-    dungeonWin: function (dg) {
+    /* 打贏一場：BOSS 層 → 通關（回第 1 層、次數 +1），否則往上一層
+       score ＝ SG.battleScore() 的結果，faction ＝ 玩家角色的陣營。
+       掉落量由評價分數決定，見 js/core/score.js。                       */
+    dungeonWin: function (dg, score, faction) {
       var st = SG.Save.dungeon(dg.id);
       var last = SG.dungeonFloors(dg);
       var res = { cleared: false, gotReward: false, drops: [] };
 
-      var ore = [];
-      ore.push({ mat: dg.ore, n: 1 });
-      var ores = ['ore_green', 'ore_red', 'ore_blue', 'ore_black'];
-      ore.push({ mat: ores[Math.floor(Math.random() * ores.length)], n: dg.dropOre });
+      var ore = SG.scoreDrops(score && score.total ? score.total : 0, dg, faction);
 
       SG.Save.bump('dungeonWin');
       if (st.floor >= last) {

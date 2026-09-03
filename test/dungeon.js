@@ -3,7 +3,7 @@ const fs = require('fs'), path = require('path');
 global.window = global;
 function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8')); }
 ['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/core/save.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/effects_ep1.js',
+ 'js/data/dungeons.js', 'js/core/save.js', 'js/core/score.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/effects_ep1.js',
  'js/core/ai.js'].forEach(load);
 
 /* localStorage 替身 */
@@ -133,6 +133,77 @@ console.log('══════ 合成 ══════');
   ok(topUp.length > 0, '初始狀態就有 ' + topUp.length + ' 張卡沒到牌組上限，可以靠合成補滿');
 }
 
+console.log('══════ 戰鬥評價與掉落 ══════');
+{
+  /* 假的對局狀態，只放評價會讀到的欄位 */
+  function fake(life, max, turn, kills) {
+    return { turn: turn, winner: 0, stats: { kills: [0, kills] },
+             players: [{ character: { life: life, maxLife: max } }, {}] };
+  }
+  const dgE = SG.getDungeon('beginner');      // Easy
+  const dgN = SG.getDungeon('frontier');      // Normal
+
+  const perfect = SG.battleScore(fake(30, 30, 1, 3), { dungeon: dgE, floor: 1, floors: 3 });
+  const rough   = SG.battleScore(fake(3, 30, 12, 0), { dungeon: dgE, floor: 1, floors: 3 });
+  ok(perfect.total > rough.total, '打得漂亮分數比較高',
+     perfect.total + ' vs ' + rough.total);
+
+  /* 各項加分要真的有作用 */
+  const base = SG.battleScore(fake(15, 30, 6, 0), { dungeon: dgE, floor: 1, floors: 3 });
+  ok(SG.battleScore(fake(25, 30, 6, 0), { dungeon: dgE, floor: 1, floors: 3 }).total > base.total,
+     '生命留得多，分數高');
+  ok(SG.battleScore(fake(15, 30, 3, 0), { dungeon: dgE, floor: 1, floors: 3 }).total > base.total,
+     '回合數少，分數高');
+  ok(SG.battleScore(fake(15, 30, 6, 4), { dungeon: dgE, floor: 1, floors: 3 }).total > base.total,
+     '擊破越多，分數高');
+
+  /* 倍率 */
+  const f1 = SG.battleScore(fake(15, 30, 6, 2), { dungeon: dgN, floor: 1, floors: 30 });
+  const f30 = SG.battleScore(fake(15, 30, 6, 2), { dungeon: dgN, floor: 30, floors: 30, isBoss: true });
+  ok(f30.total > f1.total * 1.5, '越深的樓層 + BOSS 倍率明顯更高',
+     f1.total + ' → ' + f30.total);
+  const easy = SG.battleScore(fake(15, 30, 6, 2), { dungeon: dgE, floor: 1, floors: 3 });
+  ok(f1.total > easy.total, 'Normal 難度比 Easy 給得多', easy.total + ' vs ' + f1.total);
+
+  /* 掉落：總量要等於分數換算的單位數，而且陣營礦石發的是自己的 */
+  const drops = SG.scoreDrops(336, SG.getDungeon('bamboo'), 'darklore');
+  const units = drops.reduce((s, d) => s + d.n, 0);
+  eq(units, Math.round(336 / SG._score.PER_UNIT), '掉落總量＝分數 ÷ PER_UNIT');
+  ok(drops.some(d => d.mat === 'ore_black'), '陣營礦石發的是自己陣營（暗黑→黑色礦石）');
+  ok(!drops.some(d => d.mat === 'ore_green' || d.mat === 'ore_red' || d.mat === 'ore_blue'),
+     '不會發到別的陣營礦石');
+  ok(drops.some(d => d.mat === 'bamboo'), '竹林鄉會發專屬素材「竹」');
+
+  /* 陣營要從角色卡推導 —— 存檔裡的牌組物件沒有 faction 欄位。
+     以前這裡傳 dk.faction（undefined），結果 fallback 成白礦石，
+     等於完全沒發陣營礦石，而且不會報錯。                        */
+  {
+    const dk = SG.Save.activeDeck();
+    const fac = SG.Save.deckFaction(dk);
+    ok(!!fac, '從牌組推導得出陣營', String(fac));
+    ok(dk.faction === undefined,
+       '存檔的牌組物件本身沒有 faction 欄位（所以一定要用 deckFaction）');
+    const d = SG.scoreDrops(336, SG.getDungeon('bamboo'), fac);
+    ok(d.some(x => x.mat === SG.factionOre(fac)),
+       '照 deckFaction 發得到該陣營的礦石');
+    ok(!SG.scoreDrops(336, SG.getDungeon('bamboo'), undefined)
+          .some(x => SG.MATERIALS[x.mat] && SG.MATERIALS[x.mat].faction),
+       '陣營給錯時不會硬塞別人的礦石（退回白礦石）');
+  }
+
+  /* 一場勝利大致做得出一張基本卡 */
+  {
+    const common = SG.collectibleCards()
+      .filter(c => c.ep === 1 && c.faction === 'vita' && c.points <= 1);
+    const cost = SG.recipeOf(common[0]).reduce((s, m) => s + m.n, 0);
+    const avg = SG.scoreDrops(336, SG.getDungeon('bamboo'), 'vita')
+                  .reduce((s, d) => s + d.n, 0);
+    console.log('  一張 EP1 普通卡 ' + cost + ' 單位｜一場中等評價 ' + avg + ' 單位');
+    ok(avg >= cost * 0.7 && avg <= cost * 1.6,
+       '一場勝利的量大致等於一張基本卡', avg + ' vs ' + cost);
+  }
+}
+
 console.log('══════ 副本進度 ══════');
 {
   const S = SG.Save;
@@ -256,7 +327,7 @@ console.log('══════ 新副本（竹林鄉 / 邊境遺跡） ══�
   eq(SG.getDungeon('bamboo').ore, 'bamboo', '竹林鄉掉竹');
   eq(SG.getDungeon('frontier').ore, 'ruins', '邊境遺跡掉遺跡碎片');
   const before = S.data.materials.bamboo || 0;
-  S.dungeonWin(SG.getDungeon('bamboo'));
+  S.dungeonWin(SG.getDungeon('bamboo'), { total: 336 }, 'vita');
   ok((S.data.materials.bamboo || 0) > before, '打贏竹林鄉會拿到竹');
 
   /* EP1 卡片需要新副本的特產 */

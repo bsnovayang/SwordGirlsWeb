@@ -128,23 +128,43 @@ var SG = window.SG || (window.SG = {});
     var foe = SG.dungeonFoe(dg, st.floor);
 
     SG.go('battle');
-    SG.startBattle(dk, foe.deck, '', { onEnd: function (g) { return settle(dg, g); } });
+    SG.startBattle(dk, foe.deck, '', { onEnd: function (g) { return settle(dg, g, dk); } });
   }
 
-  /* 戰鬥結束 → 結算副本進度，回傳要顯示在結算視窗的 HTML */
-  function settle(dg, g) {
+  /* 評價明細（參考遊戲王 Duel Links 的結算加分） */
+  function scoreHtml(sc) {
+    var rows = sc.lines.map(function (l) {
+      return '<div class="sc-row"><span>' + l.label + '</span><b>+' + l.n + '</b></div>';
+    }).join('');
+    var mul = sc.mulLines.map(function (l) {
+      return '<div class="sc-row sc-mul"><span>' + l.label + '</span><b>×' + l.n + '</b></div>';
+    }).join('');
+    return '<div class="rs-score"><div class="sc-head">戰鬥評價</div>' +
+           rows + mul +
+           '<div class="sc-row sc-total"><span>合計</span><b>' + sc.total + '</b></div></div>';
+  }
+
+  /* 戰鬥結束 → 結算副本進度，回傳要顯示在結算視窗的 HTML
+     ※ 樓層要在 dungeonWin() 推進之前先讀，評價的樓層倍率算的是「這場打的那層」 */
+  function settle(dg, g, dk) {
+    var st = SG.Save.dungeon(dg.id);
     if (g.winner !== 0) {
       var lose = SG.Save.dungeonLose(dg);
       return '<div class="rs-dg">' +
         (lose.wasBoss ? '敗給 BOSS —— 退回第 1 層' : '往下一層 → 第 ' + lose.floor + ' 層') +
         '</div>';
     }
-    var win = SG.Save.dungeonWin(dg);
+    var floors = SG.dungeonFloors(dg), floor = st.floor;
+    var sc = SG.battleScore(g, {
+      dungeon: dg, floor: floor, floors: floors, isBoss: floor >= floors
+    });
+    var win = SG.Save.dungeonWin(dg, sc, SG.Save.deckFaction(dk));
     var drops = win.drops.map(function (m) {
       return '<span class="drop">' + SG.matName(m.mat) + ' ×' + m.n + '</span>';
     }).join('');
-    var st = SG.Save.dungeon(dg.id);
-    var html = '<div class="rs-dg">' +
+    st = SG.Save.dungeon(dg.id);
+    var html = scoreHtml(sc) +
+      '<div class="rs-dg">' +
       (win.cleared ? '★ 通關！累計 ' + st.clears + ' 次（樓層回到第 1 層）'
                    : '往上一層 → 第 ' + st.floor + ' 層') + '</div>' +
       '<div class="rs-drops">' + drops + '</div>';

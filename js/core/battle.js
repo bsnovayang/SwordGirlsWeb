@@ -109,6 +109,8 @@ var SG = window.SG || (window.SG = {});
     var g = {
       seed: seed, rnd: mulberry32(hashSeed(seed)),
       turn: 0, phase: 'init', over: false, winner: -1, reason: '',
+      /* 戰鬥統計，給結算評價用（kills[i] ＝ 玩家 i 被擊破的隨從數） */
+      stats: { kills: [0, 0] },
       firstPlayer: 0, players: [mkPlayer(deckA, 0), mkPlayer(deckB, 1)]
     };
     shuffleDeck(g, 0); shuffleDeck(g, 1);
@@ -367,7 +369,10 @@ var SG = window.SG || (window.SG = {});
     p.field[slot] = null;
     p.grave.push(c);
     E(ev, g, { t: 'destroy', player: pi, slot: slot, card: c, size: c.size, destroyed: !!destroyed });
-    if (destroyed) loseLife(g, ev, pi, c.size, 'death');
+    if (destroyed) {
+      if (g.stats) g.stats.kills[pi]++;
+      loseLife(g, ev, pi, c.size, 'death');
+    }
   }
 
   function loseLife(g, ev, pi, amount, cause) {
