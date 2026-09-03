@@ -48,10 +48,19 @@ var SG = window.SG || (window.SG = {});
     if (!ore) return null;                       // 無所屬／NPC 卡不能合成
     if (card.npc) return null;                   // 副本 BOSS 卡只能靠通關取得
     if (card.type === 'character') {
-      return [{ mat: 'sword', n: 30 }, { mat: ore, n: 20 }, { mat: 'ore_white', n: 50 }];
+      var cm = card.ep ? 40 : 30, co = card.ep ? 25 : 20, cw = card.ep ? 60 : 50;
+      return [{ mat: 'sword', n: cm }, { mat: ore, n: co }, { mat: 'ore_white', n: cw }];
     }
     var base = card.type === 'spell' ? 'book' : 'cat_doll';
-    return [{ mat: base, n: 3 }, { mat: ore, n: 2 }, { mat: 'ore_white', n: 2 }];
+    if (!card.ep) {
+      /* Episode 0：這條規則是從 31 張 wiki 配方推導出來的，test/dungeon.js 有驗證 */
+      return [{ mat: base, n: 3 }, { mat: ore, n: 2 }, { mat: 'ore_white', n: 2 }];
+    }
+    /* Episode 1 以後：原作配方會用到眼鏡／絲襪／聖獸之淚等本作還沒有的素材，
+       所以改用現有素材依「分數」代表的稀有度換算。這是推導值，卡片會標 provRecipe。 */
+    var p = card.points || 1;
+    var tier = p >= 50 ? [24, 16, 20] : p >= 13 ? [12, 8, 10] : p >= 3 ? [6, 4, 5] : [4, 3, 3];
+    return [{ mat: base, n: tier[0] }, { mat: ore, n: tier[1] }, { mat: 'ore_white', n: tier[2] }];
   };
 
   /* 配方是否湊得齊 */

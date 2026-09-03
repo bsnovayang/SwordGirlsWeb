@@ -49,6 +49,7 @@ localStorage，右下角會閃一下「已自動儲存」。關掉分頁再開�
 index.html            單一入口，所有畫面都是裡面的 <section>
 css/style.css
 js/data/cards.js      卡片資料（Episode 0 卡池 56 張）
+js/data/cards_ep1.js  Episode 1 卡片（咒語 20 + 角色卡 1）
 js/data/cards_npc.js  副本 NPC / BOSS / 通關獎勵角色卡
 js/data/materials.js  合成素材與配方規則
 js/data/dungeons.js   Easy 三座副本（樓層、敵人、掉落）
@@ -57,7 +58,8 @@ js/data/quests.js     每日任務池與成就定義
 js/data/decks.js      四陣營新手牌組（AI 對手也用這些）
 js/core/save.js       玩家資料 + localStorage 存檔 + 匯出/匯入
 js/core/battle.js     戰鬥引擎（純邏輯，輸出事件序列）
-js/core/effects.js    卡片效果
+js/core/effects.js    卡片效果（Episode 0）
+js/core/effects_ep1.js 卡片效果（Episode 1）
 js/core/ai.js         AI 下牌決策
 js/ui/card_ui.js      卡片列／篩選／詳情（牌組編輯與圖鑑共用）
 js/ui/battle_ui.js    戰鬥畫面渲染 + 事件播放
@@ -99,7 +101,7 @@ test/dungeon.js       副本 / 合成 / BOSS 效果測試
 
 ```bash
 node test/sim.js 500     # 500 場 AI 對 AI，檢查引擎與流程不變量
-node test/effects.js     # 卡片效果單元測試（105 個斷言）
+node test/effects.js     # 卡片效果單元測試（137 個斷言）
 npm i --no-save jsdom
 node test/ui.js          # jsdom 模擬點擊打完一整場，順便驗動畫
 node test/screens.js     # jsdom 測所有畫面 + 自動儲存（212 個斷言）
@@ -112,7 +114,10 @@ node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷
 
 ## 卡片資料來源
 
-Episode 0 全 56 張（4 角色卡 + 32 隨從卡 + 20 咒語卡）：
+目前收錄 **Episode 0 全 56 張** ＋ **Episode 1 的咒語 20 張與角色卡 1 張**
+（可收集共 80 種，含 3 張副本獎勵角色卡）。
+
+### Episode 0（56 張）
 
 | 來源 | 提供的內容 |
 |---|---|
@@ -128,6 +133,23 @@ Episode 0 全 56 張（4 角色卡 + 32 隨從卡 + 20 咒語卡）：
 
 另有一處兩邊矛盾：繁中 wiki 標 `閃失`(Accident) 張數上限 1，但新手牌組收 2 張，
 英文卡片頁也寫 3 —— 採用 3。
+
+### Episode 1（21 張）
+
+只收錄**繁中 wiki 資料完整**的部分：咒語 20 張（四陣營各 5）＋ 角色卡 1 張。
+
+**EP1 的隨從沒有收錄** —— 繁中 wiki 那幾頁的攻/防/體是空模板（`攻/防/體://` 沒填數字），
+46 張裡有 36 張缺數值。英文 wiki 的 `Episode_1/All_cards` 也沒有存檔，
+沒辦法對照出英文卡名去逐張補，硬加等於自己編數據，所以留到有可靠來源再說。
+
+兩處標記：
+- **卡號**是本專案內部的排序編號（`EP1-101` 這種），不是原作卡號 —— 繁中 wiki 沒收錄
+- **合成配方**是推導值（`provRecipe`）：原作 EP1 以後的配方會用到眼鏡／絲襪／聖獸之淚等
+  本作還沒做的副本才會掉的素材，所以改用現有素材依「分數」代表的稀有度換算
+
+加入 EP1 咒語之後，三隻副本 BOSS 的牌組也**還原成 wiki 記載的真實組成**
+（詛咒、強制入侵、魔眼、雜食性、草原上的休息日、和平協定、盾牌破壞、交換魔術、
+禍從天降原本都是用其他卡替代的）。
 
 陣營沿用台版譯名：**公立學校**(Vita)／**私立學校**(Academy)／**南十字**(Crux)／**暗黑族**(Darklore)，
 與卡片效果文字裡的「公立」「私立」「南十字」「暗黑」一致。
@@ -151,7 +173,7 @@ Episode 0 全 56 張（4 角色卡 + 32 隨從卡 + 20 咒語卡）：
 
 ## 卡片效果
 
-Episode 0 有效果文字的 **40 張全部實作完畢**（`js/core/effects.js`）。觸發時機四種：
+有效果文字的 **67 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js`）。觸發時機四種：
 
 | 時機 | 說明 |
 |---|---|

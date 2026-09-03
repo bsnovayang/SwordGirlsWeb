@@ -485,6 +485,51 @@ var SG = window.SG || (window.SG = {});
       },
 
       life: function (playerPi, delta) { addLife(g, ev, playerPi, delta); },
+
+      /* 直接把生命設成某個值（均衡的「生命平分」用） */
+      setLife: function (playerPi, val) {
+        var ch = g.players[playerPi].character;
+        var d = Math.max(0, val) - ch.life;
+        if (d) addLife(g, ev, playerPi, d);
+      },
+
+      /* 場上的牌送回牌組最下方 */
+      toDeckBottom: function (target) {
+        if (!target) return false;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 < 0) return false;
+        g.players[op].field[s2] = null;
+        g.players[op].deck.push(target.id);
+        E(ev, g, { t: 'toDeck', player: op, card: target });
+        return true;
+      },
+
+      /* 墓地全部除外（衛兵的證言） */
+      exileGrave: function (playerPi) {
+        var n = g.players[playerPi].grave.length;
+        if (!n) return 0;
+        g.players[playerPi].grave = [];
+        E(ev, g, { t: 'exile', player: playerPi, count: n });
+        return n;
+      },
+
+      /* 兩張卡的所有數值互換（交換魔術） */
+      swapStats: function (a, b) {
+        if (!a || !b) return false;
+        ['size', 'atk', 'def', 'sta'].forEach(function (k) {
+          var t = a[k]; a[k] = b[k]; b[k] = t;
+        });
+        E(ev, g, { t: 'swap', a: a, b: b, player: pi });
+        checkDeath(g, ev, a); checkDeath(g, ev, b);
+        return true;
+      },
+
+      /* 直接破壞（跟被打死一樣，主人要扣 Life ＝ SIZE） */
+      destroy: function (target) {
+        if (!target) return;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 >= 0) toGrave(g, ev, op, s2, true);
+      },
       move: function (fromPi, fromSlot, toPi) { return moveCard(g, ev, fromPi, fromSlot, toPi); },
       slotOf: function (target) { var op = sideOf(g, target); return slotOfCard(g, op, target); }
     };

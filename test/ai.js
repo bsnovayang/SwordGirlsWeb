@@ -2,8 +2,8 @@
 const fs = require('fs'), path = require('path');
 global.window = global;
 function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8')); }
-['js/data/cards.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/ai.js'].forEach(load);
+['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
+ 'js/data/dungeons.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/ai.js'].forEach(load);
 
 const N = parseInt(process.argv[2] || '120', 10);
 

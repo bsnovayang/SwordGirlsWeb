@@ -263,7 +263,8 @@ var SG = window.SG || (window.SG = {});
     if (e.t === 'coin') return coinMs() + 200;          // 等硬幣落定再繼續
     if (e.t === 'stat') return Math.round(w * 0.35);
     if (e.t === 'ability') return w;          // 亮光要看得完
-    if (e.t === 'deactivate' || e.t === 'handGrave') return Math.round(w * 0.5);
+    if (e.t === 'deactivate' || e.t === 'handGrave' ||
+        e.t === 'toDeck' || e.t === 'exile' || e.t === 'swap') return Math.round(w * 0.5);
     if (e.t === 'draw' || e.t === 'note') return Math.round(w * 0.4);
     return w;
   }
@@ -343,6 +344,21 @@ var SG = window.SG || (window.SG = {});
       case 'move':
         log('⇢ ' + e.card.name + ' 從' + who(e.from) + '轉移到' + who(e.player) +
             ' ' + SG.romanOf(e.slot) + ' 格', 'kill');
+        render(e.s);
+        break;
+
+      case 'toDeck':
+        log('↩ ' + e.card.name + ' 被送回' + who(e.player) + '牌組最下方', me(e.player));
+        render(e.s);
+        break;
+
+      case 'exile':
+        log('　' + who(e.player) + '墓地的 ' + e.count + ' 張卡被除外', 'sys');
+        render(e.s);
+        break;
+
+      case 'swap':
+        log('⇄ ' + e.a.name + ' 與 ' + e.b.name + ' 數值交換', me(e.player));
         render(e.s);
         break;
 

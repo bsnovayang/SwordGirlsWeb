@@ -47,31 +47,35 @@ var SG = window.SG || (window.SG = {});
 
   /* ── BOSS 牌組（照繁中 wiki 頁面 37 的組成，缺的卡以同 SIZE 同陣營替代） ── */
 
-  // 諾爾德：隨從 19 ＋ 咒語 11。原作的「貴族令嬢／呪い／強制侵入」EP0 沒有，
-  // 以 新人女僕 / 閃失 / 嫁禍 補足。
+  // 諾爾德：隨從 19 ＋ 咒語 11（繁中 wiki 頁面 37）。
+  // 咒語部分現在能完全照原作：戒備3 / 詛咒3 / 強制入侵2 / 新人女僕教育3。
+  // 隨從的「貴族令嬢」是 EP1 卡，本作還沒收錄，以 新人女僕 補足。
   var NOLD_DECK = build(
     n('guard_maid', 3), n('tailor_maid', 3), n('porter_maid', 3), n('chief_maid', 3),
     n('mop_maid', 2), n('head_maid', 3), n('new_maid', 2),
-    n('tighten_security', 3), n('new_maid_training', 3), n('accident', 3), n('she_did_it', 2)
+    n('tighten_security', 3), n('curse', 3), n('forced_entry', 2), n('new_maid_training', 3)
   );
 
-  // 卡涅魯：隨從 17 ＋ 咒語 13。原作的「騎士団の伝令／魔眼／雑食性／草原の休日／
-  // 平和協定／シールド破壊」EP0 沒有，以 副官颯琳森 與其餘南十字咒語補足。
+  // 卡涅魯：隨從 17 ＋ 咒語 13（繁中 wiki 頁面 37）。
+  // 咒語現在幾乎完全照原作：魔眼1 / 雜食性2 / 草原上的休息日3 / 和平協定1 /
+  // 盾牌破壞2 / 聖徒的祝福1 / 異種生物接觸3。
+  // 隨從的「騎士団の伝令」是 EP1 卡，以 副官颯琳森 補足。
   var CANNELLE_DECK = build(
     n('new_knight', 3), n('military_knight_sillit', 3), n('crux_knight_terra', 3),
     n('flag_knight_frett', 3), n('crux_knight_pintail', 2), n('knight_adjt_sarisen', 3),
-    n('saints_blessing', 1), n('close_encounter', 3), n('entry_denied', 3),
-    n('healing_magic', 3), n('sky_surprise', 3)
+    n('evil_eye', 1), n('omnivore', 2), n('meadow_holiday', 3), n('peace_treaty', 1),
+    n('shield_break', 2), n('saints_blessing', 1), n('close_encounter', 3)
   );
 
-  // 蓋托：隨從 16 ＋ 咒語 14。原作牌組本來就混了南十字的「入国拒否」，這裡保留。
-  // 缺的「交代魔術／雑食性／天からの禍」以 無情的一擊 / 新料理開發 / 結界的破裂 補足。
+  // 蓋托：隨從 16 ＋ 咒語 14（繁中 wiki 頁面 37）。
+  // 咒語現在完全照原作：交換魔術2 / 雜食性3 / 拒絕入國2 / 禍從天降2 /
+  // 歡迎!!新入社員3 / 料理失敗2。原作牌組本來就混了南十字的咒語，這裡照樣保留。
   var GART_DECK = build(
     n('cook_club_advisor', 3), n('new_cook_club_student', 3), n('cook_club_linfield', 2),
     n('cook_club_katie', 2), n('cook_club_svia', 3), n('cook_club_dir_jamie', 2),
     n('cook_club_sylphie', 1),
-    n('heartless_blow', 1), n('student_orientation', 3), n('cooking_failure', 2),
-    n('new_recipe', 3), n('ward_rupture', 3), n('entry_denied', 2)
+    n('swap_magic', 2), n('omnivore', 3), n('entry_denied', 2), n('sky_surprise', 2),
+    n('student_orientation', 3), n('cooking_failure', 2)
   );
 
   SG.DUNGEONS = [

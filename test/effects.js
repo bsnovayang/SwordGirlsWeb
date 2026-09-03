@@ -3,12 +3,14 @@ const fs = require('fs'), path = require('path');
 global.window = global;
 function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8')); }
 load('js/data/cards.js');
+load('js/data/cards_ep1.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
 load('js/data/dungeons.js');
 load('js/core/battle.js');
 load('js/core/effects.js');
+load('js/core/effects_ep1.js');
 
 let pass = 0, fail = 0;
 const failures = [];
@@ -521,6 +523,161 @@ console.log('══════ SIZE 可以被效果推過 10 ══════
   g.players[0].field[1] = null;                    // 移掉 size 5 → 剩 8
   ok(SG.canPlace(g, 0, 0), 'SIZE 降到 10 以下後可以下牌');
   ok(!SG.canPlace(g, 0, 0) === false, 'SIZE 8 + 1 = 9，允許');
+}
+
+console.log('══════ Episode 1 咒語 ══════');
+{
+  { // 縮小：SIZE 最大的敵方隨從全部數值減半
+    const g = board();
+    const big = put(g, 1, 0, 'head_maid');        // 5/8/1/11
+    const small = put(g, 1, 1, 'new_maid');
+    put(g, 0, 0, 'shrink');
+    fire(g, 0, 0, 'spell');
+    eq(stats(big), '2/4/0/5', '縮小：SIZE 最大者 全數值減半（捨去）');
+    eq(stats(small), '2/4/2/6', '縮小：其他隨從不受影響');
+  }
+  { // 命令的謠言
+    const g = board();
+    const t = put(g, 0, 0, 'cook_club_dir_jamie');   // vita size5 6/0/16
+    put(g, 0, 1, 'rumor_of_order');
+    fire(g, 0, 1, 'spell');
+    eq(stats(t), '3/6/0/18', '命令的謠言：體 +2 / SIZE −2');
+  }
+  { // 雜食性：體力 + 手牌 SIZE 種類 +1
+    const g = board();
+    const a = put(g, 0, 0, 'cook_club_student');
+    hand(g, 0, ['cook_club_student', 'cook_club_advisor', 'cook_club_katie']);  // SIZE 1,2,4 → 3 種
+    put(g, 0, 1, 'omnivore');
+    fire(g, 0, 1, 'spell');
+    eq(a.sta, 8 + 4, '雜食性：體力 +4（3 種 SIZE +1）');
+  }
+  { // 火山：依手牌中公立隨從數削弱敵方
+    const g = board();
+    const t = put(g, 1, 0, 'porter_maid');           // 6/0/12
+    hand(g, 0, ['cook_club_student', 'cook_club_katie', 'accident']);  // 2 隻公立隨從
+    put(g, 0, 0, 'volcano');
+    fire(g, 0, 0, 'spell');
+    eq(stats(t), '4/4/0/10', '火山：攻/防/體 −2（手牌 2 隻公立隨從）');
+  }
+  { // 束縛
+    const g = board();
+    const a = put(g, 1, 0, 'new_maid');
+    const b = put(g, 1, 1, 'tailor_maid');
+    put(g, 0, 0, 'bind');
+    fire(g, 0, 0, 'spell');
+    eq(a.size + b.size, 2 + 1 + 3 + 1, '束縛：敵方隨從 SIZE +1');
+  }
+  { // 詛咒：只有私立角色才發動
+    const g = board('cinia_pacifica');
+    const t = put(g, 1, 0, 'porter_maid');
+    put(g, 0, 0, 'curse');
+    fire(g, 0, 0, 'spell');
+    eq(t.atk, 4, '詛咒：角色為私立 → 攻 −2');
+
+    const g2 = board('sita_vilosa');
+    const t2 = put(g2, 1, 0, 'porter_maid');
+    put(g2, 0, 0, 'curse');
+    fire(g2, 0, 0, 'spell');
+    eq(t2.atk, 6, '詛咒：角色非私立 → 不發動');
+  }
+  { // 交換魔術
+    const g = board();
+    const mine = put(g, 0, 2, 'cook_club_student');   // 1/3/0/8
+    const theirs = put(g, 1, 0, 'head_maid');         // 5/8/1/11
+    put(g, 0, 0, 'swap_magic');
+    fire(g, 0, 0, 'spell');
+    eq(stats(mine), '5/8/1/11', '交換魔術：我方 Ⅲ 格拿到對方的數值');
+    eq(stats(theirs), '1/3/0/8', '交換魔術：對方拿到我方的數值');
+  }
+  { // 大規模召回
+    const g = board();
+    const small = put(g, 1, 0, 'cook_club_student');   // size1 → 送墓
+    const big = put(g, 1, 1, 'head_maid');             // size5 → 留下
+    const myAcad = put(g, 0, 0, 'new_maid');           // 私立 → 留下
+    const myOther = put(g, 0, 1, 'cook_club_student'); // 非私立 → 送墓
+    put(g, 0, 2, 'mass_recall');
+    fire(g, 0, 2, 'spell');
+    eq(g.players[1].field[0], null, '大規模召回：敵方 SIZE≤3 送墓');
+    eq(g.players[1].field[1], big, '大規模召回：敵方 SIZE>3 留下');
+    eq(g.players[0].field[0], myAcad, '大規模召回：我方私立卡留下');
+    eq(g.players[0].field[1], null, '大規模召回：我方非私立卡送墓');
+  }
+  { // 強制入侵
+    const g = board();
+    put(g, 0, 2, 'head_maid');                  // 我方 Ⅲ 格 size5
+    const foe3 = put(g, 1, 2, 'new_maid');      // 敵方 Ⅲ 格 size2 → 較低 → 被破壞
+    put(g, 0, 0, 'forced_entry');
+    fire(g, 0, 0, 'spell');
+    eq(g.players[1].field[2], null, '強制入侵：SIZE 較低的一方被破壞');
+    ok(g.players[1].character.life < 30, '強制入侵：被破壞方扣生命（＝該卡 SIZE）');
+  }
+  { // 草原上的休息日
+    const g = board();
+    put(g, 0, 0, 'cook_club_student');
+    put(g, 0, 1, 'cook_club_advisor');
+    const c3 = put(g, 0, 2, 'crux_knight_terra');
+    put(g, 0, 3, 'meadow_holiday');
+    fire(g, 0, 3, 'spell');
+    const buffed = [g.players[0].field[0], g.players[0].field[1], c3]
+      .filter(x => x.atk > x.baseAtk || x.sta > x.baseSta);
+    eq(buffed.length, 1, '草原上的休息日：只有一張被強化');
+    eq(buffed[0].atk - buffed[0].baseAtk, 2, '攻 +X−1（場上 3 隻隨從）');
+    eq(buffed[0].sta - buffed[0].baseSta, 4, '體 +X+1');
+  }
+  { // 騎士團的手信：雙方卡片數一致才發動
+    const g = board();
+    put(g, 0, 0, 'knight_letter');
+    const t = put(g, 1, 0, 'new_maid');
+    const deckBefore = g.players[1].deck.length;
+    fire(g, 0, 0, 'spell');
+    eq(g.players[1].field[0], null, '騎士團的手信：敵方卡送回牌組');
+    eq(g.players[1].deck.length, deckBefore + 1, '牌組多一張');
+  }
+  { // 和平協定
+    const g = board();
+    const mine = put(g, 0, 0, 'crux_knight_terra');
+    const mySpell = put(g, 0, 1, 'peace_treaty');
+    const foe = put(g, 1, 0, 'new_maid');
+    fire(g, 0, 1, 'spell');
+    ok(foe.activated, '和平協定：敵方卡行動終了');
+    ok(mine.activated, '和平協定：我方隨從也行動終了');
+    ok(!mySpell.activated, '和平協定：我方咒語不受影響');
+    eq(mine.sta, 6 + 2, '我方南十字隨從 體 +2');
+    eq(mine.size, 3 - 1, '我方南十字隨從 SIZE −1');
+  }
+  { // 滿月之力
+    const g = board();
+    const a = put(g, 0, 0, 'crescent_conundrum');     // 克雷森特
+    const b = put(g, 0, 1, 'scardel_chardonnay');     // 斯卡迪魯
+    const c2 = put(g, 0, 2, 'cook_club_student');     // 無關
+    put(g, 0, 3, 'full_moon_power');
+    fire(g, 0, 3, 'spell');
+    eq(a.atk + ',' + b.atk + ',' + c2.atk, '7,9,3', '滿月之力：指定家族 攻 +3');
+  }
+  { // 強制幽閉
+    const g = board('iri_flina');
+    const t = put(g, 1, 0, 'crescent_kris_flina');    // size5 sta14
+    put(g, 0, 0, 'forced_confinement');
+    const deckBefore = g.players[1].deck.length;
+    fire(g, 0, 0, 'spell');
+    eq(g.players[1].field[0], null, '強制幽閉：體力最高者送回牌組');
+    eq(g.players[1].deck.length, deckBefore + 1, '進入敵方牌組');
+    eq(g.players[0].character.life, 30 - 3, '自己生命 −3（SIZE 5 的一半進位）');
+  }
+  { // 魔眼
+    const g = board('iri_flina');
+    const a = put(g, 1, 0, 'porter_maid');            // 6/0/12
+    put(g, 0, 0, 'evil_eye');
+    fire(g, 0, 0, 'spell');
+    // 暗黑角色 → 攻/防/體 −2；場上只有 1 張 → 追加 攻/防 −1
+    eq(stats(a), '4/3/0/10', '魔眼：暗黑角色 攻/防/體 −2，且敵方 ≤2 張時追加 攻/防 −1');
+  }
+  { // 好奇心少女維若妮卡
+    const g = board('curious_vernika');
+    const t = put(g, 1, 0, 'new_maid');               // def 2
+    fire(g, 0, -1, 'turnStart');
+    eq(t.def, 0, '維若妮卡：敵方防禦最高者 防禦 = 0');
+  }
 }
 
 console.log('══════ 涵蓋率 ══════');
