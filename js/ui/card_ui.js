@@ -41,14 +41,36 @@ var SG = window.SG || (window.SG = {});
     facShort: function (f) { var x = SG.FACTIONS[f]; return x ? x.short : f; },
     facName:  function (f) { var x = SG.FACTIONS[f]; return x ? x.name : f; },
 
-    /* 建立篩選下拉的選項 */
-    fillFilters: function (selFaction, selType, selSort) {
+    /* 卡包（章節）名稱。0 就是最初的那批，之後章節照號碼走。 */
+    epName: function (ep) {
+      return (ep || 0) === 0 ? 'Episode 0' : 'Episode ' + ep;
+    },
+
+    /* 目前資料裡實際存在的卡包，由小到大 —— 之後加 Episode 3 會自動出現 */
+    episodes: function () {
+      var seen = {}, out = [];
+      SG.collectibleCards().forEach(function (c) {
+        var e = c.ep || 0;
+        if (!seen[e]) { seen[e] = 1; out.push(e); }
+      });
+      return out.sort(function (a, b) { return a - b; });
+    },
+
+    /* 建立篩選下拉的選項。selEp 可省略（沒有「所屬卡包」欄的畫面） */
+    fillFilters: function (selFaction, selType, selSort, selEp) {
       selFaction.innerHTML = ''; selType.innerHTML = ''; selSort.innerHTML = '';
       selFaction.appendChild(opt('', '全部陣營'));
       FACTIONS.forEach(function (f) { selFaction.appendChild(opt(f, SG.UI.facName(f))); });
       selType.appendChild(opt('', '全部類型'));
       TYPES.forEach(function (t) { selType.appendChild(opt(t[0], t[1])); });
       SORTS.forEach(function (s) { selSort.appendChild(opt(s[0], '依 ' + s[1])); });
+      if (selEp) {
+        selEp.innerHTML = '';
+        selEp.appendChild(opt('', '全部卡包'));
+        SG.UI.episodes().forEach(function (e) {
+          selEp.appendChild(opt(String(e), SG.UI.epName(e)));
+        });
+      }
     },
 
     /* 篩選 + 排序 */
@@ -57,6 +79,8 @@ var SG = window.SG || (window.SG = {});
       var out = cards.filter(function (c) {
         if (f.faction && c.faction !== f.faction) return false;
         if (f.type && c.type !== f.type) return false;
+        if (f.ep !== '' && f.ep !== null && f.ep !== undefined &&
+            (c.ep || 0) !== +f.ep) return false;
         if (f.ownedOnly && !(f.owned[c.slug] > 0)) return false;
         if (!kw) return true;
         return (c.name + ' ' + (c.en || '') + ' ' + (c.effect || '')).toLowerCase().indexOf(kw) >= 0;

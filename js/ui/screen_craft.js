@@ -20,6 +20,7 @@ var SG = window.SG || (window.SG = {});
     var list = SG.UI.filter(all, {
       faction: $('cFaction').value,
       type: $('cType').value,
+      ep: $('cEp').value,
       sort: $('cSort').value,
       text: $('cText').value,
       ownedOnly: false,
@@ -104,8 +105,8 @@ var SG = window.SG || (window.SG = {});
   SG.bindCraft = function () {
     if (bound) return;
     bound = true;
-    SG.UI.fillFilters($('cFaction'), $('cType'), $('cSort'));
-    SG.UI.bindFilters(['cFaction', 'cType', 'cSort', 'cText', 'cReady'], render);
+    SG.UI.fillFilters($('cFaction'), $('cType'), $('cSort'), $('cEp'));
+    SG.UI.bindFilters(['cFaction', 'cType', 'cSort', 'cEp', 'cText', 'cReady'], render);
     $('btnCraft').addEventListener('click', function () {
       if (!picked) return;
       var card = SG.getCard(picked);

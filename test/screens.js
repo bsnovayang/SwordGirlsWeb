@@ -516,6 +516,69 @@ console.log('══════ 合成工房 ══════');
   ok($('cReady').checked === false, '「只看素材足夠」可切換');
 }
 
+console.log('══════ 所屬卡包篩選 ══════');
+{
+  /* 三個畫面（牌組編輯 / 卡片圖鑑 / 合成工房）都要能依卡包篩 */
+  const eps = w.SG.UI.episodes();
+  ok(eps.length >= 3, '資料裡有 ' + eps.length + ' 個卡包：' + eps.join('、'));
+
+  /* 牌組編輯只列「持有且放得進目前這副牌組」的卡，
+     所以先把該陣營的 Episode 2 卡片發給玩家，篩選才有東西可看 */
+  w.SG.collectibleCards()
+    .filter(c => (c.ep || 0) === 2)
+    .forEach(c => w.SG.Save.addOwned(c.slug, 1));
+
+  const cases = [
+    { go: 'deck',    sel: 'fEp', list: '#poolList .crow',  name: '牌組編輯' },
+    { go: 'gallery', sel: 'gEp', list: '#glList .crow',    name: '卡片圖鑑' },
+    { go: 'craft',   sel: 'cEp', list: '#cfList .crow',    name: '合成工房' }
+  ];
+  cases.forEach(t => {
+    d.querySelector('[data-go="' + t.go + '"]').click();
+    const sel = $(t.sel);
+    ok(!!sel, t.name + ' 有「所屬卡包」下拉');
+    eq(sel.options.length, eps.length + 1,
+       t.name + ' 的選項是「全部卡包」＋' + eps.length + ' 個卡包');
+    ok(sel.options[0].textContent === '全部卡包', t.name + ' 第一個選項是全部');
+
+    /* 合成工房預設只顯示素材足夠的，先關掉才看得到全部 */
+    if (t.go === 'craft') {
+      $('cReady').checked = false;
+      $('cReady').dispatchEvent(new w.Event('change'));
+    }
+    const before = d.querySelectorAll(t.list).length;
+
+    sel.value = '2';
+    sel.dispatchEvent(new w.Event('change'));
+    const after = Array.from(d.querySelectorAll(t.list));
+    ok(after.length > 0 && after.length < before,
+       t.name + ' 選 Episode 2 之後清單變短：' + before + ' → ' + after.length);
+    ok(after.every(r => {
+         const c = w.SG.getCard(r.dataset.slug);
+         return !c || (c.ep || 0) === 2;
+       }), t.name + ' 篩出來的都是 Episode 2 的卡');
+
+    /* 選回全部要復原 */
+    sel.value = '';
+    sel.dispatchEvent(new w.Event('change'));
+    eq(d.querySelectorAll(t.list).length, before, t.name + ' 選回「全部卡包」會復原');
+  });
+
+  /* 卡包篩選要能跟其他條件疊加 */
+  d.querySelector('[data-go="gallery"]').click();
+  $('gEp').value = '2';
+  $('gFaction').value = 'darklore';
+  $('gEp').dispatchEvent(new w.Event('change'));
+  const both = Array.from(d.querySelectorAll('#glList .crow'));
+  ok(both.length > 0, '卡包＋陣營一起篩還有結果：' + both.length + ' 張');
+  ok(both.every(r => {
+       const c = w.SG.getCard(r.dataset.slug);
+       return !c || ((c.ep || 0) === 2 && (c.faction === 'darklore' || c.faction === 'neutral'));
+     }), '篩出來的都是 Episode 2 的暗黑（或無所屬）卡');
+  $('gEp').value = ''; $('gFaction').value = '';
+  $('gEp').dispatchEvent(new w.Event('change'));
+}
+
 console.log('══════ 卡包 ══════');
 {
   const S = w.SG.Save;
@@ -584,7 +647,8 @@ console.log('══════ 卡包 ══════');
     /* 選了陣營就只會開出那個陣營的卡 */
     S.addTickets(5);
     const r = S.openPacks(5, null, { faction: 'crux' });
-    ok(!!r && r.cards.every(c => c.faction === 'crux'), '南十字卡包只會開出南十字的卡');
+    ok(!!r && r.cards.every(c => c.faction === 'crux' || c.faction === 'neutral'),
+       '南十字卡包只會開出南十字（或無所屬）的卡');
 
     /* EP2 卡包要先通關 Normal 副本 */
     w.SG.DUNGEONS.forEach(d => { S.dungeon(d.id).clears = 0; });

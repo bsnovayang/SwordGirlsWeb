@@ -16,6 +16,7 @@ var SG = window.SG || (window.SG = {});
     var list = SG.UI.filter(all, {
       faction: $('gFaction').value,
       type: $('gType').value,
+      ep: $('gEp').value,
       sort: $('gSort').value,
       text: $('gText').value,
       ownedOnly: $('gOwned').checked,
@@ -53,7 +54,7 @@ var SG = window.SG || (window.SG = {});
   SG.bindGallery = function () {
     if (bound) return;
     bound = true;
-    SG.UI.fillFilters($('gFaction'), $('gType'), $('gSort'));
-    SG.UI.bindFilters(['gFaction', 'gType', 'gSort', 'gText', 'gOwned'], render);
+    SG.UI.fillFilters($('gFaction'), $('gType'), $('gSort'), $('gEp'));
+    SG.UI.bindFilters(['gFaction', 'gType', 'gSort', 'gEp', 'gText', 'gOwned'], render);
   };
 })();

@@ -71,6 +71,7 @@ var SG = window.SG || (window.SG = {});
     var list = SG.UI.filter(SG.collectibleCards(), {
       faction: picked,
       type: $('fType').value,
+      ep: $('fEp').value,
       sort: $('fSort').value,
       text: $('fText').value,
       ownedOnly: true,
@@ -198,8 +199,8 @@ var SG = window.SG || (window.SG = {});
     if (bound) return;
     bound = true;
 
-    SG.UI.fillFilters($('fFaction'), $('fType'), $('fSort'));
-    SG.UI.bindFilters(['fFaction', 'fType', 'fSort', 'fText'], renderPool);
+    SG.UI.fillFilters($('fFaction'), $('fType'), $('fSort'), $('fEp'));
+    SG.UI.bindFilters(['fFaction', 'fType', 'fSort', 'fEp', 'fText'], renderPool);
 
     $('btnDeckUse').addEventListener('click', function () {
       SG.Save.data.activeDeck = sel; SG.Save.save(); renderAll();
