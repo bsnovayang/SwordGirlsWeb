@@ -13,6 +13,7 @@
 | 畫面 | 內容 |
 |---|---|
 | **副本** | Easy 三座（初級 3 層／中級 15 層／高級 20 層）。贏了上一層、輸了下一層、輸給 BOSS 退回 1 樓；打贏會掉素材，**通關 10 次可獲得該 BOSS 的角色卡** |
+| **任務 / 成就** | 每日 3 個任務（跨日自動更換）＋ 14 項成就，獎勵是合成素材。有可領取時大廳按鈕會出現提示 |
 | **模擬天梯** | 8 位 AI 對手分三階（下界／中間界／天上界），積分決定階層與對手 AI 強度 |
 | **自由對戰** | 選自己的牌組 vs 四副新手牌組開打，可指定亂數種子 |
 | **合成工房** | 用副本掉的素材做卡片。左＝可合成清單（可只看素材足夠的）／右＝配方與素材庫存 |
@@ -52,6 +53,7 @@ js/data/cards_npc.js  副本 NPC / BOSS / 通關獎勵角色卡
 js/data/materials.js  合成素材與配方規則
 js/data/dungeons.js   Easy 三座副本（樓層、敵人、掉落）
 js/data/ladder.js     天梯對手與階層
+js/data/quests.js     每日任務池與成就定義
 js/data/decks.js      四陣營新手牌組（AI 對手也用這些）
 js/core/save.js       玩家資料 + localStorage 存檔 + 匯出/匯入
 js/core/battle.js     戰鬥引擎（純邏輯，輸出事件序列）
@@ -64,6 +66,7 @@ js/ui/screen_gallery.js 卡片圖鑑
 js/ui/screen_dungeon.js 副本選擇 / 樓層
 js/ui/screen_craft.js   合成工房
 js/ui/screen_ladder.js  模擬天梯
+js/ui/screen_quest.js   任務 / 成就
 js/main.js            畫面路由 + 大廳 + 設定
 test/sim.js           引擎模擬測試
 test/effects.js       卡片效果單元測試
@@ -99,7 +102,8 @@ node test/sim.js 500     # 500 場 AI 對 AI，檢查引擎與流程不變量
 node test/effects.js     # 卡片效果單元測試（105 個斷言）
 npm i --no-save jsdom
 node test/ui.js          # jsdom 模擬點擊打完一整場，順便驗動畫
-node test/screens.js     # jsdom 測所有畫面 + 自動儲存（196 個斷言）
+node test/screens.js     # jsdom 測所有畫面 + 自動儲存（212 個斷言）
+node test/quests.js      # 任務 / 成就（186 個斷言）
 node test/ai.js          # AI 強度對照與公平性驗證
 node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷言）
 ```

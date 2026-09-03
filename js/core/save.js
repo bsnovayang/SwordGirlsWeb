@@ -36,6 +36,9 @@ var SG = window.SG || (window.SG = {});
       owned: starterOwned(),
       stats: { battles: 0, wins: 0, losses: 0 },
       ladder: { points: 0, best: 0, wins: 0, losses: 0 },
+      counters: {},
+      daily: { date: '', quests: [] },
+      achieved: {},
       materials: {},
       dungeons: {},
       decks: starterDecks(),
@@ -85,10 +88,16 @@ var SG = window.SG || (window.SG = {});
     available: function () { return !!storage(); },
 
     /* 記一場戰績（副本與一般對戰都算） */
-    recordBattle: function (win) {
+    recordBattle: function (win, ctx) {
       var st = SG.Save.data.stats;
       st.battles++;
       if (win) st.wins++; else st.losses++;
+      SG.Save.bump('battle');
+      if (win) {
+        SG.Save.bump('battleWin');
+        var f = ctx && ctx.faction;
+        if (f) SG.Save.bump('win.' + f);
+      }
       SG.Save.save();
       return st;
     },
@@ -108,6 +117,10 @@ var SG = window.SG || (window.SG = {});
       d.ladder = d.ladder || { points: 0, best: 0, wins: 0, losses: 0 };
       if (!(d.ladder.points >= 0)) d.ladder.points = 0;
       if (!(d.ladder.best >= d.ladder.points)) d.ladder.best = d.ladder.points;
+      d.counters = d.counters || {};
+      d.achieved = d.achieved || {};
+      d.daily = d.daily || { date: '', quests: [] };
+      if (!Array.isArray(d.daily.quests)) d.daily.quests = [];
       d.materials = d.materials || {};
       d.dungeons = d.dungeons || {};
       Object.keys(d.materials).forEach(function (k) {
@@ -247,6 +260,7 @@ var SG = window.SG || (window.SG = {});
       if (!card || !SG.canCraft(card, bag)) return false;
       SG.recipeOf(card).forEach(function (r) { bag[r.mat] -= r.n; });
       SG.Save.data.owned[slug] = (SG.Save.data.owned[slug] || 0) + 1;
+      SG.Save.bump('craft');
       SG.Save.save();
       return true;
     },
@@ -258,6 +272,97 @@ var SG = window.SG || (window.SG = {});
       return (SG.Save.data.owned[slug] || 0) < (card.limit || 3);
     },
 
+    /* ══════ 事件計數 ══════ */
+    bump: function (key, n) {
+      var c = SG.Save.data.counters;
+      c[key] = (c[key] || 0) + (n === undefined ? 1 : n);
+    },
+
+    /* ══════ 每日任務 ══════ */
+    today: function () {
+      var d = new Date();
+      return d.getFullYear() + '-' +
+             ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+             ('0' + d.getDate()).slice(-2);
+    },
+
+    /* 跨日就重抽。基準線記在任務上，進度 ＝ 現在的計數 − 基準線 */
+    refreshDaily: function (force) {
+      var d = SG.Save.data, today = SG.Save.today();
+      if (!force && d.daily.date === today && d.daily.quests.length) return false;
+
+      var pool = SG.QUEST_POOL.slice();
+      var picked = [];
+      /* 用日期當種子，同一天重開也是同樣的三個任務 */
+      var seed = 0;
+      for (var i = 0; i < today.length; i++) seed = (seed * 31 + today.charCodeAt(i)) >>> 0;
+      function rnd() {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      }
+      while (pool.length && picked.length < SG.DAILY_COUNT) {
+        picked.push(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+      }
+
+      d.daily = {
+        date: today,
+        quests: picked.map(function (q) {
+          return { id: q.id, base: d.counters[q.counter] || 0, claimed: false };
+        })
+      };
+      SG.Save.save();
+      return true;
+    },
+
+    questProgress: function (entry) {
+      var q = SG.questById(entry.id);
+      if (!q) return { now: 0, need: 1, done: false };
+      var now = Math.max(0, (SG.Save.data.counters[q.counter] || 0) - entry.base);
+      return { now: Math.min(now, q.need), need: q.need, done: now >= q.need };
+    },
+
+    claimQuest: function (entry) {
+      var q = SG.questById(entry.id);
+      if (!q || entry.claimed) return false;
+      if (!SG.Save.questProgress(entry).done) return false;
+      entry.claimed = true;
+      SG.Save.addMaterials(q.reward);
+      SG.Save.save();
+      return true;
+    },
+
+    /* ══════ 成就 ══════ */
+    achieveState: function (a) {
+      var d = SG.Save.data;
+      var now = SG.achieveProgress(a, d);
+      return {
+        now: Math.min(now, a.need), need: a.need,
+        done: now >= a.need, claimed: !!d.achieved[a.id]
+      };
+    },
+
+    claimAchieve: function (a) {
+      var st = SG.Save.achieveState(a);
+      if (!st.done || st.claimed) return false;
+      SG.Save.data.achieved[a.id] = true;
+      SG.Save.addMaterials(a.reward);
+      SG.Save.save();
+      return true;
+    },
+
+    /* 有沒有可領取的東西（大廳顯示紅點用） */
+    pendingRewards: function () {
+      var d = SG.Save.data, n = 0;
+      d.daily.quests.forEach(function (e) {
+        if (!e.claimed && SG.Save.questProgress(e).done) n++;
+      });
+      SG.ACHIEVEMENTS.forEach(function (a) {
+        var st = SG.Save.achieveState(a);
+        if (st.done && !st.claimed) n++;
+      });
+      return n;
+    },
+
     /* ══════ 天梯 ══════ */
     ladderResult: function (foe, win) {
       var L = SG.Save.data.ladder;
@@ -266,7 +371,7 @@ var SG = window.SG || (window.SG = {});
       var before = L.points;
       L.points = Math.max(0, L.points + delta);
       if (L.points > L.best) L.best = L.points;
-      if (win) L.wins++; else L.losses++;
+      if (win) { L.wins++; SG.Save.bump('ladderWin'); } else L.losses++;
       SG.Save.save();
       return { delta: L.points - before, points: L.points, best: L.best,
                tier: SG.ladderTier(L.points) };
@@ -290,8 +395,10 @@ var SG = window.SG || (window.SG = {});
       var ores = ['ore_green', 'ore_red', 'ore_blue', 'ore_black'];
       ore.push({ mat: ores[Math.floor(Math.random() * ores.length)], n: dg.dropOre });
 
+      SG.Save.bump('dungeonWin');
       if (st.floor >= last) {
         res.cleared = true;
+        SG.Save.bump('dungeonClear');
         var extra = st.clears >= 10 ? dg.clearDropAfter : dg.clearDrop;
         ore = ore.concat(extra.map(function (m) { return { mat: m.mat, n: m.n }; }));
         st.clears++;

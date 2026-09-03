@@ -543,7 +543,10 @@ var SG = window.SG || (window.SG = {});
     var win = g.winner === 0;
     if (!g.recorded) {                    // 一場只記一次（投降也算）
       g.recorded = true;
-      if (SG.Save) SG.Save.recordBattle(win);
+      if (SG.Save) {
+        var myChar = g.players[0].character;
+        SG.Save.recordBattle(win, { faction: myChar ? myChar.faction : null });
+      }
     }
     var t = $('resultTitle');
     t.textContent = win ? '勝　利' : '敗　北';

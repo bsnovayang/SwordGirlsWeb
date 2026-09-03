@@ -9,10 +9,10 @@ const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
 const w = dom.window, d = w.document;
 
 ['js/data/cards.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/data/ladder.js', 'js/core/save.js', 'js/core/battle.js',
+ 'js/data/dungeons.js', 'js/data/ladder.js', 'js/data/quests.js', 'js/core/save.js', 'js/core/battle.js',
  'js/core/effects.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
  'js/ui/screen_deck.js', 'js/ui/screen_gallery.js', 'js/ui/screen_dungeon.js',
- 'js/ui/screen_craft.js', 'js/ui/screen_ladder.js', 'js/main.js'].forEach(function (p) {
+ 'js/ui/screen_craft.js', 'js/ui/screen_ladder.js', 'js/ui/screen_quest.js', 'js/main.js'].forEach(function (p) {
   const s = d.createElement('script');
   s.textContent = fs.readFileSync(path.join(root, p), 'utf8');
   d.body.appendChild(s);
@@ -43,7 +43,7 @@ console.log('══════ 頁面結構完整 ══════');
   // 每個畫面與關鍵元件都要在。之前改 index.html 時整段刪掉過畫面，加這層防呆。
   ['scr-title', 'scr-menu', 'scr-battle-setup', 'scr-battle', 'scr-rules',
    'scr-deck', 'scr-gallery', 'scr-dungeon', 'scr-floor', 'scr-craft', 'scr-ladder',
-   'scr-settings'
+   'scr-quest', 'scr-settings'
   ].forEach(id => ok(!!$(id), '畫面存在：' + id));
   ['fieldMine', 'fieldFoe', 'hand', 'log', 'coinFx', 'btnReady', 'btnShuffle',
    'btnSpeed', 'btnQuit', 'resultOverlay', 'btnAgain', 'detail', 'rulesBody',
@@ -52,7 +52,7 @@ console.log('══════ 頁面結構完整 ══════');
 
   // 從大廳點進去的畫面，返回鈕都要回大廳（不是回標題）
   ['scr-battle-setup', 'scr-dungeon', 'scr-deck', 'scr-gallery', 'scr-craft',
-   'scr-ladder', 'scr-settings']
+   'scr-ladder', 'scr-quest', 'scr-settings']
     .forEach(id => {
       const backs = Array.from($(id).querySelectorAll('[data-go]'))
         .filter(b => /返回|回大廳|回標題/.test(b.textContent));
@@ -353,6 +353,43 @@ console.log('══════ 副本畫面 ══════');
   eq(w.SG.game.players[1].name, '魅惑魔女', '對手是 1F 的敵人');
   eq(w.SG.game.players[0].name, w.SG.Save.activeDeck().name, '出戰的是剛才選的牌組');
   eq(w.SG.game.players[1].character.maxLife, 15, '敵人 LIFE 依 NPC 卡設定');
+}
+
+console.log('══════ 任務 / 成就畫面 ══════');
+{
+  const S = w.SG.Save;
+  S.reset();
+  d.querySelector('[data-go="quest"]').click();
+  eq(active(), 'scr-quest', '進入任務畫面');
+  eq(d.querySelectorAll('#qDaily .q-row').length, 3, '每日任務列出 3 個');
+  eq(d.querySelectorAll('#qAchieve .q-row').length, w.SG.ACHIEVEMENTS.length,
+     '成就全部列出（' + w.SG.ACHIEVEMENTS.length + ' 項）');
+  ok(/\d{4}-\d{2}-\d{2}/.test($('qDate').textContent), '顯示今天日期：' + $('qDate').textContent);
+  ok(d.querySelectorAll('#qDaily .q-go[disabled]').length === 3, '未達成時領取鈕是關的');
+
+  // 達成首勝 → 成就可領
+  S.recordBattle(true, { faction: 'vita' });
+  w.SG.renderQuests();
+  const ready = d.querySelectorAll('#qAchieve .q-row.ready');
+  ok(ready.length >= 1, '達成的成就會標示可領取');
+  const before = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+  ready[0].querySelector('.q-go').click();
+  const after = Object.keys(S.data.materials).reduce((n, k) => n + S.data.materials[k], 0);
+  ok(after > before, '點領取會拿到素材（' + before + ' → ' + after + '）');
+  ok(/達成/.test($('qMsg').textContent), '顯示領取訊息：' + $('qMsg').textContent);
+  ok(d.querySelector('#qAchieve .q-row.claimed'), '領取後標示已領取');
+  ok(/已領取/.test($('qAchieveCount').textContent), '顯示成就進度：' + $('qAchieveCount').textContent);
+
+  // 大廳紅點
+  S.reset();
+  S.recordBattle(true, { faction: 'vita' });
+  d.querySelector('[data-go="menu"]').click();
+  const qb = $('btnQuestMenu');
+  ok(/●/.test(qb.textContent), '大廳按鈕出現可領取提示：' + qb.textContent);
+  ok(qb.classList.contains('has-pending'), '按鈕有 has-pending 樣式');
+  S.reset();
+  d.querySelector('[data-go="menu"]').click();
+  ok(!/●/.test($('btnQuestMenu').textContent), '沒有可領取時不顯示提示');
 }
 
 console.log('══════ 模擬天梯 ══════');

@@ -16,6 +16,7 @@ var SG = window.SG || (window.SG = {});
     floor:          function () { SG.bindDungeon(); SG.renderFloor(); },
     craft:          function () { SG.bindCraft(); SG.renderCraft(); },
     ladder:         function () { SG.bindLadder(); SG.renderLadder(); },
+    quest:          function () { SG.bindQuests(); SG.renderQuests(); },
     settings:       renderSettings,
     'battle-setup': renderSetup
   };
@@ -58,6 +59,15 @@ var SG = window.SG || (window.SG = {});
     var L = d.ladder;
     if (SG.ladderTier) {
       $('lbLadder').textContent = SG.ladderTier(L.points).name + ' ' + L.points + ' 分';
+    }
+    if (SG.Save.refreshDaily) {
+      SG.Save.refreshDaily();
+      var pend = SG.Save.pendingRewards();
+      var qb = $('btnQuestMenu');
+      if (qb) {
+        qb.textContent = '任務 / 成就' + (pend ? '　●' + pend : '');
+        qb.classList.toggle('has-pending', pend > 0);
+      }
     }
     $('lbTip').textContent = '※ ' + TIPS[Math.floor(Math.random() * TIPS.length)];
   }

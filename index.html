@@ -59,6 +59,7 @@
       <button data-go="deck">牌組編輯</button>
       <button data-go="craft">合成工房</button>
       <button data-go="gallery">卡片圖鑑</button>
+      <button data-go="quest" id="btnQuestMenu">任務 / 成就</button>
       <button data-go="rules">遊戲規則</button>
       <button data-go="settings">設定 / 存檔</button>
     </div>
@@ -124,6 +125,23 @@
   <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
 </section>
 
+
+
+<!-- ══════════ S12 任務 / 成就 ══════════ -->
+<section id="scr-quest" class="screen">
+  <div class="panel wide">
+    <h2>任務 / 成就</h2>
+
+    <h3 class="sec">每日任務<span class="hint" id="qDate"></span></h3>
+    <div class="q-list" id="qDaily"></div>
+
+    <h3 class="sec">成就<span class="hint" id="qAchieveCount"></span></h3>
+    <div id="qAchieve"></div>
+
+    <p class="save-msg" id="qMsg"></p>
+    <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+  </div>
+</section>
 
 <!-- ══════════ S5 模擬天梯 ══════════ -->
 <section id="scr-ladder" class="screen">
@@ -318,6 +336,7 @@
 <script src="js/data/decks.js"></script>
 <script src="js/data/dungeons.js"></script>
 <script src="js/data/ladder.js"></script>
+<script src="js/data/quests.js"></script>
 <script src="js/core/save.js"></script>
 <script src="js/core/battle.js"></script>
 <script src="js/core/effects.js"></script>
@@ -329,6 +348,7 @@
 <script src="js/ui/screen_dungeon.js"></script>
 <script src="js/ui/screen_craft.js"></script>
 <script src="js/ui/screen_ladder.js"></script>
+<script src="js/ui/screen_quest.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
