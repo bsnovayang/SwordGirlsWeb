@@ -78,6 +78,26 @@ var SG = window.SG || (window.SG = {});
     n('student_orientation', 3), n('cooking_failure', 2)
   );
 
+  // 佩妮卡：隨從 15 ＋ 咒語 14（繁中 wiki 頁面 37）。原作牌組幾乎都是 EP2 以後的卡，
+  // 本作還沒收錄，以同陣營同 SIZE 的私立卡與已有的咒語替代。只有 BOSS 的
+  // 名稱／LIFE／能力是原作資料。
+  var PANICA_DECK = build(
+    n('gardening_maid', 3), n('new_maid', 3), n('guard_maid', 3), n('tailor_maid', 3),
+    n('chief_maid', 3), n('porter_maid', 2),
+    n('curse', 3), n('bind', 3), n('accident', 3), n('she_did_it', 2),
+    n('new_maid_training', 2)
+  );
+
+  // 辛西亞：隨從 18 ＋ 咒語 12（繁中 wiki 頁面 37）。咒語部分能照原作：
+  // 和平協定1 / 盾牌破壞2 / 雜食性3 / 草原上的休息日3 / 縮小2 / 犧牲1。
+  // 隨從全是 EP2 以後的卡，以暗黑族現有隨從替代。
+  var GINGER_DECK = build(
+    n('crescent_kris_flina', 3), n('scardel_pinot_noir', 3), n('moondancer_kata_flina', 3),
+    n('scardel_rion_flina', 3), n('crescent_nyetimber', 3), n('scardel_sion_flina', 3),
+    n('peace_treaty', 1), n('shield_break', 2), n('omnivore', 3),
+    n('meadow_holiday', 3), n('shrink', 2), n('sacrifice', 1)
+  );
+
   SG.DUNGEONS = [
     {
       id: 'beginner',
@@ -177,6 +197,78 @@ var SG = window.SG || (window.SG = {});
       ],
       clearDropAfter: [
         { mat: 'ore_white', n: 5 }, { mat: 'sword', n: 2 }, { mat: 'stockings', n: 2 },
+        { mat: 'cat_doll', n: 2 }, { mat: 'book', n: 2 }
+      ]
+    }
+    ,
+    {
+      id: 'bamboo',
+      name: '竹林鄉',
+      en: 'Bamboo Garden',
+      tier: 'Easy',
+      desc: '20 層。竹林深處的守衛一層比一層強，盡頭是希妮亞的寵物。',
+      /* 樓層敵人名單來自英文 wiki 的 Bamboo Garden，
+         但該頁沒有記載這些敵人的 LIFE，數值是依樓層深度估算的。 */
+      floors: [
+        foe('npc_bg_knight', 'crux'),    foe('npc_bg_chief', 'academy'),
+        foe('npc_bg_knight', 'crux'),    foe('npc_bg_chief', 'academy'),
+        foe('npc_bg_frett', 'crux'),     foe('npc_bg_chief', 'academy'),
+        foe('npc_bg_frett', 'crux'),     foe('npc_bg_chief', 'academy'),
+        foe('npc_bg_frett', 'crux'),     foe('npc_bg_mop', 'academy'),
+        foe('npc_bg_frett', 'crux'),     foe('npc_bg_mop', 'academy'),
+        foe('npc_bg_frett', 'crux'),     foe('npc_bg_mop', 'academy'),
+        foe('npc_bg_layna', 'vita'),     foe('npc_bg_mop', 'academy'),
+        foe('npc_bg_layna', 'vita'),     foe('npc_bg_mop', 'academy'),
+        foe('npc_bg_layna', 'vita')
+      ],
+      boss: { character: 'boss_panica', deck: PANICA_DECK },
+      reward: 'panica',
+      ore: 'bamboo',
+      dropOre: 2,
+      clearDrop: [
+        { mat: 'bamboo', n: 10 }, { mat: 'book', n: 3 }, { mat: 'cat_doll', n: 3 },
+        { mat: 'stockings', n: 3 }, { mat: 'ribbon', n: 3 }
+      ],
+      clearDropAfter: [
+        { mat: 'bamboo', n: 15 }, { mat: 'book', n: 6 }, { mat: 'cat_doll', n: 6 },
+        { mat: 'shoes', n: 6 }, { mat: 'ribbon', n: 2 }
+      ]
+    },
+    {
+      id: 'frontier',
+      name: '邊境遺跡',
+      en: 'Frontier Ruins',
+      tier: 'Normal',
+      desc: '30 層的長征。從雜兵一路打到黃昏之狼，是取得遺跡碎片的唯一去處。',
+      /* 樓層敵人與掉落規則來自英文 wiki 的 Frontier Ruins，
+         用到的 NPC 全部都是既有的角色卡。 */
+      floors: (function () {
+        var f = [];
+        var early = ['npc_trickster_x', 'npc_enchantress', 'npc_wind_shear', 'npc_bunny_lady'];
+        var mid   = ['npc_myo_observer', 'npc_wind_sneaker', 'npc_wind_breaker'];
+        var late  = ['npc_enchantress_x', 'npc_trickster_x', 'npc_bunny_lady_x', 'npc_wind_shear_x'];
+        var deep  = ['npc_wind_breaker_x', 'npc_wind_sneaker_x', 'npc_myo_observer_x'];
+        var last  = ['npc_wind_forestier', 'npc_winged_seeker'];
+        var fac = ['darklore', 'crux', 'academy', 'vita'];
+        function push(list, from, to) {
+          for (var i = from; i <= to; i++) {
+            f[i - 1] = foe(list[(i - from) % list.length], fac[i % fac.length]);
+          }
+        }
+        push(early, 1, 6); push(mid, 7, 12); push(late, 13, 18);
+        push(deep, 19, 24); push(last, 25, 29);
+        return f;
+      })(),
+      boss: { character: 'boss_ginger', deck: GINGER_DECK },
+      reward: 'ginger',
+      ore: 'ruins',
+      dropOre: 2,
+      clearDrop: [
+        { mat: 'ruins', n: 10 }, { mat: 'sword', n: 4 }, { mat: 'shoes', n: 4 },
+        { mat: 'cat_doll', n: 4 }, { mat: 'book', n: 4 }
+      ],
+      clearDropAfter: [
+        { mat: 'ruins', n: 6 }, { mat: 'sword', n: 2 }, { mat: 'shoes', n: 2 },
         { mat: 'cat_doll', n: 2 }, { mat: 'book', n: 2 }
       ]
     }

@@ -54,6 +54,22 @@ var SG = window.SG || (window.SG = {});
     }),
     npc('boss_gart', '120003', '星見鳥、蓋托', 'Star Bird Gart', 'vita', 50, {
       effect: '回合開始時，對手場上隨機選一張隨從變成行動終了狀態。'
+    }),
+
+    /* ── 竹林鄉的樓層敵人（英文 wiki 有名單，LIFE 沒有記載，依樓層深度估算） ── */
+    npc('npc_bg_knight', '110101', '新入騎士團員（哨兵）', 'New Knight', 'crux', 20, { tl: true }),
+    npc('npc_bg_chief',  '110102', '首席女僕（守衛）',     'Chief Maid', 'academy', 25, { tl: true }),
+    npc('npc_bg_frett',  '110103', '旗手佛雷特（哨戒）',   'Frett',      'crux', 30, { tl: true }),
+    npc('npc_bg_mop',    '110104', '拖把女僕（巡邏）',     'Mop Maid',   'academy', 30, { tl: true }),
+    npc('npc_bg_layna',  '110105', '風紀部長蕾娜',         'Layna Scentriver', 'vita', 35, { tl: true }),
+
+    /* ── 兩座新副本的 BOSS（繁中 wiki 頁面 37） ── */
+    npc('boss_panica', '120004', '希妮亞的寵物、佩妮卡', "Cinia's Pet Panica", 'academy', 50, {
+      effect: '回合開始時，回合數為奇數 → 對手場上隨機一張的攻擊力減半（進位）；' + '\n' +
+              '回合數為偶數 → 對手場上隨機一張的體力減半（進位）。'
+    }),
+    npc('boss_ginger', '120005', '黃昏之狼、辛西亞', 'Twilight Wolf Ginger', 'darklore', 50, {
+      effect: '回合開始時，自己場上的所有隨從攻擊力 +3。'
     })
   ];
 
@@ -70,7 +86,18 @@ var SG = window.SG || (window.SG = {});
     { slug: 'gart', id: '100007', name: '蓋托', en: 'Gart',
       type: 'character', faction: 'vita', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
-      effect: '回合開始時，對手場上一張與此卡所屬不同的隨從 攻/體 -2；沒有的話，對手場上隨機兩張隨從 攻/體 -1。' }
+      effect: '回合開始時，對手場上一張與此卡所屬不同的隨從 攻/體 -2；沒有的話，對手場上隨機兩張隨從 攻/體 -1。' },
+    { slug: 'panica', id: '100008', name: '佩妮卡', en: 'Panica',
+      type: 'character', faction: 'academy', life: 30, points: 25, limit: 1,
+      rarity: 'Uncommon', reward: true,
+      effect: '回合開始時，回合數為奇數 → 自己場上隨機兩張隨從 攻 +1；' + '\n' +
+              '回合數為偶數 → 自己場上隨機一張隨從 體力 +2。',
+      flavor: '［有事想請你幫忙！絕對不是因為在意你！我只為了必要和利益而行動的存在！］' },
+    { slug: 'ginger', id: '100009', name: '辛西亞', en: 'Ginger',
+      type: 'character', faction: 'darklore', life: 30, points: 25, limit: 1,
+      rarity: 'Uncommon', reward: true,
+      effect: '回合開始時，自己場上 SIZE 在 X 以上的所有隨從 攻 +1 / 體 +2。（X ＝ 自己場上的卡片數量）',
+      flavor: '［什麼啊？有異議嗎？要做出這個樣子已經非常辛苦了喔。雖說我輸了但放過我吧。］' }
   ];
 
   LIST.concat(REWARDS).forEach(function (c) { SG.CARDS[c.slug] = c; });

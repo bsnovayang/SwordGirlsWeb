@@ -70,7 +70,7 @@ console.log('══════ 初始存檔 ══════');
   const kinds = Object.keys(s.owned).length;
   const collectible = w.SG.collectibleCards().length;
   eq(kinds, 56, '初始持有 Episode 0 的 56 種卡');
-  eq(collectible, 80, '可收集卡片 80 種（EP0 的 56 + 3 張副本獎勵 + EP1 的 21）');
+  eq(collectible, 82, '可收集卡片 82 種（EP0 的 56 + 5 張副本獎勵 + EP1 的 21）');
   ok(w.SG.allCards().length > collectible, 'NPC 卡不算在可收集之列');
   s.decks.forEach(dk => {
     ok(w.SG.deckErrors(dk).length === 0, '預設牌組可用：' + dk.name,
@@ -310,7 +310,7 @@ console.log('══════ 卡片圖鑑 ══════');
 
   $('gType').value = 'character';
   $('gType').dispatchEvent(new w.Event('change'));
-  eq(d.querySelectorAll('#glList .crow').length, 8, '只看角色卡 → 8 張（4 主角 + 3 副本獎勵 + EP1 維若妮卡）');
+  eq(d.querySelectorAll('#glList .crow').length, 10, '只看角色卡 → 10 張（4 主角 + 5 副本獎勵 + EP1 維若妮卡）');
   $('gType').value = '';
   $('gType').dispatchEvent(new w.Event('change'));
 }
@@ -320,7 +320,8 @@ console.log('══════ 副本畫面 ══════');
   d.querySelector('[data-go="dungeon"]').click();
   eq(active(), 'scr-dungeon', '進入副本選擇');
   const rows = d.querySelectorAll('#dgList .dg-row');
-  eq(rows.length, 3, '列出 3 座副本');
+  eq(rows.length, w.SG.DUNGEONS.length, '列出全部 ' + w.SG.DUNGEONS.length + ' 座副本');
+  ok(/Normal/.test($('dgList').textContent), '有 Normal 難度的副本');
   ok(/初級迷宮/.test(rows[0].textContent), '第一座是初級迷宮');
   ok(/諾爾德/.test(rows[0].textContent), '顯示獎勵角色卡');
 

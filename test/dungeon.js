@@ -198,6 +198,78 @@ console.log('══════ BOSS 與獎勵卡的效果 ══════');
   }
 }
 
+console.log('══════ 新副本（竹林鄉 / 邊境遺跡） ══════');
+{
+  const S = SG.Save;
+  S.reset();
+  eq(SG.DUNGEONS.length, 5, '共 5 座副本');
+  eq(SG.dungeonFloors(SG.getDungeon('bamboo')), 20, '竹林鄉 20 層');
+  eq(SG.dungeonFloors(SG.getDungeon('frontier')), 30, '邊境遺跡 30 層');
+  eq(SG.getDungeon('frontier').tier, 'Normal', '邊境遺跡屬於 Normal');
+
+  /* 特產素材 */
+  eq(SG.getDungeon('bamboo').ore, 'bamboo', '竹林鄉掉竹');
+  eq(SG.getDungeon('frontier').ore, 'ruins', '邊境遺跡掉遺跡碎片');
+  const before = S.data.materials.bamboo || 0;
+  S.dungeonWin(SG.getDungeon('bamboo'));
+  ok((S.data.materials.bamboo || 0) > before, '打贏竹林鄉會拿到竹');
+
+  /* EP1 卡片需要新副本的特產 */
+  const r = SG.recipeOf('shrink').map(m => m.mat);
+  ok(r.indexOf('ruins') >= 0, 'EP1 稀有咒語需要遺跡碎片：' + r.join(','));
+  const r2 = SG.recipeOf('omnivore').map(m => m.mat);
+  ok(r2.indexOf('bamboo') >= 0, 'EP1 普通咒語需要竹：' + r2.join(','));
+  ok(SG.recipeOf('cook_club_katie').every(m => m.mat !== 'bamboo' && m.mat !== 'ruins'),
+     'EP0 卡片的配方沒有被改動');
+
+  /* 新 BOSS 與獎勵卡的效果 */
+  ['boss_panica', 'boss_ginger', 'panica', 'ginger'].forEach(slug => {
+    ok(!!SG.Effects[slug], '效果已實作：' + SG.getCard(slug).name);
+  });
+
+  function board(myChar) {
+    const mk = ch => ({ name: 't', character: ch, cards: [] });
+    const g = SG.createGame(mk(myChar), mk('sita_vilosa'), 'p5');
+    g.phase = 'battle';
+    return g;
+  }
+  function put(g, pi, slot, slug) {
+    const c = SG._test.mkCard(slug, pi);
+    g.players[pi].field[slot] = c;
+    return c;
+  }
+  function fire(g, pi) {
+    const ev = [];
+    SG._test.fire(g, ev, g.players[pi].character, pi, -1, 'turnStart');
+    return ev;
+  }
+
+  { // 辛西亞（BOSS）：全體攻 +3
+    const g = board('boss_ginger');
+    const a = put(g, 0, 0, 'crescent_kris_flina');
+    fire(g, 0);
+    eq(a.atk, 5 + 3, 'BOSS 辛西亞：我方全部隨從 攻 +3');
+  }
+  { // 佩妮卡（BOSS）：奇偶回合不同效果
+    const g = board('boss_panica');
+    g.turn = 1;
+    const t = put(g, 1, 0, 'porter_maid');    // 6/0/12
+    fire(g, 0);
+    eq(t.atk, 3, 'BOSS 佩妮卡：奇數回合 攻擊力減半（進位）');
+    g.turn = 2;
+    fire(g, 0);
+    eq(t.sta, 6, 'BOSS 佩妮卡：偶數回合 體力減半（進位）');
+  }
+  { // 辛西亞（獎勵卡）：SIZE ≥ 場上卡片數的隨從攻+1/體+2
+    const g = board('ginger');
+    const big = put(g, 0, 0, 'crescent_kris_flina');   // size 5
+    const small = put(g, 0, 1, 'crescent_conundrum');  // size 1
+    fire(g, 0);                                        // 場上 2 張 → SIZE≥2 受益
+    eq(big.atk + ',' + big.sta, '6,16', '獎勵卡辛西亞：SIZE≥X 的隨從 攻+1/體+2');
+    eq(small.atk + ',' + small.sta, '4,4', '獎勵卡辛西亞：SIZE<X 不受影響');
+  }
+}
+
 console.log('══════ 副本敵人牌組打得起來 ══════');
 {
   let bad = 0;

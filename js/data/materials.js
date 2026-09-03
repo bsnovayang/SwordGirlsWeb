@@ -24,7 +24,10 @@ var SG = window.SG || (window.SG = {});
     ore_red:   { name: '紅色礦石', en: 'Red Ore',   faction: 'academy' },
     ore_blue:  { name: '藍色礦石', en: 'Blue Ore',  faction: 'crux' },
     ore_black: { name: '黑色礦石', en: 'Black Ore', faction: 'darklore' },
-    /* 以下是副本會掉、但 Episode 0 的卡片還用不到的素材（之後章節才會用） */
+    /* 後段副本的特產，Episode 1 的卡片要用 */
+    bamboo:    { name: '竹',       en: 'Bamboo' },
+    ruins:     { name: '遺跡碎片', en: 'Ruins Fragment' },
+    /* 以下是副本會掉、但目前的卡片還用不到的素材（之後章節才會用） */
     stockings: { name: '襪子', en: 'Stockings', unused: true },
     shoes:     { name: '鞋子', en: 'Shoes',     unused: true },
     ribbon:    { name: '緞帶', en: 'Ribbon',    unused: true }
@@ -60,7 +63,12 @@ var SG = window.SG || (window.SG = {});
        所以改用現有素材依「分數」代表的稀有度換算。這是推導值，卡片會標 provRecipe。 */
     var p = card.points || 1;
     var tier = p >= 50 ? [24, 16, 20] : p >= 13 ? [12, 8, 10] : p >= 3 ? [6, 4, 5] : [4, 3, 3];
-    return [{ mat: base, n: tier[0] }, { mat: ore, n: tier[1] }, { mat: 'ore_white', n: tier[2] }];
+    /* 再加一項後段副本的特產：低階要「竹」（竹林鄉），高階要「遺跡碎片」（邊境遺跡）。
+       原作是用眼鏡／絲襪／聖獸之淚等更後面的素材，精神一樣 ——
+       想做新章節的卡，就得去打新的副本。 */
+    var special = p >= 13 ? { mat: 'ruins', n: p >= 50 ? 8 : 4 } : { mat: 'bamboo', n: p >= 3 ? 4 : 2 };
+    return [{ mat: base, n: tier[0] }, { mat: ore, n: tier[1] },
+            { mat: 'ore_white', n: tier[2] }, special];
   };
 
   /* 配方是否湊得齊 */

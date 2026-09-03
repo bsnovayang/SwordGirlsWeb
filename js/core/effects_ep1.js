@@ -307,6 +307,59 @@ var SG = window.SG || (window.SG = {});
       }
     },
 
+    /* ═════════ 竹林鄉 / 邊境遺跡的 BOSS ═════════ */
+
+    // 希妮亞的寵物、佩妮卡
+    boss_panica: {
+      turnStart: function (c) {
+        var odd = c.g.turn % 2 === 1;
+        var t = pick(c, folls(c.foeField), 1);
+        if (!t.length) return;
+        var x = t[0];
+        if (odd) {
+          var half = Math.ceil(x.atk / 2);
+          if (x.atk <= 0) return;
+          c.say('奇數回合　→　敵方隨機 1 張隨從　攻擊力減半');
+          c.set(x, 'atk', half);
+        } else {
+          if (x.sta <= 0) return;
+          c.say('偶數回合　→　敵方隨機 1 張隨從　體力減半');
+          c.set(x, 'sta', Math.ceil(x.sta / 2));
+        }
+      }
+    },
+
+    // 黃昏之狼、辛西亞
+    boss_ginger: {
+      turnStart: function (c) {
+        buff(c, folls(c.myField), { atk: 3 }, '我方全部隨從　攻擊力 +3');
+      }
+    },
+
+    /* ═════════ 新副本的獎勵角色卡 ═════════ */
+
+    // 佩妮卡
+    panica: {
+      turnStart: function (c) {
+        var odd = c.g.turn % 2 === 1;
+        if (odd) {
+          buff(c, pick(c, folls(c.myField), 2), { atk: 1 }, '奇數回合　→　我方隨機 2 張隨從　攻 +1');
+        } else {
+          buff(c, pick(c, folls(c.myField), 1), { sta: 2 }, '偶數回合　→　我方隨機 1 張隨從　體 +2');
+        }
+      }
+    },
+
+    // 辛西亞
+    ginger: {
+      turnStart: function (c) {
+        var x = cards(c.myField).length;
+        var t = folls(c.myField).filter(function (f) { return f.size >= x; });
+        buff(c, t, { atk: 1, sta: 2 },
+             '我方 SIZE ' + x + ' 以上的隨從　攻 +1 / 體 +2（X ＝ 場上卡片數）');
+      }
+    },
+
     /* ═════════ 角色卡 ═════════ */
 
     curious_vernika: {
