@@ -50,6 +50,10 @@ var SG = window.SG || (window.SG = {});
     var ore = FACTION_ORE[card.faction];
     if (!ore) return null;                       // 無所屬／NPC 卡不能合成
     if (card.npc) return null;                   // 副本 BOSS 卡只能靠通關取得
+    /* 副本通關 10 次的獎勵角色卡：原作沒有配方（英文 wiki 上 Nold／Cannelle／
+       Gart／Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能靠通關拿。
+       能合成的話「通關 10 次」這個獎勵就沒意義了。                        */
+    if (card.reward) return null;
     if (card.type === 'character') {
       var cm = card.ep ? 40 : 30, co = card.ep ? 25 : 20, cw = card.ep ? 60 : 50;
       return [{ mat: 'sword', n: cm }, { mat: ore, n: co }, { mat: 'ore_white', n: cw }];

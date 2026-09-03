@@ -67,8 +67,53 @@ console.log('══════ 合成配方符合 wiki ══════');
   console.log('  驗證 ' + Object.keys(WIKI).length + ' 張，全部一致：' + (bad === 0));
 
   eq(SG.recipeOf('boss_nold'), null, 'BOSS 卡不能合成');
-  eq(SG.recipeOf('cannelle'), null, '無所屬的獎勵角色卡不能合成（只能通關取得）');
-  ok(!!SG.recipeOf('nold'), '有陣營的獎勵角色卡可以合成');
+
+  /* 通關 10 次的獎勵角色卡在原作沒有配方 —— 英文 wiki 上 Nold / Cannelle /
+     Gart / Miracle Panda Panica / Ginger 這幾張都沒有 ingredient 欄位。
+     以前只有「卡涅魯」不能合成，那其實是因為它無所屬、湊不出陣營礦石，
+     不是刻意的設計；其餘四張都能繞過通關直接做出來。                  */
+  SG.DUNGEONS.forEach(function (d) {
+    eq(SG.recipeOf(d.reward), null,
+       '獎勵角色卡只能靠通關取得，不能合成：' + SG.getCard(d.reward).name);
+  });
+}
+
+console.log('══════ 每張可收集的卡都真的拿得到 ══════');
+{
+  /* 配方寫得再漂亮，只要有一種素材沒有副本會掉，那張卡就是死路。
+     這裡把「玩家實際拿得到的素材」算出來，再檢查每張卡的配方。 */
+  const got = new Set();
+  /* 每場副本勝利都會隨機給四種陣營礦石的其中一種（見 save.js dungeonWin） */
+  ['ore_green', 'ore_red', 'ore_blue', 'ore_black'].forEach(m => got.add(m));
+  SG.DUNGEONS.forEach(d => {
+    if (d.ore) got.add(d.ore);
+    [d.clearDrop, d.clearDropAfter, d.drops, d.floorDrops].forEach(a => {
+      if (Array.isArray(a)) a.forEach(x => { if (x && x.mat) got.add(x.mat); });
+    });
+  });
+
+  const coll = SG.collectibleCards();
+  const rewards = new Set(SG.DUNGEONS.map(d => d.reward));
+  const dead = [];
+  coll.forEach(c => {
+    const r = SG.recipeOf(c);
+    if (!r) {
+      /* 沒有配方的只能是通關獎勵卡，否則就是沒有任何取得途徑 */
+      if (!rewards.has(c.slug)) dead.push(c.name + '（沒有配方，也不是通關獎勵）');
+      return;
+    }
+    const miss = r.filter(x => !got.has(x.mat)).map(x => SG.matName(x.mat));
+    if (miss.length) dead.push(c.name + '（缺 ' + miss.join('、') + '）');
+  });
+  console.log('  可收集 ' + coll.length + ' 種｜可合成 ' +
+              coll.filter(c => SG.recipeOf(c)).length + ' 種｜通關獎勵 ' + rewards.size + ' 種');
+  ok(dead.length === 0, '沒有拿不到的卡', dead.join(' / '));
+
+  /* 反過來：配方裡用到的素材，副本都要掉得出來 */
+  const need = new Set();
+  coll.forEach(c => (SG.recipeOf(c) || []).forEach(x => need.add(x.mat)));
+  const nodrop = [...need].filter(m => !got.has(m)).map(m => SG.matName(m));
+  ok(nodrop.length === 0, '配方用到的素材副本都掉得出來', nodrop.join('、'));
 }
 
 console.log('══════ 合成 ══════');
