@@ -7,3 +7,5 @@ tools/mine.json
 tools/atcache/
 tools/ep1_followers.txt
 tools/.gen.log
+tools/.g.log
+tools/ep2_cards.txt

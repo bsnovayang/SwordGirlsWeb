@@ -4,6 +4,7 @@ global.window = global;
 function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8')); }
 load('js/data/cards.js');
 load('js/data/cards_ep1.js');
+load('js/data/cards_ep2.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -11,6 +12,8 @@ load('js/data/dungeons.js');
 load('js/core/battle.js');
 load('js/core/effects.js');
 load('js/core/effects_ep1.js');
+load('js/core/effects_ep2.js');
+load('js/core/ai.js');
 
 let pass = 0, fail = 0;
 const failures = [];
@@ -924,6 +927,137 @@ console.log('══════ 技能可以被拿掉／給予／複製 ══�
   const g2 = SG.cloneGame(g, 'clone1');
   g2.players[0].field[0].skills = [];
   ok(a.skills.length === 1, 'cloneGame 之後改副本的技能，不會影響本體');
+}
+
+console.log('══════ Episode 2 ══════');
+{
+  /* 「發動後失去這個能力」—— EP2 有五張同款，用技能系統實作 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'council_casey');     // 攻擊前 攻 +2，然後失去能力
+    const atk0 = a.atk;
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(a.atk, atk0 + 2, '學生會員的凱西：攻擊前攻擊力 +2');
+    ok(!SG.hasSkill(a), '發動後失去這個能力');
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(a.atk, atk0 + 2, '第二次不再發動');
+  }
+
+  /* 除外指定條件的墓地卡 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'genius_student_nanai');
+    const atk = put(g, 1, 0, 'kouhai');           // SIZE 3
+    g.players[0].grave = ['kouhai', 'lib_serie', 'latecomer'];  // SIZE 3/3/1
+    fire(g, 0, 0, 'beforeDefend', { attacker: atk });
+    eq(g.players[0].grave.length, 1, '墓地與攻擊者同 SIZE 的卡被除外');
+    eq(atk.atk, 4 - 2, '攻擊者攻擊力 −2（除外張數）');
+  }
+
+  /* 手牌 → 牌組最上方 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'council_pres_celine');
+    hand(g, 0, ['council_casey', 'kouhai']);
+    const deck0 = g.players[0].deck.length;
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(g.players[0].hand.length, 1, '手牌少一張');
+    eq(g.players[0].deck.length, deck0 + 1, '牌組多一張');
+    eq(g.players[0].deck[0], 'council_casey', '放到牌組最上方');
+  }
+
+  /* 搶對方場上的卡 */
+  {
+    const g = board();
+    put(g, 0, 0, 'kouhai');
+    const t = put(g, 1, 0, 'basketball_player');
+    const sp = put(g, 0, 4, 'sense_of_belonging');
+    g.players[1].character.faction = 'darklore';   // 讓敵方隨從與其角色不同陣營
+    fire(g, 0, 4, 'spell');
+    ok(g.players[1].field[0] === null, '敵方場上那張被搶走');
+    ok(g.players[0].field.indexOf(t) >= 0, '出現在我方場上');
+  }
+
+  /* 雙方手牌第一張咒語互換 */
+  {
+    const g = board();
+    put(g, 0, 0, 'spell_change');
+    hand(g, 0, ['volcano']);
+    g.players[1].hand = [SG._test.mkCard('curse', 1)];
+    fire(g, 0, 0, 'spell');
+    eq(g.players[0].hand[0].name, SG.getCard('curse').name, '我方拿到對方的咒語');
+    eq(g.players[1].hand[0].name, SG.getCard('volcano').name, '對方拿到我方的咒語');
+  }
+
+  /* 手牌 → 場上（高速送件） */
+  {
+    const g = board();
+    put(g, 0, 0, 'quick_service');
+    put(g, 0, 1, 'kouhai');
+    put(g, 0, 2, 'latecomer');
+    hand(g, 0, ['basketball_player']);            // SIZE 2，門檻是 2+2=4
+    fire(g, 0, 0, 'spell');
+    ok(!g.players[0].field[1] && !g.players[0].field[2], '我方隨從全部送入墓地');
+    ok(!!g.players[0].field[3], '手牌的隨從被放到第 Ⅳ 格');
+    eq(g.players[0].hand.length, 0, '該張離開手牌');
+  }
+
+  /* 格號與 SIZE 相同才吃到 buff */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'burning_guardian');   // SIZE 1，在第 1 格 → 命中
+    const b = put(g, 0, 2, 'aristocrat_girl');    // SIZE 3，在第 3 格 → 命中
+    const cc = put(g, 0, 1, 'ward_closer');       // SIZE 2，在第 2 格 → 命中
+    const d = put(g, 0, 4, 'apprentice');         // SIZE 5，在第 5 格 → 命中
+    const sp = put(g, 1, 0, 'kouhai');
+    const before = [a.atk, b.atk, cc.atk, d.atk];
+    put(g, 0, 3, 'lineage_maintenance');
+    fire(g, 0, 3, 'spell');
+    eq(a.atk, before[0] + 3, '血統維持：格號 1 ＝ SIZE 1 有吃到');
+    eq(b.atk, before[1] + 3, '血統維持：格號 3 ＝ SIZE 3 有吃到');
+  }
+
+  /* 我方角色不是公立時，強化咒文會讓該隨從失去能力 */
+  {
+    const g = board('iri_flina');                 // 暗黑角色
+    const t = put(g, 0, 1, 'striker');            // 有技能
+    put(g, 0, 0, 'empowering_chant');
+    fire(g, 0, 0, 'spell');
+    eq(t.sta, 8 + 5, '第 Ⅱ 格隨從 體 +5');
+    ok(!SG.hasSkill(t), '角色不是公立 → 該隨從失去特殊能力');
+  }
+}
+
+console.log('══════ Episode 2 牌組實戰不會爆 ══════');
+{
+  /* 用 EP2 卡片組四副牌組兩兩對打，確認沒有例外或無限迴圈 */
+  const decks = ['vita', 'academy', 'crux', 'darklore'].map(f => {
+    const pool = SG.allCards().filter(c => c.ep === 2 && c.faction === f && c.type !== 'character');
+    const cs = [];
+    pool.forEach(c => { for (let i = 0; i < Math.min(c.limit, 3) && cs.length < 30; i++) cs.push(c.slug); });
+    while (cs.length < 30) cs.push(pool[0].slug);
+    const ch = SG.allCards().find(c => c.type === 'character' && c.faction === f && !c.npc);
+    return { name: 'EP2-' + f, faction: f, character: ch.slug, cards: cs.slice(0, 30) };
+  });
+  let err = 0, games = 0, unfinished = 0;
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    if (i === j) continue;
+    for (let k = 0; k < 8; k++) {
+      try {
+        const g = SG.createGame(decks[i], decks[j], 'ep2t' + i + j + k);
+        let guard = 0;
+        while (!g.over && guard++ < 300) {
+          SG.beginTurn(g); if (g.over) break;
+          SG.aiPlay(g, 0); SG.aiPlay(g, 1); SG.resolveTurn(g);
+        }
+        games++;
+        if (!g.over) unfinished++;
+      } catch (e) { err++; if (err === 1) console.log('  例外：' + e.message); }
+    }
+  }
+  console.log('  跑了 ' + games + ' 場');
+  ok(err === 0, 'EP2 牌組對打不會丟例外', err + ' 次例外');
+  ok(unfinished === 0, 'EP2 牌組對打不會卡死', unfinished + ' 場未結束');
 }
 
 console.log('══════ 涵蓋率 ══════');

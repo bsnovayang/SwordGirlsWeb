@@ -445,6 +445,7 @@ var SG = window.SG || (window.SG = {});
       g: g, self: card, slot: slot, me: pi, foe: 1 - pi,
       myField: mine.field, foeField: theirs.field,
       myHand: mine.hand, myGrave: mine.grave,
+      foeHand: theirs.hand, foeGrave: theirs.grave,
       myChar: mine.character, foeChar: theirs.character,
       attacker: (extra && extra.attacker) || null,   // 「防禦前」才有值
       defender: (extra && extra.defender) || null,   // 「攻擊前」才有值
@@ -504,6 +505,15 @@ var SG = window.SG || (window.SG = {});
         return c;
       },
 
+      /* 對手手牌送入墓地 */
+      discardFoeHand: function (idx) {
+        if (idx < 0 || idx >= theirs.hand.length) return null;
+        var c2 = theirs.hand.splice(idx, 1)[0];
+        theirs.grave.push(c2);
+        E(ev, g, { t: 'handGrave', player: 1 - pi, card: c2 });
+        return c2;
+      },
+
       life: function (playerPi, delta) { addLife(g, ev, playerPi, delta); },
 
       /* 直接把生命設成某個值（均衡的「生命平分」用） */
@@ -531,6 +541,66 @@ var SG = window.SG || (window.SG = {});
         g.players[playerPi].grave = [];
         E(ev, g, { t: 'exile', player: playerPi, count: n });
         return n;
+      },
+
+      /* 依條件把墓地的卡除外，最多 n 張，回傳實際除外的張數 */
+      exileWhere: function (playerPi, fn, n) {
+        var gr = g.players[playerPi].grave, took = 0;
+        for (var i = gr.length - 1; i >= 0 && (!n || took < n); i--) {
+          if (fn && !fn(gr[i])) continue;
+          gr.splice(i, 1); took++;
+        }
+        if (took) E(ev, g, { t: 'exile', player: playerPi, count: took });
+        return took;
+      },
+
+      /* 手牌的卡改數值（mod 是給場上的卡用的，會做死亡判定） */
+      modHand: function (target, d) {
+        if (!target) return;
+        var any = false;
+        ['atk', 'def', 'sta', 'size'].forEach(function (k) {
+          if (!d[k]) return;
+          var b = target[k];
+          target[k] = Math.max(0, (target[k] || 0) + d[k]);
+          if (target[k] !== b) any = true;
+        });
+        if (any) E(ev, g, { t: 'handStat', player: pi, card: target, d: d });
+      },
+
+      /* 手牌的卡放到牌組最上方 */
+      handToDeckTop: function (idx) {
+        if (idx < 0 || idx >= mine.hand.length) return null;
+        var c = mine.hand.splice(idx, 1)[0];
+        mine.deck.unshift(c.id);
+        E(ev, g, { t: 'toDeck', player: pi, card: c, top: true });
+        return c;
+      },
+
+      /* 手牌的卡直接放到場上。slot 省略＝編號最小的空格 */
+      handToField: function (idx, slot) {
+        if (idx < 0 || idx >= mine.hand.length) return null;
+        var s = slot;
+        if (!(s >= 0 && s < 5) || mine.field[s]) {
+          s = -1;
+          for (var i = 0; i < 5; i++) if (!mine.field[i]) { s = i; break; }
+        }
+        if (s < 0) return null;
+        var c = mine.hand.splice(idx, 1)[0];
+        c.owner = pi; c.faceDown = false; c.activated = true;
+        mine.field[s] = c;
+        E(ev, g, { t: 'summon', player: pi, slot: s, card: c });
+        return c;
+      },
+
+      /* 雙方手牌各一張互換 */
+      swapHand: function (myIdx, foeIdx) {
+        if (myIdx < 0 || myIdx >= mine.hand.length) return false;
+        if (foeIdx < 0 || foeIdx >= theirs.hand.length) return false;
+        var a = mine.hand[myIdx], b = theirs.hand[foeIdx];
+        mine.hand[myIdx] = b; theirs.hand[foeIdx] = a;
+        a.owner = 1 - pi; b.owner = pi;
+        E(ev, g, { t: 'swapHand', player: pi, a: a, b: b });
+        return true;
       },
 
       /* 兩張卡的所有數值互換（交換魔術） */
