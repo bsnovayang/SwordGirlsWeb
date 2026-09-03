@@ -680,6 +680,207 @@ console.log('══════ Episode 1 咒語 ══════');
   }
 }
 
+console.log('══════ Episode 1 隨從 ══════');
+{
+  /* ── 靠 defender 的攻擊前效果 ── */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'striker');              // 攻擊前：防禦隨從體力 -1
+    const d = put(g, 1, 0, 'kouhai');               // 4/1/10
+    const before = d.sta;
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(d.sta, before - 1, '前鋒：防禦隨從體力 -1');
+  }
+  {
+    const g = board();
+    put(g, 0, 0, 'aristocrat_girl');
+    const d = put(g, 1, 0, 'lib_vernika');          // def 2 → 不高於 2，不觸發
+    const s0 = d.sta;
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(d.sta, s0, '貴族少女：防禦力剛好 2 不觸發（要「高於 2」）');
+
+    const g2 = board();
+    put(g2, 0, 0, 'aristocrat_girl');
+    const d2 = put(g2, 1, 0, 'acolyte');            // 5/3/6，def 3 > 2
+    fire(g2, 0, 0, 'beforeAttack', { defender: d2 });
+    eq(d2.sta, 6 - 3, '貴族少女：防禦力 3 → 體力 -3');
+  }
+  {
+    const g = board();
+    put(g, 0, 0, 'seeker_lydia');
+    const d = put(g, 1, 0, 'kouhai');
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(stats(d), '3/4/1/10', '莉迪亞：我方南十字卡不足 2 張時不觸發');
+
+    const g2 = board();
+    put(g2, 0, 0, 'seeker_lydia');
+    put(g2, 0, 1, 'priestess');                     // 湊滿 2 張南十字
+    const d2 = put(g2, 1, 0, 'kouhai');             // 3/4/1/10
+    fire(g2, 0, 0, 'beforeAttack', { defender: d2 });
+    eq(stats(d2), '3/3/0/9', '莉迪亞：南十字 2 張 → 防禦隨從 攻 -1/防 -2/體 -1');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'red_moon_aka_flina');   // 3/4/0/9
+    const d = put(g, 1, 0, 'acolyte');              // def 3
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(stats(a), '3/7/0/12', '紅月亞卡：防禦 = 0，攻/體 + 防禦力差 3');
+  }
+
+  /* ── 防禦前 ── */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'prefect_layna');        // 1/4/2/5
+    hand(g, 0, ['kouhai', 'kouhai', 'kouhai']);
+    fire(g, 0, 0, 'beforeDefend', { attacker: null });
+    eq(a.sta, 5 + 4, '風紀部長蕾娜：體力 + 手牌數 3 +1');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'senpai_maid');          // 3/5/1/10
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(stats(a), '3/6/1/12', '前輩女僕：防禦前 攻 +1 / 體 +2');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_vernika');          // 3/4/2/8
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(a.sta, 10, '圖書部的維若妮卡：防禦前體力 +2');
+  }
+  {
+    const g = board();
+    put(g, 0, 0, 'priestess');
+    const before = g.players[0].character.life;
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(g.players[0].character.life, before + 1, '女祭司：防禦前我方角色生命 +1');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'seeker_amethystar');    // 2/6/0/4
+    g.turn = 3;
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(a.sta, 7, '阿米迪斯塔：奇數回合體力 +3');
+    const g2 = board();
+    const b = put(g2, 0, 0, 'seeker_amethystar');
+    g2.turn = 4;
+    fire(g2, 0, 0, 'beforeDefend', {});
+    eq(b.sta, 4, '阿米迪斯塔：偶數回合不觸發');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'master_luna_flina');    // 5/7/0/14
+    put(g, 0, 1, 'zombie');                         // 暗黑
+    put(g, 0, 2, 'scardel_merlot');                 // 暗黑
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(stats(a), '5/7/3/17', '滿月當主露娜：防禦 = 我方暗黑卡數 3，體力 +3');
+  }
+
+  /* ── 攻擊前（不需要 defender） ── */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_serie');            // 3/4/0/11
+    hand(g, 0, ['lib_lucca', 'lib_lindt', 'kouhai']);
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(a.atk, 6, '圖書部的賽莉耶：攻擊 + 手牌「圖書部」2 張');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, '2s_assistant_asmis');   // 4/5/2/10
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(a.atk, 6, 'SS助手阿斯米斯：攻擊前攻擊力 +1');
+  }
+
+  /* ── 回合開始 ── */
+  {
+    const g = board();
+    put(g, 0, 0, 'private_maid');
+    const d = put(g, 1, 0, 'kouhai');               // 4/1/10
+    fire(g, 0, 0, 'turnStart');
+    eq(d.atk, 3, '私人女僕：敵方隨機 1 張隨從攻擊力 -1');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'acolyte');              // 4/5/3/6 南十字
+    const b = put(g, 0, 1, 'priestess');            // 3/4/0/11 南十字
+    const c = put(g, 0, 2, 'kouhai');               // 公立，不該受影響
+    g.turn = 4;
+    fire(g, 0, 0, 'turnStart');
+    eq(stats(a), '4/7/3/8', '光的迴響：偶數回合我方南十字隨從 攻/體 +2');
+    eq(stats(c), '3/4/1/10', '光的迴響：非南十字不受影響');
+    const g2 = board();
+    const a2 = put(g2, 0, 0, 'acolyte');
+    g2.turn = 3;
+    fire(g2, 0, 0, 'turnStart');
+    eq(stats(a2), '4/5/3/6', '光的迴響：奇數回合不觸發');
+  }
+  {
+    const g = board();
+    put(g, 0, 0, 'scardel_shiraz');
+    const d = put(g, 1, 0, 'kouhai');
+    fire(g, 0, 0, 'turnStart');
+    eq(d.sta, 10, '雪拉茲：我方暗黑隨從不足 2 張時不觸發');
+
+    const g2 = board();
+    put(g2, 0, 0, 'scardel_shiraz');
+    put(g2, 0, 1, 'zombie');                        // 湊滿 2 張暗黑
+    const d2 = put(g2, 1, 0, 'kouhai');
+    fire(g2, 0, 0, 'turnStart');
+    eq(d2.sta, 8, '雪拉茲：暗黑 2 張 → 敵方隨機隨從體力 -2');
+  }
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'blue_moon_becky_flina');  // 4/4/1/14
+    const b = put(g, 0, 1, 'zombie');                 // 5/6/1/14
+    fire(g, 0, 0, 'turnStart');
+    eq(stats(a), '4/5/1/15', '藍月佩琪：此卡 攻/體 +1');
+    eq(stats(b), '5/7/1/15', '藍月佩琪：另一張隨從也 攻/體 +1');
+  }
+
+  /* ── 純數值卡不該掛效果 ── */
+  {
+    const vanilla = ['latecomer', 'basketball_player', 'kouhai', 'rainy_girl',
+                     'lib_lucca', 'lib_lindt', 'ward_closer', 'apprentice',
+                     'zombie', 'crux_faithful'];
+    const wrong = vanilla.filter(s => SG.Effects[s]);
+    ok(wrong.length === 0, 'EP1 的純數值卡沒有被誤掛效果', wrong.join('、'));
+  }
+}
+
+console.log('');
+console.log('══════ 「攻擊前」拿得到防禦目標（走完整交戰流程）══════');
+{
+  /* 前鋒的效果是「攻擊前，防禦隨從的體力 -1」——
+     代表防禦目標必須在「攻擊前」觸發之前就決定好。
+     這裡跑真正的 doAttack，確認引擎有把 defender 傳進 ctx，
+     而且那 1 點是在承受攻擊傷害之前就先扣掉的。            */
+  const g = board();
+  const a = put(g, 0, 0, 'striker');      // 4/7/1/8
+  const d = put(g, 1, 0, 'kouhai');       // 3/4/1/10
+  const ev = [];
+  SG._test.attack(g, ev, 0, 0);
+
+  const ability = ev.find(e => e.t === 'ability' && e.card === a);
+  ok(!!ability, '前鋒在完整交戰中發動了攻擊前效果');
+
+  const atk = ev.find(e => e.t === 'attack');
+  ok(!!atk && atk.target === d, '攻擊事件打在同一張防禦隨從上');
+  /* 體力 10 → 效果 -1 → 9，再吃 攻7-防1=6 傷害 → 3 */
+  eq(d.sta, 3, '效果的 -1 先生效，再結算 7-1=6 點傷害');
+
+  const iAb = ev.indexOf(ability), iAtk = ev.indexOf(atk);
+  ok(iAb < iAtk, '事件順序：先發動效果，才是攻擊');
+}
+
+{
+  /* 敵方沒有隨從時，攻擊前效果拿到的 defender 應該是 null，不能爆掉 */
+  const g = board();
+  put(g, 0, 0, 'striker');
+  const ev = [];
+  SG._test.attack(g, ev, 0, 0);
+  ok(ev.some(e => e.t === 'direct'), '敵方無隨從時仍能直擊角色卡（defender 為 null 不出錯）');
+}
+
+console.log('');
 console.log('══════ 涵蓋率 ══════');
 {
   const all = SG.allCards();

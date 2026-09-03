@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Episode 1 卡片效果（咒語 20 張 ＋ 角色卡 1 張）
+   Episode 1 卡片效果（咒語 20 張 ＋ 隨從 16 張 ＋ 角色卡 1 張）
 
    撰寫原則跟 effects.js 一樣：先 say() 宣告效果發動，再做事。
    ═══════════════════════════════════════════════════════════ */
@@ -357,6 +357,167 @@ var SG = window.SG || (window.SG = {});
         var t = folls(c.myField).filter(function (f) { return f.size >= x; });
         buff(c, t, { atk: 1, sta: 2 },
              '我方 SIZE ' + x + ' 以上的隨從　攻 +1 / 體 +2（X ＝ 場上卡片數）');
+      }
+    },
+
+    /* ═════════ Episode 1 · 隨從 ═════════
+       只有 16 張有效果，其餘 24 張是純數值卡。                       */
+
+    /* ── 公立學校 ── */
+
+    // 風紀部長的蕾娜．賽特莉芭
+    prefect_layna: {
+      beforeDefend: function (c) {
+        var x = c.myHand.length + 1;
+        c.say('防禦前　此卡體力 +' + x + '（X ＝ 手牌數 ' + c.myHand.length + ' +1）');
+        c.mod(c.self, { sta: x });
+      }
+    },
+
+    // 圖書部的賽莉耶
+    lib_serie: {
+      beforeAttack: function (c) {
+        var x = c.myHand.filter(function (h) { return nameHas(h, '圖書部'); }).length;
+        if (!x) return;
+        c.say('攻擊前　攻擊力 +' + x + '（手牌「圖書部」' + x + ' 張）');
+        c.mod(c.self, { atk: x });
+      }
+    },
+
+    // 圖書部的維若妮卡
+    lib_vernika: {
+      beforeDefend: function (c) {
+        c.say('防禦前　體力 +2');
+        c.mod(c.self, { sta: 2 });
+      }
+    },
+
+    // SS助手、阿斯米斯
+    '2s_assistant_asmis': {
+      beforeAttack: function (c) {
+        c.say('攻擊前　攻擊力 +1');
+        c.mod(c.self, { atk: 1 });
+      }
+    },
+
+    /* ── 私立學校 ── */
+
+    // 私人女僕
+    private_maid: {
+      turnStart: function (c) {
+        buff(c, pick(c, folls(c.foeField), 1), { atk: -1 },
+             '敵方隨機 1 張隨從　攻擊力 -1');
+      }
+    },
+
+    // 貴族少女
+    aristocrat_girl: {
+      beforeAttack: function (c) {
+        var d = c.defender;
+        if (!d || d.def <= 2) return;      // 防禦力要「高於 2」
+        c.say('防禦隨從防禦力高於 2　→　該隨從體力 -3');
+        c.mod(d, { sta: -3 });
+      }
+    },
+
+    // 前輩女僕
+    senpai_maid: {
+      beforeDefend: function (c) {
+        c.say('防禦前　攻 +1 / 體 +2');
+        c.mod(c.self, { atk: 1, sta: 2 });
+      }
+    },
+
+    // 前鋒
+    striker: {
+      beforeAttack: function (c) {
+        if (!c.defender) return;
+        c.say('攻擊前　防禦隨從體力 -1');
+        c.mod(c.defender, { sta: -1 });
+      }
+    },
+
+    /* ── 南十字 ── */
+
+    // 神聖研究會的阿米迪斯塔
+    seeker_amethystar: {
+      beforeDefend: function (c) {
+        if (c.g.turn % 2 === 0) return;
+        c.say('回合數為奇數　→　此卡體力 +3');
+        c.mod(c.self, { sta: 3 });
+      }
+    },
+
+    // 女祭司
+    priestess: {
+      beforeDefend: function (c) {
+        c.say('防禦前　我方角色生命 +1');
+        c.life(c.me, 1);
+      }
+    },
+
+    // 神聖研究會的莉迪亞
+    seeker_lydia: {
+      beforeAttack: function (c) {
+        var d = c.defender;
+        if (!d) return;
+        var n = cards(c.myField).filter(function (x) { return isFac(x, 'crux'); }).length;
+        if (n < 2) return;
+        c.say('我方「南十字」卡片 ' + n + ' 張（≥2）　→　防禦隨從 攻 -1 / 防 -2 / 體 -1');
+        c.mod(d, { atk: -1, def: -2, sta: -1 });
+      }
+    },
+
+    // 光的迴響
+    acolyte: {
+      turnStart: function (c) {
+        if (c.g.turn % 2 !== 0) return;
+        var t = folls(c.myField).filter(function (x) { return isFac(x, 'crux'); });
+        buff(c, t, { atk: 2, sta: 2 }, '回合數為偶數　→　我方「南十字」隨從　攻/體 +2');
+      }
+    },
+
+    /* ── 暗黑族 ── */
+
+    // 斯卡迪魯的雪拉茲
+    scardel_shiraz: {
+      turnStart: function (c) {
+        var n = folls(c.myField).filter(function (x) { return isFac(x, 'darklore'); }).length;
+        if (n < 2) return;
+        buff(c, pick(c, folls(c.foeField), 1), { sta: -2 },
+             '我方「暗黑」隨從 ' + n + ' 張（≥2）　→　敵方隨機 1 張隨從　體力 -2');
+      }
+    },
+
+    // 紅月、亞卡‧菲莉娜
+    red_moon_aka_flina: {
+      beforeAttack: function (c) {
+        var d = c.defender;
+        if (!d) return;
+        var gap = Math.min(9, Math.abs(c.self.def - d.def));
+        c.say('攻擊前　此卡防禦 = 0，攻/體 +' + gap + '（與防禦隨從的防禦力差）');
+        c.set(c.self, 'def', 0);
+        if (gap) c.mod(c.self, { atk: gap, sta: gap });
+      }
+    },
+
+    // 藍月、佩琪‧菲莉娜
+    blue_moon_becky_flina: {
+      turnStart: function (c) {
+        c.say('回合開始　此卡 攻/體 +1');
+        c.mod(c.self, { atk: 1, sta: 1 });
+        var others = folls(c.myField).filter(function (x) { return x !== c.self; });
+        buff(c, pick(c, others, 1), { atk: 1, sta: 1 }, '我方另一張隨機隨從　攻/體 +1');
+      }
+    },
+
+    // 滿月的當主、露娜‧菲莉娜
+    master_luna_flina: {
+      beforeDefend: function (c) {
+        var n = cards(c.myField).filter(function (x) { return isFac(x, 'darklore'); }).length;
+        c.say('我方「暗黑」卡片 ' + n + ' 張　→　此卡防禦 = ' + n + '，體力 +' + n);
+        c.set(c.self, 'def', n);
+        if (n) c.mod(c.self, { sta: n });
       }
     },
 

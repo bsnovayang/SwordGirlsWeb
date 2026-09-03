@@ -299,25 +299,35 @@ var SG = window.SG || (window.SG = {});
     doAttack(g, ev, pi, slot);
   }
 
+  /* 隨機挑一個防禦目標，回傳格號；沒有隨從時回傳 -1 */
+  function pickTarget(g, defP) {
+    var t = followers(defP.field);
+    return t.length ? t[Math.floor(g.rnd() * t.length)] : -1;
+  }
+
   function doAttack(g, ev, pi, slot) {
     var atkP = g.players[pi], def_P = g.players[1 - pi];
     var a = atkP.field[slot];
     if (!a) return;
 
-    fireAbility(g, ev, a, pi, slot, 'beforeAttack');
+    /* 防禦目標要在「攻擊前」之前就決定 —— 有些卡的攻擊前效果直接寫
+       「防禦隨從的體力 -1」之類，作用對象就是這次要打的那張。          */
+    var ti = pickTarget(g, def_P), d = ti < 0 ? null : def_P.field[ti];
+
+    fireAbility(g, ev, a, pi, slot, 'beforeAttack', { defender: d });
     if (atkP.field[slot] !== a) return;   // 可能被自身效果移除／移位
 
-    var targets = followers(def_P.field);
+    /* 攻擊前效果可能讓原目標離場（或讓對方場上冒出隨從），重新確認 */
+    if (ti < 0 || def_P.field[ti] !== d) {
+      ti = pickTarget(g, def_P); d = ti < 0 ? null : def_P.field[ti];
+    }
 
     /* 敵方無隨從 → 直接攻擊角色卡，傷害＝攻擊方自己的 SIZE */
-    if (!targets.length) {
+    if (ti < 0) {
       E(ev, g, { t: 'direct', player: pi, card: a, damage: a.size });
       loseLife(g, ev, 1 - pi, a.size, 'direct');
       return;
     }
-
-    var ti = targets[Math.floor(g.rnd() * targets.length)];
-    var d = def_P.field[ti];
 
     /* 被攻擊方的「防禦前」能力 */
     fireAbility(g, ev, d, 1 - pi, ti, 'beforeDefend', { attacker: a });
@@ -338,7 +348,7 @@ var SG = window.SG || (window.SG = {});
          · 被攻擊幾次就反擊幾次，只要沒死
        順序依繁中 wiki FAQ：「攻擊前」優先於「防禦前」。
        反擊不會再引發反擊，所以不會無限遞迴。                          */
-    fireAbility(g, ev, d, 1 - pi, ti, 'beforeAttack');
+    fireAbility(g, ev, d, 1 - pi, ti, 'beforeAttack', { defender: a });
     if (atkP.field[slot] !== a || def_P.field[ti] !== d) return;
 
     fireAbility(g, ev, a, pi, slot, 'beforeDefend', { attacker: d });
@@ -428,6 +438,7 @@ var SG = window.SG || (window.SG = {});
       myHand: mine.hand, myGrave: mine.grave,
       myChar: mine.character, foeChar: theirs.character,
       attacker: (extra && extra.attacker) || null,   // 「防禦前」才有值
+      defender: (extra && extra.defender) || null,   // 「攻擊前」才有值
       rnd: function () { return g.rnd(); },
 
       /* 寫一行戰鬥紀錄，代表這張卡的效果發動了 */

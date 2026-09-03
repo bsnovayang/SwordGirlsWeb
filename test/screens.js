@@ -70,7 +70,7 @@ console.log('══════ 初始存檔 ══════');
   const kinds = Object.keys(s.owned).length;
   const collectible = w.SG.collectibleCards().length;
   eq(kinds, 56, '初始持有 Episode 0 的 56 種卡');
-  eq(collectible, 82, '可收集卡片 82 種（EP0 的 56 + 5 張副本獎勵 + EP1 的 21）');
+  eq(collectible, 122, '可收集卡片 122 種（EP0 的 56 + 5 張副本獎勵 + EP1 的 61）');
   ok(w.SG.allCards().length > collectible, 'NPC 卡不算在可收集之列');
   s.decks.forEach(dk => {
     ok(w.SG.deckErrors(dk).length === 0, '預設牌組可用：' + dk.name,

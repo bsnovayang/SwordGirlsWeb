@@ -13,7 +13,9 @@ def parse(title):
     body = w[m0.start():]
     c = {'title': title}
     # 逐個 |key=value（value 可跨行，直到下一個行首 | 或 }}）
-    for m in re.finditer(r'\|\s*([A-Za-z0-9_]+)\s*=\s*(.*?)(?=\n\s*\||\n?\}\})', body, re.S):
+    # 值的結尾：下一個行首的 |key=、同一行後面接的 |key=（wiki 上常見）、或 }}
+    END = r'(?=\n\s*\|\s*[A-Za-z0-9_]+\s*=|\|\s*[A-Za-z0-9_]+\s*=|\n?\}\})'
+    for m in re.finditer(r'\|\s*([A-Za-z0-9_]+)\s*=\s*(.*?)' + END, body, re.S):
         k, v = m.group(1).strip().lower(), m.group(2).strip()
         if v == '':
             continue

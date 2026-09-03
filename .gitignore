@@ -4,3 +4,6 @@ package-lock.json
 tools/fandom/
 __pycache__/
 tools/mine.json
+tools/atcache/
+tools/ep1_followers.txt
+tools/.gen.log

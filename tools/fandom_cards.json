@@ -31,7 +31,8 @@
   "limit": 1,
   "episode": 1,
   "rarity": "Rare",
-  "effect": "At the start of the turn, for each empty Slot in the enemy Hand, a card is sent from the bottom of the enemy Deck to the enemy Hand. Next, this card gets STA +2.|flavortext=[Sorry, Asmis. We got a higher-paying request... But you can keep a secret, right?]",
+  "effect": "At the start of the turn, for each empty Slot in the enemy Hand, a card is sent from the bottom of the enemy Deck to the enemy Hand. Next, this card gets STA +2.",
+  "flavortext": "[Sorry, Asmis. We got a higher-paying request... But you can keep a secret, right?]",
   "2ingredient1": "Glasses",
   "2amount1": "8",
   "2ingredient2": "Shoes",
@@ -172,7 +173,7 @@
   "title": "A Single Flower",
   "name": "A Single Flower",
   "faction": "Crux",
-  "id": "200155|image = A_Single_Flower.png",
+  "id": "200155",
   "type": "Spell",
   "size": 1,
   "points": 1,
@@ -222,14 +223,14 @@
   "effect": "If you have a Vita Character and there are any allied Followers, a random enemy Follower is sent to the Grave. If this happens, a random enemy Spell is sent to the bottom of the enemy Deck.",
   "flavortext": "[I just need a few tricks to tie up Celine's supporters.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Seize",
@@ -310,7 +311,8 @@
   "rarity": "Common",
   "faction": "Academy",
   "episode": 0,
-  "effect": "Two random enemy Followers have their ATK/STA decreased by the number of cards in your Field with \"Maid\" in the name. |flavortext=[Oh no! Cinia's favorite tea set!]",
+  "effect": "Two random enemy Followers have their ATK/STA decreased by the number of cards in your Field with \"Maid\" in the name.",
+  "flavortext": "[Oh no! Cinia's favorite tea set!]",
   "koname": "액시던트",
   "konametranslation": "Accident",
   "season": "1",
@@ -718,14 +720,14 @@
   "effect": "Before this card is attacked, if it belongs to your Character's faction, up to five cards in your Grave are sent to the bottom of your Deck. Next, the attacker's ATK is decreased by half (rounding up) of the number of sent cards, and then this skill is removed.",
   "flavortext": "[It's been a long time, Vernika. I've missed you, so that's why I came here. Are you alright? You look pale... The curtains? Okay. I'll close them.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Red Ore",
-  "2amount8": "|2ingredient9=Bamboo",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Red Ore",
+  "2ingredient9": "Bamboo",
   "materials": [
    {
     "item": "Tea Time",
@@ -938,7 +940,9 @@
   "faction": "Crux",
   "rarity": "Rare",
   "episode": 3,
-  "effect": "All cards in your Hand are sent to the bottom of your Deck. If at least two cards were sent, a random enemy Follower with a SIZE of at least 4 is sent to the bottom of the enemy Deck. |flavortext=[You're under arrest for consorting with vampires and bringing harm to human beings.] [I can't believe this. Jaina!]",
+  "effect": "All cards in your Hand are sent to the bottom of your Deck. If at least two cards were sent, a random enemy Follower with a SIZE of at least 4 is sent to the bottom of the enemy Deck.",
+  "flavortext": "[You're under arrest for consorting with vampires and bringing harm to human beings.] [I can't believe this. Jaina!]",
+  "2ingredient1": "Sword",
   "2amount1": "3",
   "2ingredient2": "Shoes",
   "2amount2": "3",
@@ -1086,9 +1090,11 @@
   "size": 0,
   "points": 0,
   "limit": 0,
-  "flavortext": "[This Material can be found in the Bamboo Scent Dungeon.] [The famous park, Bamboo Scent, is always full of visitors looking for exotic scenery. However, who in the world is this person who can grow bamboo on this land? Bamboo never grew here before. - Esprit's Memo]|faction = Neutral",
+  "flavortext": "[This Material can be found in the Bamboo Scent Dungeon.] [The famous park, Bamboo Scent, is always full of visitors looking for exotic scenery. However, who in the world is this person who can grow bamboo on this land? Bamboo never grew here before. - Esprit's Memo]",
+  "faction": "Neutral",
   "episode": 1,
-  "rarity": "Prize|notes = Found in [[Bamboo Garden]]\nUsed to craft Episode EX1 cards."
+  "rarity": "Prize",
+  "notes": "Found in [[Bamboo Garden]]\nUsed to craft Episode EX1 cards."
  },
  {
   "title": "Bargaining Table",
@@ -1346,7 +1352,8 @@
   "episode": 0,
   "rarity": "Event",
   "level": 1,
-  "effect": "Before this card is attacked, it gets ATK +2/STA +2, and then this skill is removed for the rest of the turn. |flavortext = [Never put your sword down! This is the basic rule of sword fighting!]",
+  "effect": "Before this card is attacked, it gets ATK +2/STA +2, and then this skill is removed for the rest of the turn.",
+  "flavortext": "[Never put your sword down! This is the basic rule of sword fighting!]",
   "notes": "This card was given to all players in the second closed beta. Players who achieved at least 100 wins in the second closed beta were allowed to keep it for the open beta.\n\nThis card is exclusive to the English version of Sword Girls and is not present in the original Korean version.",
   "season": "1"
  },
@@ -1361,11 +1368,16 @@
   "faction": "Darklore",
   "episode": 0,
   "rarity": "Common",
-  "effect": "Two random allied Darklore Followers get ATK +2/STA +2. |flavortext= [A reversal of blood flow... This is how we describe it. It's hard to fully explain, but it's a state of extreme fury.]|ingredient1=Book",
+  "effect": "Two random allied Darklore Followers get ATK +2/STA +2.",
+  "flavortext": "[A reversal of blood flow... This is how we describe it. It's hard to fully explain, but it's a state of extreme fury.]",
   "koname": "블러드 백",
   "konametranslation": "Blood one hundred",
   "season": "0",
   "materials": [
+   {
+    "item": "Book",
+    "n": 3
+   },
    {
     "item": "Black Ore",
     "n": 2
@@ -1387,11 +1399,16 @@
   "faction": "Darklore",
   "episode": 0,
   "rarity": "Common",
-  "effect": "The first allied Darklore Follower gets STA =1. Your Character gets LIFE increased by the STA reduction (by a maximum of 10). |flavortext= [Please don't dismiss the drinking of blood as a crude act. We know the value of blood better than anyone else.]|ingredient1=Book",
+  "effect": "The first allied Darklore Follower gets STA =1. Your Character gets LIFE increased by the STA reduction (by a maximum of 10).",
+  "flavortext": "[Please don't dismiss the drinking of blood as a crude act. We know the value of blood better than anyone else.]",
   "koname": "피의 대상",
   "konametranslation": "Blood Target",
   "season": "1",
   "materials": [
+   {
+    "item": "Book",
+    "n": 3
+   },
    {
     "item": "Black Ore",
     "n": 2
@@ -1527,14 +1544,14 @@
   "effect": "Before this card is attacked, if there are two or fewer cards in your Hand, it gets STA -2. If there are at least four cards in your Hand, this skill is removed.",
   "flavortext": "[Don't think that the Blue Cross only does nice things and has nothing to hide. Where there's light, there's shadow.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Blue Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Blue Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Blue Cross Member",
@@ -2112,10 +2129,12 @@
   "faction": "Academy",
   "rarity": "Common",
   "episode": 0,
-  "effect": "Before this card attacks, the first Spell in your Hand is discarded. If this happens, this card gets ATK +2. |flavortext=[Senpai, never forget that every maid looks up to you for leadership. Since you're such a good leader, you should already know that I'm scheduled for vacation next week.]",
+  "effect": "Before this card attacks, the first Spell in your Hand is discarded. If this happens, this card gets ATK +2.",
+  "flavortext": "[Senpai, never forget that every maid looks up to you for leadership. Since you're such a good leader, you should already know that I'm scheduled for vacation next week.]",
   "attack": 6,
   "defense": 1,
   "stamina": 9,
+  "koname": "치프메이드",
   "konametranslation": "Maid Chief",
   "season": "1",
   "level": null,
@@ -2201,7 +2220,9 @@
   "limit": 1,
   "rarity": "Rare",
   "episode": 3,
-  "effect": "At the start of the turn, a random enemy Follower has one of these effects applied depending on its SIZE. ● 3 or greater: ATK -2 ● Less than 3: STA -2 |flavortext = [Ahem! Are you ignoring me because of my age? Your attitude angers me. Show some respect!]",
+  "effect": "At the start of the turn, a random enemy Follower has one of these effects applied depending on its SIZE. ● 3 or greater: ATK -2 ● Less than 3: STA -2",
+  "flavortext": "[Ahem! Are you ignoring me because of my age? Your attitude angers me. Show some respect!]",
+  "2ingredient1": "Sword",
   "2amount1": "240",
   "2ingredient2": "Red Ore",
   "2amount2": "160",
@@ -2288,7 +2309,8 @@
   "points": 1,
   "limit": 1,
   "episode": 3,
-  "effect": "At the start of the turn, if the number of cards in your Hand is even, a random enemy Follower gets ATK -1/DEF -1/STA -1. |flavortext = [Ire turned her face away so her daughter could not see her tears. \"Sorry, Iri. Your mother was a... I hope you grow up to be strong, so no one will ever disregard you.\"]",
+  "effect": "At the start of the turn, if the number of cards in your Hand is even, a random enemy Follower gets ATK -1/DEF -1/STA -1.",
+  "flavortext": "[Ire turned her face away so her daughter could not see her tears. \"Sorry, Iri. Your mother was a... I hope you grow up to be strong, so no one will ever disregard you.\"]",
   "2ingredient1": "Sword",
   "2amount1": "240",
   "2ingredient2": "Black Ore",
@@ -2698,7 +2720,8 @@
   "faction": "Crux",
   "rarity": "Common",
   "episode": 0,
-  "effect": "Two random allied Crux Followers get ATK +2/STA +2. |flavortext=[The vampire called out from behind her. \"Are you looking for the master of the Flinas? I can guide you if you want. Heh... Of course, I can't promise that I won't want a snack along the way!\"]",
+  "effect": "Two random allied Crux Followers get ATK +2/STA +2.",
+  "flavortext": "[The vampire called out from behind her. \"Are you looking for the master of the Flinas? I can guide you if you want. Heh... Of course, I can't promise that I won't want a snack along the way!\"]",
   "koname": "접근조우",
   "konametranslation": "Oncoming Encounter",
   "season": "1",
@@ -2808,14 +2831,14 @@
   "effect": "If you have a Crux Character, cards in your Hand are sent to empty Slots in your Field in sequential order until your Field is full or your Hand runs out of cards. If this happens, those cards get SIZE = 2-3 (at random).",
   "flavortext": "[I loved this place... Crux. The weather is lovely again today. Jaina... No. This place is too good for her.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Blue Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Blue Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "False Delivery",
@@ -4143,14 +4166,14 @@
   "effect": "Before this card attacks, it gets its ATK/STA increased by 1 plus the number of allied Followers with \"Council\" in the name. Next, this skill is removed until the start of the next turn.",
   "flavortext": "[Celine's support is absolute. I don't know what kind of strategy you have in mind, but it's going to be an uphill battle.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Lib. Student",
@@ -4180,17 +4203,18 @@
   "limit": 3,
   "episode": 4,
   "rarity": "Common",
-  "effect": "Before this card is attacked, its ATK and the attacker's ATK are swapped. |flavortext = [Good morning. What's up, Nanai? What's that magic tool you're holding?]",
+  "effect": "Before this card is attacked, its ATK and the attacker's ATK are swapped.",
+  "flavortext": "[Good morning. What's up, Nanai? What's that magic tool you're holding?]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
-  "2amount9": "|previousname = Weekly Duty Student",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
+  "previousname": "Weekly Duty Student",
   "materials": [
    {
     "item": "Lib. Student",
@@ -4256,9 +4280,11 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Uncommon",
-  "effect": "Before this card attacks, if it has a DEF of at least 1, it gets ATK/STA increased by its DEF, and then this skill is removed until the start of the next turn. At the start of the turn, this card gets DEF -1 (to a minimum of 0). |flavortext=[You want to become the center of the alliance? What a big dream. Of course, I like your plan very much. Please bring me some slightly better conditions. I will think about it then.]",
+  "effect": "Before this card attacks, if it has a DEF of at least 1, it gets ATK/STA increased by its DEF, and then this skill is removed until the start of the next turn. At the start of the turn, this card gets DEF -1 (to a minimum of 0).",
+  "flavortext": "[You want to become the center of the alliance? What a big dream. Of course, I like your plan very much. Please bring me some slightly better conditions. I will think about it then.]",
   "recipe1": "Showdown",
-  "amountneeded1": "3| recipe2 = GS 1st Star",
+  "amountneeded1": "3",
+  "recipe2": "GS 1st Star",
   "amountneeded2": "2|",
   "materials": [
    {
@@ -4272,14 +4298,6 @@
    {
     "item": "Lightning Witch",
     "n": 1
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -4297,8 +4315,13 @@
   "limit": 3,
   "episode": 5,
   "rarity": "Common",
-  "effect": "Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed. |flavortext = Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed. |ingredient1 = Glasses",
+  "effect": "Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed.",
+  "flavortext": "Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed.",
   "materials": [
+   {
+    "item": "Glasses",
+    "n": 1
+   },
    {
     "item": "Ribbon",
     "n": 1
@@ -4405,9 +4428,11 @@
   "limit": 3,
   "episode": 5,
   "rarity": "Uncommon",
-  "effect": "At the start of the turn, if you have a Darklore Character, the first card in your Hand with \"Crescent\" in the name and the first Darklore card without \"Crescent\" in the name are sent to the bottom of your Deck. If this happens, a random enemy Follower is sent to the bottom of the enemy Deck, and then this skill is removed.|flavortext= [Disaster finally came down on our leader, but somehow, I just can't bring myself to care. Moving on, what do you other Elders think about the invasion situation? If Crux wants to bring ruin to our home, we could use this opportunity to have those filthy mixed-bloods shield us, couldn't we?]",
+  "effect": "At the start of the turn, if you have a Darklore Character, the first card in your Hand with \"Crescent\" in the name and the first Darklore card without \"Crescent\" in the name are sent to the bottom of your Deck. If this happens, a random enemy Follower is sent to the bottom of the enemy Deck, and then this skill is removed.",
+  "flavortext": "[Disaster finally came down on our leader, but somehow, I just can't bring myself to care. Moving on, what do you other Elders think about the invasion situation? If Crux wants to bring ruin to our home, we could use this opportunity to have those filthy mixed-bloods shield us, couldn't we?]",
   "recipe1": "Lago de Cisnes",
-  "amountneeded1": "2|recipe2 = Vampire Hunter Iri",
+  "amountneeded1": "2",
+  "recipe2": "Vampire Hunter Iri",
   "amountneeded2": "2",
   "materials": [
    {
@@ -4417,18 +4442,6 @@
    {
     "item": "Hellfire Witch",
     "n": 1
-   },
-   {
-    "item": "|amount3 =",
-    "n": null
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -4767,9 +4780,11 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Common",
-  "effect": "Before this card is attacked, it gets STA increased by the number of allied cards with \"Scardel\" in the name. |flavortext=[The fighter created by the Crescent elders. With emphasis on independence, she has the ability to cope with any situation. She can even carry out her duties in the light of day.]",
+  "effect": "Before this card is attacked, it gets STA increased by the number of allied cards with \"Scardel\" in the name.",
+  "flavortext": "[The fighter created by the Crescent elders. With emphasis on independence, she has the ability to cope with any situation. She can even carry out her duties in the light of day.]",
   "recipe1": "GS Fighting Instructor",
-  "amountneeded1": "1| recipe2 = Lightning Witch",
+  "amountneeded1": "1",
+  "recipe2": "Lightning Witch",
   "amountneeded2": "1|",
   "materials": [
    {
@@ -5230,7 +5245,8 @@
   "limit": 1,
   "episode": 5,
   "rarity": "Rare",
-  "effect": "Before this card attacks, it gets ATK/STA increased by the number of Followers in your Hand. The first Follower in your Hand is sent to the top of your Deck.|flavortext = [Even the air in Crux just feels wrong. I'm going to destroy the whole nation.]",
+  "effect": "Before this card attacks, it gets ATK/STA increased by the number of Followers in your Hand. The first Follower in your Hand is sent to the top of your Deck.",
+  "flavortext": "[Even the air in Crux just feels wrong. I'm going to destroy the whole nation.]",
   "2ingredient1": "Shoes",
   "2amount1": "31",
   "2ingredient2": "Ribbon",
@@ -5607,7 +5623,8 @@
   "faction": "Academy",
   "episode": 5,
   "rarity": "Common",
-  "effect": "A random allied Academy Follower gets DEF increased by the number of enemy Followers with skills (by a maximum of 3). |flavortext=[Everything has burned away into nothing...]",
+  "effect": "A random allied Academy Follower gets DEF increased by the number of enemy Followers with skills (by a maximum of 3).",
+  "flavortext": "[Everything has burned away into nothing...]",
   "season": "1",
   "recipe1": "Curse of Mistrust",
   "amountneeded1": "2",
@@ -5641,7 +5658,8 @@
   "season": "1",
   "episode": 5,
   "rarity": "Uncommon",
-  "level": 3,
+  "effect": "The first two allied Followers without skills get ATK +3/STA +3.",
+  "flavortext": "[This was the first time the side effects of talentium were seen. In Jaina's letter, she described talentium's true appearance. - Creuset's Experiment Notes]",
   "points": 3,
   "recipe1": "Pilgrimage Of Proof",
   "amountneeded1": "1",
@@ -6174,7 +6192,8 @@
   "limit": 3,
   "episode": 4,
   "rarity": "Uncommon",
-  "effect": "Before this card attacks, other allied cards with \"Dress Up Sionrion\" in the name are sent to the Grave. Next, the first card in your Hand is sent to the bottom of your Deck. If this happens, a random Follower in your Grave with \"Sion\" or \"Rion\" in the name is removed from the game. If this happens, the enemy Character gets LIFE -1 and your Character gets LIFE +1. |flavortext = [This is a Talent Memory? It's got weird side effects, but whatever! Now, count up your sins!]",
+  "effect": "Before this card attacks, other allied cards with \"Dress Up Sionrion\" in the name are sent to the Grave. Next, the first card in your Hand is sent to the bottom of your Deck. If this happens, a random Follower in your Grave with \"Sion\" or \"Rion\" in the name is removed from the game. If this happens, the enemy Character gets LIFE -1 and your Character gets LIFE +1.",
+  "flavortext": "[This is a Talent Memory? It's got weird side effects, but whatever! Now, count up your sins!]",
   "2ingredient1": "Shoes",
   "2amount1": "2",
   "2ingredient2": "Ribbon",
@@ -6324,7 +6343,8 @@
   "faction": "Vita",
   "episode": 2,
   "rarity": "Rare",
-  "effect": "A Follower in Slot 2 gets ATK +2/STA +5. Next, if you do not have a Vita Character, the Follower's skill is removed. |flavortext=[Sita! You can do this!]",
+  "effect": "A Follower in Slot 2 gets ATK +2/STA +5. Next, if you do not have a Vita Character, the Follower's skill is removed.",
+  "flavortext": "[Sita! You can do this!]",
   "2ingredient1": "Cat Doll",
   "2amount1": "7",
   "2amount2": "4",
@@ -6491,7 +6511,7 @@
   "title": "Event Preparation",
   "name": "Event Preparation",
   "faction": "Vita",
-  "id": "200172|image = Event_Preparation.png",
+  "id": "200172",
   "type": "Spell",
   "size": 3,
   "limit": 3,
@@ -6499,7 +6519,9 @@
   "episode": 6,
   "rarity": "Common",
   "level": 1,
-  "effect": "If there are allied Followers that belong to your Character's faction and allied Followers that do not belong to your Character's faction, two random allied Followers get ATK +3/STA +3. |flavortext = [There's going to be such a huuuge crowd. Please follow your orders exactly! You girls will behave, right?]",
+  "effect": "If there are allied Followers that belong to your Character's faction and allied Followers that do not belong to your Character's faction, two random allied Followers get ATK +3/STA +3.",
+  "flavortext": "[There's going to be such a huuuge crowd. Please follow your orders exactly! You girls will behave, right?]",
+  "points": 1,
   "recipe1": "Morals Crackdown",
   "amountneeded1": "2",
   "materials": [
@@ -6536,7 +6558,8 @@
   "faction": "Darklore",
   "episode": 1,
   "rarity": "Double Rare",
-  "effect": "If you have a Darklore Character, all enemy Followers get ATK -2/DEF -2/STA -2. If you do not have a Darklore Character, all enemy Followers get ATK -2/DEF -2. |flavortext=[Everything will be drained... Everything this eye sees will die... It doesn't matter if it's friend or foe. It won't show mercy to anyone... Augh... Run!]",
+  "effect": "If you have a Darklore Character, all enemy Followers get ATK -2/DEF -2/STA -2. If you do not have a Darklore Character, all enemy Followers get ATK -2/DEF -2.",
+  "flavortext": "[Everything will be drained... Everything this eye sees will die... It doesn't matter if it's friend or foe. It won't show mercy to anyone... Augh... Run!]",
   "2ingredient1": "Sword",
   "2amount1": "36",
   "2ingredient2": "Glasses",
@@ -6592,14 +6615,14 @@
   "effect": "Cards in both Hands that do not belong to the corresponding Character's faction are sent to the Grave.",
   "flavortext": "[These three swords were passed down generation to generation in the house of Pacifica. Cinia owns one of them. That sword has the power to change the past. What do you think? Even Jaina has never heard about this.]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Blue Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Blue Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Fast Forward",
@@ -6769,7 +6792,8 @@
   "faction": "Academy",
   "episode": 2,
   "rarity": "Rare",
-  "effect": "Before this card attacks, up to two Academy cards in your Grave are removed from the game. If this happens, two random enemy Followers get ATK -1/DEF -1/STA -2.|flavortext=[You said your name was Nanai, right? I expected more from you. Remember this. Next time, I won't lose.]",
+  "effect": "Before this card attacks, up to two Academy cards in your Grave are removed from the game. If this happens, two random enemy Followers get ATK -1/DEF -1/STA -2.",
+  "flavortext": "[You said your name was Nanai, right? I expected more from you. Remember this. Next time, I won't lose.]",
   "attack": 6,
   "defense": 2,
   "stamina": 10,
@@ -6952,7 +6976,8 @@
   "attack": 3,
   "defense": 1,
   "stamina": 9,
-  "effect": "Before this card attacks, an allied Follower in Slot 3 gets ATK +1/STA +1. |flavortext=[May I plant this here? Ah, no matter how many times I look at it, there's no flag more beautiful than that of Crux. Isn't that right, Luthica-senpai?]",
+  "effect": "Before this card attacks, an allied Follower in Slot 3 gets ATK +1/STA +1.",
+  "flavortext": "[May I plant this here? Ah, no matter how many times I look at it, there's no flag more beautiful than that of Crux. Isn't that right, Luthica-senpai?]",
   "materials": [
    {
     "item": "Cat Doll",
@@ -7197,9 +7222,11 @@
   "limit": 1,
   "episode": 6,
   "rarity": "Rare",
-  "effect": "Before this card is attacked, if it and the attacker belong to different factions, the attacker gets ATK -1/STA -1 and this card gets ATK +1/STA +1. |flavortext=[In the GS, there are 9 Stars in all. I am the first of them. If we are successful in rooting ourselves within Crux, the 2nd Star will come looking for us.]",
+  "effect": "Before this card is attacked, if it and the attacker belong to different factions, the attacker gets ATK -1/STA -1 and this card gets ATK +1/STA +1.",
+  "flavortext": "[In the GS, there are 9 Stars in all. I am the first of them. If we are successful in rooting ourselves within Crux, the 2nd Star will come looking for us.]",
   "recipe1": "Showdown",
-  "amountneeded1": "1| recipe2 = 2nd Witness Kana. DND",
+  "amountneeded1": "1",
+  "recipe2": "2nd Witness Kana. DND",
   "amountneeded2": "1|",
   "materials": [
    {
@@ -7238,10 +7265,13 @@
   "limit": 3,
   "episode": 5,
   "rarity": "Common",
-  "effect": "Before defending, the first card in your deck with \"GS\" in the name is moved to the first empty slot of your field, then this ability is removed.|flavortext = [For the glory of the great GS! I've completed my duties! What's my next assignment? Am I going to the Crux nation?]",
+  "effect": "Before defending, the first card in your deck with \"GS\" in the name is moved to the first empty slot of your field, then this ability is removed.",
+  "flavortext": "[For the glory of the great GS! I've completed my duties! What's my next assignment? Am I going to the Crux nation?]",
   "recipe1": "Lago de Cisnes",
-  "amountneeded1": "2|recipe2 = GS Colonel Z",
-  "amountneeded2": "1|recipe3 = Vampire Hunter Iri",
+  "amountneeded1": "2",
+  "recipe2": "GS Colonel Z",
+  "amountneeded2": "1",
+  "recipe3": "Vampire Hunter Iri",
   "amountneeded3": "1",
   "materials": [
    {
@@ -7251,18 +7281,6 @@
    {
     "item": "Crescent Aligote",
     "n": 2
-   },
-   {
-    "item": "|amount3 =",
-    "n": null
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -7280,7 +7298,8 @@
   "limit": 3,
   "episode": 4,
   "rarity": "Common",
-  "effect": "Before this card is attacked, the first card in your Deck with \"GS Soldier\" in the name is sent to your first empty Slot, gets ATK +2, and is deactivated. Next, this skill is removed until the start of the next turn. |flavortext = [Soldiers, take pride. By fighting at our sides, your strength will grow. We were once like you, but the day will come when you fulfill your potential.]",
+  "effect": "Before this card is attacked, the first card in your Deck with \"GS Soldier\" in the name is sent to your first empty Slot, gets ATK +2, and is deactivated. Next, this skill is removed until the start of the next turn.",
+  "flavortext": "[Soldiers, take pride. By fighting at our sides, your strength will grow. We were once like you, but the day will come when you fulfill your potential.]",
   "2ingredient1": "Shoes",
   "2amount1": "2",
   "2ingredient2": "Ribbon",
@@ -7322,10 +7341,13 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Common",
-  "effect": "At the start of the turn, allied Followers with \"\"GS\"\" in the name get ATK +1/STA +1 and allied Followers without \"\"GS\"\" in the name get ATK =-1/STA -1. |flavortext=[This is my 2nd year with the GS. I will destroy everything before me.]",
+  "effect": "At the start of the turn, allied Followers with \"\"GS\"\" in the name get ATK +1/STA +1 and allied Followers without \"\"GS\"\" in the name get ATK =-1/STA -1.",
+  "flavortext": "[This is my 2nd year with the GS. I will destroy everything before me.]",
   "recipe1": "Showdown",
-  "amountneeded1": "3| recipe2 = Buisness Witch",
-  "amountneeded2": "1| recipe3 = GS 1st Star",
+  "amountneeded1": "3",
+  "recipe2": "Buisness Witch",
+  "amountneeded2": "1",
+  "recipe3": "GS 1st Star",
   "amountneeded3": "2|",
   "materials": [
    {
@@ -7339,14 +7361,6 @@
    {
     "item": "GS Spy",
     "n": 1
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -7397,9 +7411,11 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Common",
-  "effect": "Before this card is attacked, if it is active, it gets ATK +1/STA +1.  |flavortext=[Ouch, my muffler suddenly came off. Was I... caught?]",
+  "effect": "Before this card is attacked, if it is active, it gets ATK +1/STA +1.",
+  "flavortext": "[Ouch, my muffler suddenly came off. Was I... caught?]",
   "recipe1": "GS Fighting Instructor",
-  "amountneeded1": "1| recipe2 = Creepy Witch",
+  "amountneeded1": "1",
+  "recipe2": "Creepy Witch",
   "amountneeded2": "1|",
   "materials": [
    {
@@ -7664,7 +7680,8 @@
   "rarity": "Common",
   "episode": 0,
   "effect": "At the start of the turn, a random Follower with \"Maid\" in the name gets ATK +1/STA +1",
-  "flavortext": "[I'm committed to the safety of Ms. Cinia.] [You should also be committed to the safety of my furniture, as well as my pottery.]|attack=5",
+  "flavortext": "[I'm committed to the safety of Ms. Cinia.] [You should also be committed to the safety of my furniture, as well as my pottery.]",
+  "attack": 5,
   "defense": 1,
   "stamina": 8,
   "materials": [
@@ -7745,6 +7762,10 @@
    {
     "item": "Perky Girl",
     "n": 1
+   },
+   {
+    "item": "Sword Girls Sita",
+    "n": 1
    }
   ]
  },
@@ -7805,13 +7826,12 @@
   "id": "100043",
   "name": "{{PAGENAME",
   "type": "Character",
-  "size": 20,
+  "points": 20,
   "limit": 1,
   "faction": "Crux",
   "rarity": "Uncommon",
   "episode": 3,
-  "attack": null,
-  "stamina": 30,
+  "life": 30,
   "effect": "At the start of the turn, a random allied Follower gets ATK +2. If the Turn Number is even, the Follower gets an additional STA +1.",
   "flavortext": "[Being the head knight is a massive responsibility. I must ensure that everything goes according to plan, so I operate under a lot of stress. Sometimes, I feel like I need to take a break.]",
   "materials": [
@@ -8039,7 +8059,8 @@
   "episode": 2,
   "rarity": "Common",
   "level": 1,
-  "effect": "All allied Followers get ATK +2/STA +3. |flavortext = [Vita Public High School official merchandise. A cute keychain featuring the principal.]",
+  "effect": "All allied Followers get ATK +2/STA +3.",
+  "flavortext": "[Vita Public High School official merchandise. A cute keychain featuring the principal.]",
   "recipe1": "Low Turnout",
   "amountneeded1": "2",
   "recipe2": "Shattered Land",
@@ -8751,8 +8772,12 @@
   "attack": 7,
   "defense": 1,
   "stamina": 12,
-  "flavortext": "[Ugh... How much longer until my shift is over?]|ingredient1=Cat Doll",
+  "flavortext": "[Ugh... How much longer until my shift is over?]",
   "materials": [
+   {
+    "item": "Cat Doll",
+    "n": 3
+   },
    {
     "item": "Blue Ore",
     "n": 2
@@ -9279,7 +9304,9 @@
   "limit": 3,
   "episode": 3,
   "rarity": "Common",
-  "effect": "Before this card attacks, if the defender has a DEF of at least 1, the defender gets DEF =0, and then this skill is removed until the start of the next turn. |flavortext = [Ow! Senpai! You can't buy every mysterious book! I wouldn't want these even as a donation! Please don't play pranks like this again!]",
+  "effect": "Before this card attacks, if the defender has a DEF of at least 1, the defender gets DEF =0, and then this skill is removed until the start of the next turn.",
+  "flavortext": "[Ow! Senpai! You can't buy every mysterious book! I wouldn't want these even as a donation! Please don't play pranks like this again!]",
+  "2ingredient1": "Glasses",
   "2amount1": "2",
   "2ingredient2": "Shoes",
   "2amount2": "2",
@@ -9334,7 +9361,8 @@
   "episode": 5,
   "rarity": "Common",
   "level": 1,
-  "effect": "Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed. |flavortext = [I'm reading. Tell me later. Don't bother me.]",
+  "effect": "Before this card is attacked, if it belongs to your Character's faction, the enemy Character gets LIFE -1 and then this skill is removed.",
+  "flavortext": "[I'm reading. Tell me later. Don't bother me.]",
   "recipe1": "Lib. Serie(Ep5)",
   "amountneeded1": "2",
   "recipe2": "Lib. Milka(Ep5)",
@@ -9492,14 +9520,14 @@
   "effect": "Before this card is attacked, if you have a Vita Character, the first two cards in your Hand are sent to the bottom of your Deck. If this happens, a random deactivated allied Follower is reactivated and a random allied Follower gets SIZE -1/ATK +1/DEF +1.",
   "flavortext": "[Serie, I have to apologize. That cobalt book was pretty good after all. Sorry, Serie. We're still friends, right?]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Seize",
@@ -9627,7 +9655,9 @@
   "limit": 3,
   "episode": 3,
   "rarity": "Common",
-  "effect": "Before this card attacks, the defender's skills are removed. If this happens, this skill is removed. |flavortext = [Listen, Serie. Someone put those weird books on the book request list, and it was either you or Lindt. I'm going to reject these, alright? That \"Glass Library\" publisher was weird to begin with. From now on, any cobalt blue books are going to be rejected. If anyone wants to read them, they should buy them with their own money.]",
+  "effect": "Before this card attacks, the defender's skills are removed. If this happens, this skill is removed.",
+  "flavortext": "[Listen, Serie. Someone put those weird books on the book request list, and it was either you or Lindt. I'm going to reject these, alright? That \"Glass Library\" publisher was weird to begin with. From now on, any cobalt blue books are going to be rejected. If anyone wants to read them, they should buy them with their own money.]",
+  "2ingredient1": "Glasses",
   "2amount1": "3",
   "2ingredient2": "Shoes",
   "2amount2": "3",
@@ -9761,14 +9791,14 @@
   "effect": "Before this card attacks, it has its STA increased by the number of cards in your Hand with \"Lib.\" in the name. If its STA is increased by at least three, it also gets ATK +1.",
   "flavortext": "[I joined the Library Club because my sister did, but I don't know about this... Can I really help?]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
   "materials": [
    {
     "item": "Lib. Student",
@@ -9947,10 +9977,13 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Common",
-  "effect": "At the start of the turn, this card gets SIZE -2 or SIZE +1. (50% chance) |flavortext=[I respect your goal and will. However, I prefer my own freedom. Sorry, but I'll have to reject your offer, witch queen.]",
+  "effect": "At the start of the turn, this card gets SIZE -2 or SIZE +1. (50% chance)",
+  "flavortext": "[I respect your goal and will. However, I prefer my own freedom. Sorry, but I'll have to reject your offer, witch queen.]",
   "recipe1": "Showdown",
-  "amountneeded1": "3| recipe2 = Creepy Witch",
-  "amountneeded2": "1| recipe3 = GS 1st Star",
+  "amountneeded1": "3",
+  "recipe2": "Creepy Witch",
+  "amountneeded2": "1",
+  "recipe3": "GS 1st Star",
   "amountneeded3": "2|",
   "materials": [
    {
@@ -9964,14 +9997,6 @@
    {
     "item": "Crescent Unit Azoth",
     "n": 1
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -10000,7 +10025,8 @@
   "faction": "Academy",
   "episode": 2,
   "rarity": "Common",
-  "effect": "Allied Academy Followers with a Slot number equal to their SIZE get ATK +3/STA +3.|flavortext=[They were always worried about how to preserve their superior bloodline... And this was their solution. Unfortunately, the results were disastrous. No more sons would ever be born.]",
+  "effect": "Allied Academy Followers with a Slot number equal to their SIZE get ATK +3/STA +3.",
+  "flavortext": "[They were always worried about how to preserve their superior bloodline... And this was their solution. Unfortunately, the results were disastrous. No more sons would ever be born.]",
   "materials": [
    {
     "item": "Shoes",
@@ -10038,7 +10064,8 @@
   "limit": 1,
   "episode": 3,
   "rarity": "Rare",
-  "effect": "At the start of the turn, this card and adjacent Academy Followers have their ATK/STA increased by half of this card's SIZE (rounding up).|flavortext=[Cinia. Rose's story was tragic, but it's time to move forward. Can you do that? Cheer up.]",
+  "effect": "At the start of the turn, this card and adjacent Academy Followers have their ATK/STA increased by half of this card's SIZE (rounding up).",
+  "flavortext": "[Cinia. Rose's story was tragic, but it's time to move forward. Can you do that? Cheer up.]",
   "2ingredient1": "Book",
   "2amount1": "12",
   "2ingredient2": "Cat Doll",
@@ -10099,7 +10126,8 @@
   "faction": "Academy",
   "episode": 3,
   "rarity": "Rare",
-  "effect": "If you have any Followers in your Field, a random enemy Follower is sent to the Grave. If this happens, and this card has a SIZE of at least 2, a copy of this card is created in the first empty Slot in the enemy Field, gets SIZE -1, and is then deactivated. |flavortext=[Sorry, Miss Linia... I'm always making mistakes.] [No problem. Things will be just fine. You can fix it later, but how about spending some time with me first? I miss having company.]",
+  "effect": "If you have any Followers in your Field, a random enemy Follower is sent to the Grave. If this happens, and this card has a SIZE of at least 2, a copy of this card is created in the first empty Slot in the enemy Field, gets SIZE -1, and is then deactivated.",
+  "flavortext": "[Sorry, Miss Linia... I'm always making mistakes.] [No problem. Things will be just fine. You can fix it later, but how about spending some time with me first? I miss having company.]",
   "2ingredient1": "Sword",
   "2amount1": "3",
   "2ingredient2": "Glasses",
@@ -10240,7 +10268,8 @@
   "limit": 1,
   "episode": 5,
   "rarity": "Rare",
-  "effect": "Before this card attacks, if there are at least two allied Darklore cards, the defender gets ATK -1/DEF -2/STA -1.  |flavortext=[What are the elders trying to do? You can't just move however you want. I need to investigate more.]",
+  "effect": "Before this card attacks, if there are at least two allied Darklore cards, the defender gets ATK -1/DEF -2/STA -1.",
+  "flavortext": "[What are the elders trying to do? You can't just move however you want. I need to investigate more.]",
   "materials": [
    {
     "item": "Talentium Ingot",
@@ -10249,18 +10278,6 @@
    {
     "item": "Master Luna Flina",
     "n": 1
-   },
-   {
-    "item": "|amount3 =",
-    "n": null
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -10925,7 +10942,8 @@
   "limit": 1,
   "episode": 3,
   "rarity": "Rare",
-  "effect": "At the start of the turn, allied Darklore Followers get ATK+2/STA+2. |flavortext = [Don't always think about fighting. It falls on me to arbitrate fights between allies.]",
+  "effect": "At the start of the turn, allied Darklore Followers get ATK+2/STA+2.",
+  "flavortext": "[Don't always think about fighting. It falls on me to arbitrate fights between allies.]",
   "2ingredient1": "Book",
   "2amount1": "12",
   "2ingredient2": "Cat Doll",
@@ -10989,7 +11007,8 @@
   "attack": 7,
   "defense": 2,
   "stamina": 11,
-  "effect": "At the start of the turn, the first card in the enemy Deck is sent to the Grave, and then this card gets STA +2.|flavortext=[Kamyu, don't worry too much about my uniform. It's a service for the patients. ♡]",
+  "effect": "At the start of the turn, the first card in the enemy Deck is sent to the Grave, and then this card gets STA +2.",
+  "flavortext": "[Kamyu, don't worry too much about my uniform. It's a service for the patients. ♡]",
   "2ingredient1": "Glasses",
   "2amount1": "13",
   "2ingredient2": "Shoes",
@@ -11303,7 +11322,8 @@
   "episode": 5,
   "rarity": "Rare",
   "level": 2,
-  "effect": "The first allied Follower with a skill and the first enemy Follower with a skill get their SIZE, ATK, DEF, STA, and skills swapped. |flavortext = [Nanai!] [You don't deserve to be president, Celine. That position belongs to me.]",
+  "effect": "The first allied Follower with a skill and the first enemy Follower with a skill get their SIZE, ATK, DEF, STA, and skills swapped.",
+  "flavortext": "[Nanai!] [You don't deserve to be president, Celine. That position belongs to me.]",
   "recipe1": "Secret Art: Wind Slash",
   "amountneeded1": "2",
   "materials": [
@@ -11530,7 +11550,8 @@
   "limit": 3,
   "episode": 0,
   "rarity": "Common",
-  "effect": "At the start of the turn, two random enemy Followers get ATK -1/STA -1. |flavortext = [Do you see the eyes of the audience blinking in the pale moonlight? Don't you want to have a try? You'll be a great stage prop. Well, your blood will. Hee hee.]",
+  "effect": "At the start of the turn, two random enemy Followers get ATK -1/STA -1.",
+  "flavortext": "[Do you see the eyes of the audience blinking in the pale moonlight? Don't you want to have a try? You'll be a great stage prop. Well, your blood will. Hee hee.]",
   "notes": "[[:File:Moon Dance Kata Flina.jpg|Previous Image]]",
   "materials": [
    {
@@ -11558,7 +11579,8 @@
   "faction": "Academy",
   "rarity": "Common",
   "episode": 0,
-  "effect": "Before this card is attacked, this card and adjacent Followers get ATK +1. |flavortext=[How much longer do I have to mop? I wish the kohai would get here soon... Like that's going to happen... Maybe.]",
+  "effect": "Before this card is attacked, this card and adjacent Followers get ATK +1.",
+  "flavortext": "[How much longer do I have to mop? I wish the kohai would get here soon... Like that's going to happen... Maybe.]",
   "attack": 5,
   "defense": 2,
   "stamina": 12,
@@ -11915,15 +11937,15 @@
   "rarity": "Common",
   "flavortext": "[I found all the books that senpai recommended, but... What is she playing at? They really loaned out those books?]",
   "2ingredient1": "Book",
-  "2amount1": "|2ingredient2=Cat Doll",
-  "2amount2": "|2ingredient3=Glasses",
-  "2amount3": "|2ingredient4=Ribbon",
-  "2amount4": "|2ingredient5=Shoes",
-  "2amount5": "|2ingredient6=Stockings",
-  "2amount6": "|2ingredient7=Sword",
-  "2amount7": "|2ingredient8=Green Ore",
-  "2amount8": "|2ingredient9=Lily",
-  "2amount9": "|previousname = New Lib. Member",
+  "2ingredient2": "Cat Doll",
+  "2ingredient3": "Glasses",
+  "2ingredient4": "Ribbon",
+  "2ingredient5": "Shoes",
+  "2ingredient6": "Stockings",
+  "2ingredient7": "Sword",
+  "2ingredient8": "Green Ore",
+  "2ingredient9": "Lily",
+  "previousname": "New Lib. Member",
   "materials": [
    {
     "item": "Lib. Student",
@@ -12070,7 +12092,9 @@
   "limit": 2,
   "episode": 3,
   "rarity": "Rare",
-  "effect": "If you have at least one Vita Follower and at least one non-Vita Follower in your Grave, all enemy Spells are sent to the Grave. If there are no enemy Spells, this card is deactivated instead of being sent to the Grave. |flavortext = [Sita, come here... I can't bear this any longer... Be with me... I want to carve everything about me into those golden apples you have for eyes... Sounds delicious... I want to know everything about you, Sita... Give yourself to me.]",
+  "effect": "If you have at least one Vita Follower and at least one non-Vita Follower in your Grave, all enemy Spells are sent to the Grave. If there are no enemy Spells, this card is deactivated instead of being sent to the Grave.",
+  "flavortext": "[Sita, come here... I can't bear this any longer... Be with me... I want to carve everything about me into those golden apples you have for eyes... Sounds delicious... I want to know everything about you, Sita... Give yourself to me.]",
+  "2ingredient1": "Sword",
   "2amount1": "3",
   "2ingredient2": "Glasses",
   "2amount2": "6",
@@ -12387,7 +12411,8 @@
   "limit": 3,
   "episode": 4,
   "rarity": "Uncommon",
-  "effect": "Before this card attacks, if the number of enemy cards is even, a random card in the enemy Hand is sent to the Grave. Next, this skill is removed. |flavortext = [Got it! So I'll see you in the lobby this afternoon? What? You aren't done yet? This was assigned to you last Monday! What do you expect me to do about it now?]",
+  "effect": "Before this card attacks, if the number of enemy cards is even, a random card in the enemy Hand is sent to the Grave. Next, this skill is removed.",
+  "flavortext": "[Got it! So I'll see you in the lobby this afternoon? What? You aren't done yet? This was assigned to you last Monday! What do you expect me to do about it now?]",
   "2ingredient1": "Shoes",
   "2amount1": "2",
   "2ingredient2": "Ribbon",
@@ -12782,7 +12807,6 @@
   "level": 1,
   "effect": "The first two cards in your Deck with \"Sita\" in the name are sent to the first two empty Slots in your Hand. If this happens, those cards get SIZE -2.",
   "flavortext": "[The artifact that Esprit found had amazing effects. It could reverse a person's personality. Sita, for example, became perky.]",
-  "2ingredient2": "|2amount2 =",
   "recipe1": "Halloween Minidevil",
   "amountneeded1": "1",
   "materials": [
@@ -12793,30 +12817,6 @@
    {
     "item": "Sita's Suit",
     "n": 2
-   },
-   {
-    "item": "|amount3 =",
-    "n": null
-   },
-   {
-    "item": "|amount4 =",
-    "n": null
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
-   },
-   {
-    "item": "|amount6 =",
-    "n": null
-   },
-   {
-    "item": "|amount7 =",
-    "n": null
-   },
-   {
-    "item": "|amount8 =",
-    "n": null
    }
   ]
  },
@@ -12908,7 +12908,8 @@
   "season": "1",
   "episode": 5,
   "rarity": "Rare",
-  "level": 4,
+  "effect": "If there are any allied Followers, two random enemy Followers get DEF decreased by 4 minus this card's SIZE. Next, if this card has a SIZE of 1, it is removed from the game. If it has a SIZE of at least 2, it gets SIZE -1 and is deactivated.",
+  "flavortext": "\"I need to find myself,\" said Sergeant Pintail. To find her own path, she took fourteen nights and fifteen days off. Her destination was H.K.]",
   "points": 13,
   "recipe1": "Sword That Cleaves Evil",
   "amountneeded1": "2",
@@ -13144,14 +13145,14 @@
   "episode": 6,
   "rarity": "Uncommon",
   "level": 1,
-  "effect": "A random allied Vita Follower gets ATK increased by 1 plus the number of cards in your Hand and gets STA increased by the number of cards in your Hand minus 1. |flavortext = [The inspector loves peace, believes in friendship, and wishes to protect peoples' lives, so she stands against rule breakers as an extracurricular activity.]",
-  "2ingredient1": "|amount1 = 1",
+  "effect": "A random allied Vita Follower gets ATK increased by 1 plus the number of cards in your Hand and gets STA increased by the number of cards in your Hand minus 1.",
+  "flavortext": "[The inspector loves peace, believes in friendship, and wishes to protect peoples' lives, so she stands against rule breakers as an extracurricular activity.]",
   "recipe1": "Morals Crackdown",
   "amountneeded1": "1",
   "materials": [
    {
     "item": "Sword",
-    "n": null
+    "n": 1
    },
    {
     "item": "Glasses",
@@ -13359,7 +13360,7 @@
   "title": "Protective Chant",
   "name": "Protective Chant",
   "faction": "Crux",
-  "id": "200156|image = Protective_Chant.png",
+  "id": "200156",
   "type": "Spell",
   "size": 2,
   "points": 1,
@@ -13454,7 +13455,8 @@
   "faction": "Academy",
   "episode": 6,
   "rarity": "Double Rare",
-  "effect": "Two random enemy Followers get ATK -4/STA -4. If this card has a SIZE of 1, it is removed from the game. Otherwise, this card gets SIZE =1 and is deactivated. |flavortext=[There is no need to run around. I will go directly to Linia and ask her myself.]",
+  "effect": "Two random enemy Followers get ATK -4/STA -4. If this card has a SIZE of 1, it is removed from the game. Otherwise, this card gets SIZE =1 and is deactivated.",
+  "flavortext": "[There is no need to run around. I will go directly to Linia and ask her myself.]",
   "2ingredient1": "Book",
   "2amount1": "118",
   "2ingredient2": "Cat Doll",
@@ -13968,7 +13970,8 @@
   "limit": 3,
   "episode": 4,
   "rarity": "Common",
-  "effect": "At the start of the turn, this card and the first card in your Deck with \"Sion Flina\" in the name are sent to the Grave. If this happens, the first card in your Deck with \"Dress Up Sionrion\" in the name is sent to your first empty Slot and gets SIZE =5/ATK +3/STA +3. |flavortext = [Sage Lady started being mean and hitting us with her slippers!]",
+  "effect": "At the start of the turn, this card and the first card in your Deck with \"Sion Flina\" in the name are sent to the Grave. If this happens, the first card in your Deck with \"Dress Up Sionrion\" in the name is sent to your first empty Slot and gets SIZE =5/ATK +3/STA +3.",
+  "flavortext": "[Sage Lady started being mean and hitting us with her slippers!]",
   "2ingredient1": "Shoes",
   "2amount1": "2",
   "2ingredient2": "Ribbon",
@@ -14803,9 +14806,11 @@
   "limit": 3,
   "episode": 6,
   "rarity": "Common",
-  "effect": "Before this card attacks, the defender gets STA decreased by its DEF. |flavortext=[The fighter with the maximum fighting ability created by the Scardel elders. With her victims, she seeks to become more and more efficient at completing her duties.]",
+  "effect": "Before this card attacks, the defender gets STA decreased by its DEF.",
+  "flavortext": "[The fighter with the maximum fighting ability created by the Scardel elders. With her victims, she seeks to become more and more efficient at completing her duties.]",
   "recipe1": "Lightning Witch",
-  "amountneeded1": "1| recipe2 = Buisness Witch",
+  "amountneeded1": "1",
+  "recipe2": "Buisness Witch",
   "amountneeded2": "1|",
   "materials": [
    {
@@ -15236,7 +15241,8 @@
   "attack": 7,
   "defense": 1,
   "stamina": 9,
-  "effect": "Before this card is attacked, it gets STA +2.|flavortext=[Oh, sorry. Could you please pick up that book?]",
+  "effect": "Before this card is attacked, it gets STA +2.",
+  "flavortext": "[Oh, sorry. Could you please pick up that book?]",
   "2ingredient1": "Glasses",
   "2amount1": "4",
   "2ingredient2": "Shoes",
@@ -15629,7 +15635,8 @@
   "episode": 1,
   "rarity": "Rare",
   "effect": "Before this card is attacked, it gets ATK +1/STA +2.",
-  "flavortext": "[Don't rush. Take your time. You'll have a hard time if you try to learn everything about a house this huge at once. Take it step by step, okay?]|attack=5",
+  "flavortext": "[Don't rush. Take your time. You'll have a hard time if you try to learn everything about a house this huge at once. Take it step by step, okay?]",
+  "attack": 5,
   "defense": 1,
   "stamina": 10,
   "2ingredient1": "Cat Doll",
@@ -15690,7 +15697,8 @@
   "faction": "Crux",
   "rarity": "Common",
   "episode": 2,
-  "effect": "A random enemy Follower is deactivated if it does not belong to the same faction as the enemy Character. The deactivated Follower is then sent to your first empty Slot.|flavortext=[At last! I finally became a Crux Knight!]",
+  "effect": "A random enemy Follower is deactivated if it does not belong to the same faction as the enemy Character. The deactivated Follower is then sent to your first empty Slot.",
+  "flavortext": "[At last! I finally became a Crux Knight!]",
   "materials": [
    {
     "item": "Glasses",
@@ -15903,7 +15911,8 @@
   "episode": 2,
   "rarity": "Rare",
   "level": 2,
-  "effect": "Two random allied Vita Followers get the following skill: \"Before this card is attacked, it gets STA increased by the attacker's ATK, and then this skill is removed.\" |flavortext = [Cinia's sword, when used, would consume part of the wielder's body, but it had the power to turn anything back to an earlier state. However, the full truth was that it would return whatever it hit to nothingness. When Sita realized this, she tried to stop, but it was too late. Everything around her had already been ruined.]",
+  "effect": "Two random allied Vita Followers get the following skill: \"Before this card is attacked, it gets STA increased by the attacker's ATK, and then this skill is removed.\"",
+  "flavortext": "[Cinia's sword, when used, would consume part of the wielder's body, but it had the power to turn anything back to an earlier state. However, the full truth was that it would return whatever it hit to nothingness. When Sita realized this, she tried to stop, but it was too late. Everything around her had already been ruined.]",
   "recipe1": "Lunia Scentriver",
   "amountneeded1": "2",
   "recipe2": "Keepsake",
@@ -16038,6 +16047,7 @@
   "level": 4,
   "effect": "All allied Followers get STA +5 and all enemy Followers get ATK -2. If you have a Crux Character, all allied Followers get an additional ATK +1.",
   "flavortext": "[Who are you?] [I am the GS First Star, and I've come to unravel the lies of Crux's goddess.] [Lies?] [The goddess twists time and resorts to tricks. The land's time is out of alignment.]",
+  "previousname": "Impact",
   "materials": [
    {
     "item": "Beach Research",
@@ -16441,7 +16451,9 @@
   "limit": 3,
   "episode": 3,
   "rarity": "Uncommon",
-  "effect": "Before this card is attacked, it gets STA +2. |flavortext = [Oh, Asmis. What's up? Sita? She said she had something to do in Crux, so she left. What? Kana's descendant? The chosen girl? What are you talking about? Is this some kind of joke?]",
+  "effect": "Before this card is attacked, it gets STA +2.",
+  "flavortext": "[Oh, Asmis. What's up? Sita? She said she had something to do in Crux, so she left. What? Kana's descendant? The chosen girl? What are you talking about? Is this some kind of joke?]",
+  "2ingredient1": "Glasses",
   "2amount1": "4",
   "2ingredient2": "Shoes",
   "2amount2": "4",
@@ -16702,8 +16714,10 @@
   "size": 0,
   "points": 0,
   "limit": 0,
-  "flavortext": "[This Dungeon Material is obtained from the Vivid World and Dream Island and is used to craft in the Science Lab.] [One of the vivid world's oddities. The reason for each world's existence is unknown, but the strange ore that can be found all over this world suggests that it is unusual. This phenomenon takes the shape of a spiral ore. - DKD's Report]|faction = Neutral",
-  "episode": null
+  "flavortext": "[This Dungeon Material is obtained from the Vivid World and Dream Island and is used to craft in the Science Lab.] [One of the vivid world's oddities. The reason for each world's existence is unknown, but the strange ore that can be found all over this world suggests that it is unusual. This phenomenon takes the shape of a spiral ore. - DKD's Report]",
+  "faction": "Neutral",
+  "rarity": "Prize",
+  "notes": "Found in [[Dream Island]] and [[Vivid World]]"
  },
  {
   "title": "Spring Fever",
@@ -16873,9 +16887,14 @@
   "faction": "Darklore",
   "episode": 2,
   "rarity": "Common",
-  "effect": "The first allied Follower with the lowest SIZE and \"Witch\" in the name gets ATK =1/STA =1 and the first enemy Follower gets STA decreased by half of the total ATK/STA reduction (rounding up). |flavortext= [In the end, what all we witches long for... is the same thing... A place full of sunshine where we can spend time together, with warm tea and a cool breeze... However...]|ingredient1=Ribbon",
+  "effect": "The first allied Follower with the lowest SIZE and \"Witch\" in the name gets ATK =1/STA =1 and the first enemy Follower gets STA decreased by half of the total ATK/STA reduction (rounding up).",
+  "flavortext": "[In the end, what all we witches long for... is the same thing... A place full of sunshine where we can spend time together, with warm tea and a cool breeze... However...]",
   "previousname": "Witchblade",
   "materials": [
+   {
+    "item": "Ribbon",
+    "n": 1
+   },
    {
     "item": "Cat Doll",
     "n": 1
@@ -16905,7 +16924,8 @@
   "faction": "Darklore",
   "episode": 2,
   "rarity": "Common",
-  "effect": "Allied Followers with \"Witch\" in the name get ATK +1/STA +3. Your Character gets LIFE -1.  |flavortext=[Witches are born in the Witch Garden. Those who inherit the blood of witches have the potential to become witches themselves.]",
+  "effect": "Allied Followers with \"Witch\" in the name get ATK +1/STA +3. Your Character gets LIFE -1.",
+  "flavortext": "[Witches are born in the Witch Garden. Those who inherit the blood of witches have the potential to become witches themselves.]",
   "previousname": "Witchblood",
   "materials": [
    {
@@ -17429,6 +17449,7 @@
   "limit": 0,
   "episode": 2,
   "flavortext": "[Because the purified Talentium will be harder after heated, it requires careful magical working. The better quality Talentium possesses a higher spiritual ability, which results in improved crafting.-From Esprit Memo.]",
+  "faction": "Neutral",
   "rarity": "Prize",
   "materials": [
    {
@@ -17446,7 +17467,8 @@
   "points": 0,
   "limit": 0,
   "episode": 2,
-  "flavortext": "[The ways to purify Talentium are different and the shapes after purifying are different, too. Sometimes, the purification results in the shape of a pearl. Regardless of the initial shape, it will all be crafted into the shape of cards to cater to the tastes of consumers.-From Esprit Memo.]|faction = Neutral",
+  "flavortext": "[The ways to purify Talentium are different and the shapes after purifying are different, too. Sometimes, the purification results in the shape of a pearl. Regardless of the initial shape, it will all be crafted into the shape of cards to cater to the tastes of consumers.-From Esprit Memo.]",
+  "faction": "Neutral",
   "rarity": "Prize"
  },
  {
@@ -17942,7 +17964,8 @@
   "episode": 6,
   "rarity": "Common",
   "level": 1,
-  "effect": "A random allied Follower gets ATK/STA increased by 1 plus the number of factions in your Hand. |flavortext = [The cooking contest would determine the direction of the club's festival event. Their techniques would be put to the test, with the winner deciding the menu.",
+  "effect": "A random allied Follower gets ATK/STA increased by 1 plus the number of factions in your Hand.",
+  "flavortext": "[The cooking contest would determine the direction of the club's festival event. Their techniques would be put to the test, with the winner deciding the menu.",
   "recipe1": "Morals Crackdown",
   "amountneeded1": "2",
   "materials": [
@@ -18111,7 +18134,8 @@
   "attack": 6,
   "defense": 2,
   "stamina": 12,
-  "effect": "At the start of the turn, this card gets ATK -1 (to a minimum of 0.) Next, two random Followers get STA +2. |flavortext= [In her case, she has been avoiding contact with people she does not know. In the presence of strangers, she shows signs of extreme anxiety. She has begun blacking out, so further study has been discontinued.]|ingredient1=Detective Lady",
+  "effect": "At the start of the turn, this card gets ATK -1 (to a minimum of 0.) Next, two random Followers get STA +2.",
+  "flavortext": "[In her case, she has been avoiding contact with people she does not know. In the presence of strangers, she shows signs of extreme anxiety. She has begun blacking out, so further study has been discontinued.]",
   "2ingredient1": "Cat Doll",
   "2amount1": "9",
   "2ingredient2": "Sword",
@@ -18127,6 +18151,10 @@
   "2ingredient7": "Heart Stone",
   "2amount7": "12",
   "materials": [
+   {
+    "item": "Detective Lady",
+    "n": 2
+   },
    {
     "item": "Magic Teacher",
     "n": 2
@@ -18334,7 +18362,8 @@
   "episode": 5,
   "rarity": "Common",
   "level": 1,
-  "effect": "If there are three allied Crux Followers, the first allied Follower with two adjacent Followers gets STA +6. |flavortext = [All for one and one for all! Our bond of faith grants us strength!]",
+  "effect": "If there are three allied Crux Followers, the first allied Follower with two adjacent Followers gets STA +6.",
+  "flavortext": "[All for one and one for all! Our bond of faith grants us strength!]",
   "points": 1,
   "recipe1": "Pilgrimage Of Proof",
   "amountneeded1": "3",
@@ -18617,7 +18646,8 @@
   "limit": 1,
   "episode": 5,
   "rarity": "Rare",
-  "effect": "Before this card attacks, it gets ATK/STA increased by 2 plus the difference between its SIZE and the defender's SIZE. This skill is removed until the start of the next turn. |flavortext=[Vernika. I will release you from the frivolous night. I can kill you with this sword of 15 magic eyes.]",
+  "effect": "Before this card attacks, it gets ATK/STA increased by 2 plus the difference between its SIZE and the defender's SIZE. This skill is removed until the start of the next turn.",
+  "flavortext": "[Vernika. I will release you from the frivolous night. I can kill you with this sword of 15 magic eyes.]",
   "recipe1": "Lago de Cisnes",
   "amountneeded1": "1|",
   "materials": [
@@ -18636,10 +18666,6 @@
    {
     "item": "Dark Master Vernika",
     "n": 2
-   },
-   {
-    "item": "|amount5 =",
-    "n": null
    }
   ]
  },
@@ -18812,7 +18838,8 @@
   "limit": 1,
   "episode": 3,
   "rarity": "Double Rare",
-  "effect": "All enemy Followers get their ATK/STA decreased by the total number of Spells in both your Hand and the enemy Hand. The first Spells in your Hand, the enemy Hand, and the enemy Field are sent to the Grave. |flavortext = [When Vernika became a vampire, her magic surpassed the realm of reality and imagination. Images from the world within her heart began to spill over into reality. Vernika now absent-mindedly waits for Sita in the withered garden.]",
+  "effect": "All enemy Followers get their ATK/STA decreased by the total number of Spells in both your Hand and the enemy Hand. The first Spells in your Hand, the enemy Hand, and the enemy Field are sent to the Grave.",
+  "flavortext": "[When Vernika became a vampire, her magic surpassed the realm of reality and imagination. Images from the world within her heart began to spill over into reality. Vernika now absent-mindedly waits for Sita in the withered garden.]",
   "2ingredient1": "Book",
   "2amount1": "66",
   "2ingredient2": "Cat Doll",
@@ -18871,7 +18898,8 @@
   "episode": 6,
   "rarity": "Common",
   "level": 1,
-  "effect": "If there is at least one card in your Hand and the enemy Hand, then the first cards in each Hand are swapped. |flavortext = [I'll finish this in the next seven serves. Long matches are bad for health.]",
+  "effect": "If there is at least one card in your Hand and the enemy Hand, then the first cards in each Hand are swapped.",
+  "flavortext": "[I'll finish this in the next seven serves. Long matches are bad for health.]",
   "recipe1": "Morals Crackdown",
   "amountneeded1": "3",
   "materials": [
@@ -18908,7 +18936,8 @@
   "limit": 1,
   "episode": 3,
   "rarity": "Double Rare",
-  "effect": "The first Vita Follower in your Hand is sent to the first empty Slot in your Field, and then gets SIZE =1-2, ATK +3-5, and STA +3-5. (Randomly) |flavortext = [The gate appeared, but it was a little different from the rifts that the monsters came through. Those other rifts opened hastily, but this one looked more proper. From the gate, a woman in white appeared. - Esprit's Memo]",
+  "effect": "The first Vita Follower in your Hand is sent to the first empty Slot in your Field, and then gets SIZE =1-2, ATK +3-5, and STA +3-5. (Randomly)",
+  "flavortext": "[The gate appeared, but it was a little different from the rifts that the monsters came through. Those other rifts opened hastily, but this one looked more proper. From the gate, a woman in white appeared. - Esprit's Memo]",
   "2ingredient1": "Sword",
   "2amount1": "6",
   "2ingredient2": "Glasses",

@@ -88,6 +88,23 @@ EP1 咒語的卡號連號得很整齊 —— 公立 200006-200010、私立 20001
 `test/balance.js` 原本斷言「排序符合 wiki 的說法」，那個通過是估算值撐出來的。
 詳情見該檔案開頭的註解與 README 的「平衡」段落。
 
+## Episode 1 隨從的合併
+
+繁中 wiki 的 EP1 隨從頁「攻/防/體」是空模板，英文 wiki 則沒有中文卡名，
+所以 40 張隨從是兩邊合併出來的：
+
+```
+python tools/gen_ep1_followers.py > tools/ep1_followers.txt
+```
+
+配對用 `(陣營, SIZE, 分數, 上限)` 縮小範圍後，再逐張比對效果文確認；
+固化結果存在 `tools/map_ep1_followers.json`（40 筆，可逐條稽核）。
+輸入是 `tools/atwiki_ep1_followers.json`（繁中，含 `tools/atcache/` 的原始頁面）
+與 `tools/fandom_cards.json`（英文）。
+
+驗證線索：每陣營正好 10 張、SIZE 1～5 各兩張，卡號也連號 ——
+配對如果錯了不會這麼整齊。
+
 ## 注意
 
 * Fandom 是**英文**，要的官方台版譯名仍以 atwiki 為準；合併時用

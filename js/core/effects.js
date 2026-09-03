@@ -3,12 +3,13 @@
 
    觸發時機：
      turnStart    回合開始時（按下「確定」→ 翻開 → 擲硬幣 之後）
-     beforeAttack 攻擊前（此卡每次攻擊都會觸發）
+     beforeAttack 攻擊前（此卡每次攻擊都會觸發，ctx.defender ＝ 這次要打的隨從，
+                  敵方場上沒隨從時為 null）
      beforeDefend 防禦前（此卡每次被攻擊都會觸發，ctx.attacker ＝ 攻擊者）
      spell        咒語結算
 
    ctx 可用：self / slot / me / foe / myField / foeField / myHand / myGrave
-             myChar / foeChar / attacker / rnd()
+             myChar / foeChar / attacker / defender / rnd()
              say(文字) mod(卡,{atk,def,sta,size}) set(卡,欄位,值)
              deactivate(卡) discard(卡) discardHand(手牌索引)
              life(玩家,增減) move(從,格,到) slotOf(卡)
