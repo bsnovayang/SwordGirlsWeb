@@ -19,10 +19,14 @@ var SG = window.SG || (window.SG = {});
   var $ = function (id) { return document.getElementById(id); };
 
   /* ────────── 啟動 ────────── */
-  var endHook = null;          // 副本用：戰鬥結束後結算進度，回傳要附在結算視窗的 HTML
+  var endHook = null;          // 副本／天梯用：結束後結算，回傳要附在結算視窗的 HTML
+  var aiLevel = 'basic';       // 對手 AI 強度
+  var aiOpts = null;
 
   SG.startBattle = function (deckA, deckB, seed, opts) {
     endHook = (opts && opts.onEnd) || null;
+    aiLevel = (opts && opts.ai) || 'basic';
+    aiOpts = (opts && opts.aiOpts) || null;
     g = SG.createGame(deckA, deckB, seed);
     SG.game = g;
     busy = false;
@@ -219,7 +223,8 @@ var SG = window.SG || (window.SG = {});
   function onReady() {
     if (busy || g.phase !== 'place') return;
     busy = true; renderHand();
-    var aiEv = SG.aiPlay(g, 1);
+    if (aiLevel === 'smart') SG.aiPlaySmart(g, 1, aiOpts || {});
+    else SG.aiPlay(g, 1);
     g.players[0].ready = true;
     var battleEv = SG.resolveTurn(g);
     play(battleEv, function () {

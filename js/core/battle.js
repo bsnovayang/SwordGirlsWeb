@@ -79,7 +79,11 @@ var SG = window.SG || (window.SG = {});
   SG.snapshot = snapshot;
 
   /* 推事件時順手拍一張快照 */
-  function E(ev, g, o) { o.s = snapshot(g); ev.push(o); return o; }
+  function E(ev, g, o) {
+    if (!g.quiet) o.s = snapshot(g);      // quiet ＝ AI 推演用，不需要快照
+    ev.push(o);
+    return o;
+  }
 
   /* ── 場地工具 ── */
   function emptySlot(field) {                       // 「第一個空格」＝編號最小的空格
@@ -494,6 +498,37 @@ var SG = window.SG || (window.SG = {});
     e[when](makeCtx(g, ev, card, pi, slot, extra));
     return true;
   }
+
+  /* ── 複製整個對局，給 AI 推演用 ──
+     rnd 是 closure 沒辦法直接複製，所以用新的種子重建；
+     卡片定義（def_）是共用的唯讀資料，指向同一份即可。 */
+  function cloneCard(c) {
+    if (!c) return null;
+    var o = {};
+    for (var k in c) o[k] = c[k];
+    return o;
+  }
+
+  SG.cloneGame = function (g, seed) {
+    var ng = {
+      seed: seed, rnd: mulberry32(hashSeed(String(seed))), quiet: true,
+      turn: g.turn, phase: g.phase, over: g.over,
+      winner: g.winner, reason: g.reason, firstPlayer: g.firstPlayer,
+      players: []
+    };
+    ng.players = g.players.map(function (p) {
+      return {
+        idx: p.idx, name: p.name, deckName: p.deckName,
+        character: cloneCard(p.character),
+        deck: p.deck.slice(),
+        hand: p.hand.map(cloneCard),
+        grave: p.grave.map(cloneCard),
+        field: p.field.map(cloneCard),
+        shuffles: p.shuffles, ready: p.ready
+      };
+    });
+    return ng;
+  };
 
   /* ── 測試用鉤子（正式遊戲流程不會用到） ── */
   SG._test = {

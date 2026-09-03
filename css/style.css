@@ -476,3 +476,29 @@ button.danger{border-color:var(--bad);background:linear-gradient(#fff0ed,#f8d9d2
 .adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
 .adv summary:hover{color:var(--ink)}
 .adv textarea{margin-top:8px}
+
+/* ═══════════ S5 模擬天梯 ═══════════ */
+.ld-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.ld-rank{font-weight:800;font-size:13px;padding:3px 12px;border-radius:14px;color:#fff}
+.ld-low {background:#8a8378} .ld-mid{background:#3fa9c9} .ld-high{background:#c9a227}
+.ld-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ld-row{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);
+  border-left:5px solid #8a8378;border-radius:10px;padding:10px 14px}
+.ld-row.ld-t-mid{border-left-color:#3fa9c9}
+.ld-row.ld-t-high{border-left-color:var(--gold)}
+.ld-row.locked{opacity:.5}
+.ld-main{flex:1;min-width:0}
+.ld-name{font-size:14.5px;font-weight:800}
+.ld-tier{font-size:10px;font-weight:700;color:#fff;border-radius:8px;padding:1px 7px;
+  margin-left:8px;vertical-align:2px}
+.ld-blurb{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.ld-info{flex:none;width:190px;font-size:11.5px;color:var(--ink-soft);line-height:1.7;text-align:right}
+.ld-info b.f-vita{color:var(--vita)} .ld-info b.f-academy{color:var(--academy)}
+.ld-info b.f-crux{color:var(--crux)} .ld-info b.f-darklore{color:var(--darklore)}
+.ld-pts{color:#6b5410;font-weight:700}
+.ld-act{flex:none}
+.ld-act button{padding:8px 16px;font-size:13px}
+@media(max-width:700px){
+  .ld-row{flex-wrap:wrap}
+  .ld-info{width:auto;text-align:left;flex:1}
+}

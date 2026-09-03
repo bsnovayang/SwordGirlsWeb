@@ -15,11 +15,16 @@ var SG = window.SG || (window.SG = {});
     dungeon:        function () { SG.bindDungeon(); SG.renderDungeonList(); },
     floor:          function () { SG.bindDungeon(); SG.renderFloor(); },
     craft:          function () { SG.bindCraft(); SG.renderCraft(); },
+    ladder:         function () { SG.bindLadder(); SG.renderLadder(); },
     settings:       renderSettings,
     'battle-setup': renderSetup
   };
 
+  var lastScreen = 'menu';
+  function active() { return lastScreen; }
+
   function go(name) {
+    if (name !== 'battle') lastScreen = name;
     var all = document.querySelectorAll('.screen');
     for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
     var t = $('scr-' + name);
@@ -50,6 +55,10 @@ var SG = window.SG || (window.SG = {});
     $('lbRecord').textContent = st.battles
       ? st.battles + ' 戰 ' + st.wins + ' 勝 ' + st.losses + ' 敗'
       : '尚無戰績';
+    var L = d.ladder;
+    if (SG.ladderTier) {
+      $('lbLadder').textContent = SG.ladderTier(L.points).name + ' ' + L.points + ' 分';
+    }
     $('lbTip').textContent = '※ ' + TIPS[Math.floor(Math.random() * TIPS.length)];
   }
 
@@ -222,6 +231,7 @@ var SG = window.SG || (window.SG = {});
     });
 
     $('btnAgain').addEventListener('click', function () {
+      if (active() === 'ladder') { go('ladder'); return; }
       if (SG.currentDungeon && SG.currentDungeon()) { go('floor'); return; }
       var mine = SG.Save.data.decks[+$('selMine').value];
       var foe = SG.DECKS[+$('selFoe').value];

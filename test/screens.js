@@ -9,10 +9,10 @@ const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
 const w = dom.window, d = w.document;
 
 ['js/data/cards.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/core/save.js', 'js/core/battle.js',
+ 'js/data/dungeons.js', 'js/data/ladder.js', 'js/core/save.js', 'js/core/battle.js',
  'js/core/effects.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
  'js/ui/screen_deck.js', 'js/ui/screen_gallery.js', 'js/ui/screen_dungeon.js',
- 'js/ui/screen_craft.js', 'js/main.js'].forEach(function (p) {
+ 'js/ui/screen_craft.js', 'js/ui/screen_ladder.js', 'js/main.js'].forEach(function (p) {
   const s = d.createElement('script');
   s.textContent = fs.readFileSync(path.join(root, p), 'utf8');
   d.body.appendChild(s);
@@ -42,7 +42,8 @@ console.log('══════ 頁面結構完整 ══════');
 {
   // 每個畫面與關鍵元件都要在。之前改 index.html 時整段刪掉過畫面，加這層防呆。
   ['scr-title', 'scr-menu', 'scr-battle-setup', 'scr-battle', 'scr-rules',
-   'scr-deck', 'scr-gallery', 'scr-dungeon', 'scr-floor', 'scr-craft', 'scr-settings'
+   'scr-deck', 'scr-gallery', 'scr-dungeon', 'scr-floor', 'scr-craft', 'scr-ladder',
+   'scr-settings'
   ].forEach(id => ok(!!$(id), '畫面存在：' + id));
   ['fieldMine', 'fieldFoe', 'hand', 'log', 'coinFx', 'btnReady', 'btnShuffle',
    'btnSpeed', 'btnQuit', 'resultOverlay', 'btnAgain', 'detail', 'rulesBody',
@@ -50,7 +51,8 @@ console.log('══════ 頁面結構完整 ══════');
   ].forEach(id => ok(!!$(id), '元件存在：' + id));
 
   // 從大廳點進去的畫面，返回鈕都要回大廳（不是回標題）
-  ['scr-battle-setup', 'scr-dungeon', 'scr-deck', 'scr-gallery', 'scr-craft', 'scr-settings']
+  ['scr-battle-setup', 'scr-dungeon', 'scr-deck', 'scr-gallery', 'scr-craft',
+   'scr-ladder', 'scr-settings']
     .forEach(id => {
       const backs = Array.from($(id).querySelectorAll('[data-go]'))
         .filter(b => /返回|回大廳|回標題/.test(b.textContent));
@@ -351,6 +353,60 @@ console.log('══════ 副本畫面 ══════');
   eq(w.SG.game.players[1].name, '魅惑魔女', '對手是 1F 的敵人');
   eq(w.SG.game.players[0].name, w.SG.Save.activeDeck().name, '出戰的是剛才選的牌組');
   eq(w.SG.game.players[1].character.maxLife, 15, '敵人 LIFE 依 NPC 卡設定');
+}
+
+console.log('══════ 模擬天梯 ══════');
+{
+  const S = w.SG.Save;
+  S.reset();
+  d.querySelector('[data-go="ladder"]').click();
+  eq(active(), 'scr-ladder', '進入天梯');
+  eq(d.querySelectorAll('#ldList .ld-row').length, 8, '列出 8 位對手');
+  ok(/下界/.test($('ldHead').textContent), '初始階層是下界：' + $('ldHead').textContent.slice(0, 20));
+
+  // 高階對手要積分才解鎖
+  const locked = d.querySelectorAll('#ldList .ld-row.locked');
+  eq(locked.length, 5, '積分 0 時只有下界 3 位可挑戰，其餘 5 位鎖住');
+  ok(locked[0].querySelector('.ld-go').disabled, '鎖住的對手不能按挑戰');
+
+  // 出戰牌組可選
+  ok($('ldDeck').options.length >= 4, '天梯也能選出戰牌組');
+
+  // 積分變動
+  const foe = w.SG.ladderFoe('l1');
+  const win = S.ladderResult(foe, true);
+  eq(win.delta, 12, '下界獲勝 +12 分');
+  eq(S.data.ladder.points, 12, '積分累積');
+  eq(S.data.ladder.wins, 1, '天梯勝場記錄');
+  const lose = S.ladderResult(foe, false);
+  eq(lose.delta, -6, '下界落敗 −6 分');
+  eq(S.data.ladder.best, 12, '最高積分保留');
+
+  // 積分不會變負數
+  for (let i = 0; i < 10; i++) S.ladderResult(foe, false);
+  eq(S.data.ladder.points, 0, '積分最低 0，不會變負');
+
+  // 階層判定
+  eq(w.SG.ladderTier(0).id, 'low', '0 分 → 下界');
+  eq(w.SG.ladderTier(99).id, 'low', '99 分 → 下界');
+  eq(w.SG.ladderTier(100).id, 'mid', '100 分 → 中間界');
+  eq(w.SG.ladderTier(300).id, 'high', '300 分 → 天上界');
+
+  // 積分夠了就解鎖
+  S.data.ladder.points = 300;
+  S.save();
+  w.SG.renderLadder();
+  eq(d.querySelectorAll('#ldList .ld-row.locked').length, 0, '天上界積分時全部解鎖');
+  ok(/天上界/.test($('ldHead').textContent), '階層顯示天上界');
+
+  // 實際打一場（用瞬間速度）
+  const sp = $('btnSpeed');
+  for (let i = 0; i < 8 && !/瞬間/.test(sp.textContent); i++) sp.click();
+  const before = S.data.ladder.points;
+  d.querySelectorAll('#ldList .ld-row')[0].querySelector('.ld-go').click();
+  eq(active(), 'scr-battle', '天梯挑戰會進戰鬥畫面');
+  eq(w.SG.game.players[1].name, w.SG.ladderFoe('l1').name, '對手是選的那位');
+  ok(before !== undefined, '挑戰前有積分基準');
 }
 
 console.log('══════ 合成工房 ══════');

@@ -35,6 +35,7 @@ var SG = window.SG || (window.SG = {});
       player: { name: '玩家', tk: 0 },
       owned: starterOwned(),
       stats: { battles: 0, wins: 0, losses: 0 },
+      ladder: { points: 0, best: 0, wins: 0, losses: 0 },
       materials: {},
       dungeons: {},
       decks: starterDecks(),
@@ -104,6 +105,9 @@ var SG = window.SG || (window.SG = {});
       d.settings = d.settings || { speed: 1 };
       d.owned = d.owned || {};
       d.stats = d.stats || { battles: 0, wins: 0, losses: 0 };
+      d.ladder = d.ladder || { points: 0, best: 0, wins: 0, losses: 0 };
+      if (!(d.ladder.points >= 0)) d.ladder.points = 0;
+      if (!(d.ladder.best >= d.ladder.points)) d.ladder.best = d.ladder.points;
       d.materials = d.materials || {};
       d.dungeons = d.dungeons || {};
       Object.keys(d.materials).forEach(function (k) {
@@ -252,6 +256,20 @@ var SG = window.SG || (window.SG = {});
       var card = SG.getCard(slug);
       if (!card) return false;
       return (SG.Save.data.owned[slug] || 0) < (card.limit || 3);
+    },
+
+    /* ══════ 天梯 ══════ */
+    ladderResult: function (foe, win) {
+      var L = SG.Save.data.ladder;
+      var tier = SG.tierById(foe.tier);
+      var delta = win ? tier.win : -tier.lose;
+      var before = L.points;
+      L.points = Math.max(0, L.points + delta);
+      if (L.points > L.best) L.best = L.points;
+      if (win) L.wins++; else L.losses++;
+      SG.Save.save();
+      return { delta: L.points - before, points: L.points, best: L.best,
+               tier: SG.ladderTier(L.points) };
     },
 
     /* ══════ 副本進度 ══════ */
