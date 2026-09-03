@@ -1,0 +1,478 @@
+/* ═══════════ Sword Girls 復刻版 — 現代簡潔卡片風 ═══════════ */
+:root{
+  --bg:#f3efe6; --panel:#faf7f0; --line:#ddd5c4; --ink:#3a352e; --ink-soft:#7d7466;
+  --gold:#c9a227; --ok:#2e8b57; --bad:#c0392b; --hi:#e8b93c;
+  --vita:#e8863c; --academy:#5b6ec9; --crux:#3fa9c9; --darklore:#8d4a7a; --neutral:#8a8378;
+  --radius:10px; --shadow:0 2px 6px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:14px/1.6 "Noto Sans TC","Microsoft JhengHei","PingFang TC",-apple-system,"Segoe UI",sans-serif;
+  min-height:100vh;
+}
+button{
+  font:inherit; font-weight:700; cursor:pointer; padding:8px 18px; border-radius:var(--radius);
+  border:1px solid var(--gold); background:linear-gradient(#fff8e2,#f3e4bb); color:#6b5410;
+  box-shadow:var(--shadow); transition:.12s;
+}
+button:hover:not(:disabled){filter:brightness(1.05); transform:translateY(-1px)}
+button:disabled{opacity:.4; cursor:not-allowed; transform:none}
+button.ghost{background:#fff;border-color:var(--line);color:var(--ink-soft);box-shadow:none}
+select,input{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+
+/* ── 畫面切換 ── */
+.screen{display:none}
+.screen.active{display:block}
+
+.title-box,.panel{
+  max-width:520px; margin:60px auto; background:var(--panel); border:1px solid var(--line);
+  border-radius:16px; padding:36px; box-shadow:var(--shadow); text-align:center;
+}
+.panel.wide{max-width:880px;text-align:left}
+.title-box h1{font-size:40px;letter-spacing:.15em;color:var(--gold);text-shadow:1px 1px 0 #fff}
+.title-box .sub{color:var(--ink-soft);margin-bottom:28px}
+.menu{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.panel h2{margin-bottom:18px;color:#6b5410}
+.row{display:flex;align-items:center;gap:12px;margin-bottom:12px;justify-content:center}
+.row label{width:80px;text-align:right;color:var(--ink-soft)}
+.row select,.row input{flex:1;max-width:280px}
+#rulesBody h3{margin:18px 0 6px;color:#6b5410}
+#rulesBody p,#rulesBody li{color:#4a443b}
+#rulesBody ul{margin-left:20px}
+#rulesBody pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;
+  overflow:auto;font-family:Consolas,"Courier New",monospace;font-size:12px;line-height:1.5}
+
+/* ═══════════ 戰鬥畫面 ═══════════ */
+.battle-wrap{display:grid;grid-template-columns:1fr 300px;gap:12px;
+  max-width:1340px;margin:12px auto;padding:0 12px;align-items:start}
+.board{display:flex;flex-direction:column;gap:10px}
+
+.fields{position:relative;display:grid;grid-template-columns:1fr 210px 1fr;gap:10px;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;
+  box-shadow:var(--shadow)}
+
+/* ── 擲硬幣：決定先手／先攻 ── */
+.coin-fx{position:absolute;inset:0;z-index:20;pointer-events:none;
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.coin-fx.show{display:flex}
+.coin-fx::before{content:'';position:absolute;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,248,226,.95),rgba(255,248,226,0))}
+.coin{position:relative;width:68px;height:68px;transform-style:preserve-3d;
+  animation:coinspin var(--coin-ms,700ms) cubic-bezier(.15,.7,.3,1) forwards}
+.coin .face{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;
+  font-size:27px;font-weight:900;backface-visibility:hidden;
+  background:linear-gradient(145deg,#fff2c4,#e3bb52);border:3px solid #b8912a;
+  box-shadow:0 5px 14px rgba(80,60,10,.35),inset 0 0 8px rgba(255,255,255,.7)}
+.coin .f-front{color:#1d6ea8}
+.coin .f-back {color:#a83a1d;transform:rotateY(180deg)}
+@keyframes coinspin{
+  0%  {opacity:0;transform:translateY(14px) scale(.5)  rotateY(0)}
+  18% {opacity:1}
+  100%{opacity:1;transform:translateY(0)    scale(1)   rotateY(var(--coin-end,1800deg))}
+}
+.coin-label{position:relative;opacity:0;font-weight:900;font-size:15px;padding:4px 14px;
+  border-radius:14px;background:#fff8e2;border:1px solid var(--gold);color:#6b5410;
+  box-shadow:0 2px 10px rgba(80,60,10,.25);white-space:nowrap;
+  animation:coinlabel var(--coin-ms,700ms) ease-out forwards}
+@keyframes coinlabel{
+  0%,62%{opacity:0;transform:translateY(-6px) scale(.9)}
+  100%  {opacity:1;transform:translateY(0)    scale(1)}
+}
+
+.field{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,auto);gap:8px}
+.field-mine .s-char{grid-area:2/1} .field-foe .s-char{grid-area:2/4}
+.field-mine .s-1{grid-area:1/2} .field-foe .s-1{grid-area:1/3}
+.field-mine .s-2{grid-area:1/3} .field-foe .s-2{grid-area:1/2}
+.field-mine .s-3{grid-area:2/4} .field-foe .s-3{grid-area:2/1}
+.field-mine .s-4{grid-area:3/3} .field-foe .s-4{grid-area:3/2}
+.field-mine .s-5{grid-area:3/2} .field-foe .s-5{grid-area:3/3}
+
+/* ── 格子 ── */
+.slot{position:relative;min-height:120px;border-radius:var(--radius);
+  border:2px dashed #d8cfbc;background:#f7f3e9;display:flex;align-items:center;justify-content:center}
+.slot .numeral{font-size:30px;font-weight:800;color:#e4dbc7;letter-spacing:.05em;user-select:none}
+.slot.droppable{border-color:var(--gold);background:#fdf6e0}
+
+/* ── 卡片 ── */
+.card{position:absolute;inset:0;border-radius:var(--radius);background:#fff;border:1px solid var(--line);
+  border-left:6px solid var(--neutral);box-shadow:var(--shadow);padding:6px 8px;
+  display:flex;flex-direction:column;cursor:pointer;overflow:hidden;transition:.15s}
+.card.f-vita{border-left-color:var(--vita)} .card.f-academy{border-left-color:var(--academy)}
+.card.f-crux{border-left-color:var(--crux)} .card.f-darklore{border-left-color:var(--darklore)}
+.card .chead{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+.card .fac{font-size:10px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em}
+.card .size{min-width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;
+  font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.card .cname{font-size:12.5px;font-weight:700;line-height:1.25;margin-top:2px;flex:1;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .stats{display:flex;justify-content:space-between;font-size:13px;font-weight:800;
+  border-top:1px solid #eee;padding-top:3px;margin-top:auto}
+.card .st-atk{color:#c0392b}.card .st-def{color:#2c6fbb}.card .st-sta{color:#2e8b57}
+.card.type-spell{background:linear-gradient(#fff,#f4f0ff)}
+.card.type-spell .cname{color:#5a3fa0}
+.card.type-spell .stats{justify-content:center;color:#5a3fa0;font-size:11px}
+.card.facedown{filter:grayscale(1) brightness(.93)}
+.card.facedown .cname{color:var(--ink-soft)}
+.card.acting{outline:3px solid var(--hi);outline-offset:1px;transform:scale(1.06);z-index:5}
+.card.hit{animation:shake .3s}
+
+/* ── 效果發動：先亮一下，再處理效果 ── */
+.card.casting{animation:casting .5s ease-out;z-index:7}
+@keyframes casting{
+  0%  {box-shadow:var(--shadow);                                           filter:none}
+  25% {box-shadow:0 0 0 3px #fff3c9, 0 0 22px 8px rgba(255,205,90,.95);    filter:brightness(1.16) saturate(1.1)}
+  55% {box-shadow:0 0 0 2px #ffe9a8, 0 0 14px 5px rgba(255,205,90,.6);     filter:brightness(1.08)}
+  100%{box-shadow:var(--shadow);                                           filter:none}
+}
+
+/* ── 數值被增減：卡片閃一下 ── */
+.card.stat-up  {animation:statup .45s ease-out}
+.card.stat-down{animation:statdown .45s ease-out}
+@keyframes statup{
+  0%{box-shadow:var(--shadow)}
+  30%{box-shadow:0 0 0 3px #a8e6c4, 0 0 16px 5px rgba(34,136,90,.55)}
+  100%{box-shadow:var(--shadow)}
+}
+@keyframes statdown{
+  0%{box-shadow:var(--shadow)}
+  30%{box-shadow:0 0 0 3px #e8b8e4, 0 0 16px 5px rgba(163,54,155,.5)}
+  100%{box-shadow:var(--shadow)}
+}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ── 陣亡淡出 ── */
+.card.dying{animation:die .42s ease-in forwards;pointer-events:none;z-index:4}
+@keyframes die{
+  0%  {opacity:1;transform:scale(1)      rotate(0)}
+  35% {opacity:.9;transform:scale(1.04)  rotate(-2deg);filter:grayscale(.6) brightness(1.15)}
+  100%{opacity:0;transform:scale(.74) translateY(10px) rotate(-8deg);filter:grayscale(1)}
+}
+
+/* ── 刀光：右上角起點 → 往左下延伸成線 ── */
+.slash{
+  /* 起點釘在卡片右上角外側；用 left 錨定，寬度變化才不會讓旋轉支點漂移 */
+  position:absolute;top:-6px;left:calc(100% + 6px);height:3px;width:0;
+  transform-origin:0 50%;transform:rotate(135deg);   /* 135° = 往左下延伸 */
+  border-radius:2px;pointer-events:none;z-index:8;opacity:0;
+  background:linear-gradient(90deg,rgba(255,255,255,0) 0%,#fff 25%,#ffe9a8 65%,rgba(255,233,168,0) 100%);
+  box-shadow:0 0 10px 2px rgba(255,214,110,.85);
+  animation:slash .42s cubic-bezier(.2,.75,.25,1) forwards;
+}
+@keyframes slash{
+  0%  {width:0;                opacity:0}
+  12% {width:calc(var(--slash-len) * .18); opacity:1}
+  55% {width:var(--slash-len); opacity:1}
+  100%{width:var(--slash-len); opacity:0}
+}
+
+/* ── 傷害跳字 ── */
+.pop-num{
+  position:absolute;left:0;right:0;top:34%;text-align:center;
+  font-size:23px;font-weight:900;letter-spacing:.02em;
+  pointer-events:none;z-index:9;opacity:0;
+  text-shadow:0 2px 0 #fff,0 -1px 0 #fff,1px 0 0 #fff,-1px 0 0 #fff,0 0 8px rgba(0,0,0,.35);
+  animation:popnum .9s ease-out forwards;
+}
+.pop-num.dmg {color:#d8341c}
+.pop-num.heal{color:#22885a}
+.pop-num.zero{color:#8a8378;font-size:17px}
+.pop-num.buff{color:#22885a}
+.pop-num.nerf{color:#a3369b}
+.pop-num.stat{font-size:13px;letter-spacing:0;top:26%}
+@keyframes popnum{
+  0%  {opacity:0;transform:translateY(8px)  scale(.55)}
+  18% {opacity:1;transform:translateY(0)    scale(1.25)}
+  32% {opacity:1;transform:translateY(-4px) scale(1)}
+  100%{opacity:0;transform:translateY(-38px) scale(1)}
+}
+
+/* ── 角色卡 ── */
+.card.is-char{background:linear-gradient(#fffdf5,#fff6dd)}
+.card.is-char .life{display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:22px;font-weight:800;color:#b3341f;margin-top:auto}
+.card.is-char .life small{font-size:11px;color:var(--ink-soft);font-weight:600}
+
+/* ── 中央區 ── */
+.center{display:flex;flex-direction:column;align-items:center;gap:6px}
+.turn-no{font-weight:800;color:var(--gold);letter-spacing:.08em;font-size:13px}
+.phase-banner{font-size:17px;font-weight:800;color:#6b5410;background:#fff8e2;
+  border:1px solid var(--gold);border-radius:20px;padding:4px 14px;white-space:nowrap}
+.phase-banner.pop{animation:pop .5s}
+@keyframes pop{0%{transform:scale(1.35);opacity:.2}100%{transform:scale(1);opacity:1}}
+.log{flex:1;width:100%;min-height:190px;max-height:280px;overflow-y:auto;background:#fff;
+  border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11.5px;line-height:1.7}
+.log div{border-bottom:1px dotted #eee;padding:1px 0}
+.log .l-me{color:#1d6ea8}.log .l-foe{color:#a83a1d}
+.log .l-sys{color:var(--ink-soft)}.log .l-kill{color:var(--bad);font-weight:700}
+.log .l-turn{background:#fff6dd;font-weight:700;color:#6b5410;text-align:center;margin:3px 0}
+
+/* ── 狀態列 / 手牌列 ── */
+.statusbar{display:flex;justify-content:space-between;background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;padding:6px 14px;box-shadow:var(--shadow)}
+.statusbar .side{display:flex;align-items:center;gap:10px}
+.pname{font-weight:800;padding:2px 10px;border-radius:12px;background:#efe7d4}
+.side.mine .pname{background:#dce9f7;color:#1d6ea8}
+.side.foe  .pname{background:#f7dedc;color:#a83a1d}
+.chip{font-size:12px;color:var(--ink-soft)} .chip b{color:var(--ink);font-size:13px}
+
+.handbar{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:10px;box-shadow:var(--shadow);align-items:stretch}
+.hand{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1}
+.hand .slot{min-height:106px;border-style:solid;border-color:#e5ddcb;background:#fbf8f1}
+.hand .card.unaffordable{opacity:.45;cursor:not-allowed}
+.controls{display:flex;flex-direction:column;gap:6px;justify-content:center;min-width:152px}
+.sizebox{text-align:center;font-size:12px;color:var(--ink-soft);font-weight:700}
+.sizebox b{font-size:20px;color:var(--ink)}
+.sizebox.over b{color:var(--bad)}
+
+/* ── 右側詳情 ── */
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;
+  box-shadow:var(--shadow);min-height:440px;position:sticky;top:12px}
+.detail .d-name{font-size:17px;font-weight:800;border-bottom:2px solid var(--gold);padding-bottom:6px}
+.detail .d-meta{font-size:12px;color:var(--ink-soft);margin:8px 0}
+.detail .d-stats{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.detail .d-stats span{background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:3px 9px;font-size:12px;font-weight:700}
+.detail .d-eff{background:#fff8e2;border-left:3px solid var(--gold);padding:8px 10px;
+  border-radius:6px;font-size:12.5px;margin:10px 0;white-space:pre-wrap}
+.detail .d-prov{color:#b3341f;font-size:11px;font-weight:700;margin-bottom:6px}
+.detail .d-flavor{color:#7a6fa0;font-size:11.5px;font-style:italic;white-space:pre-wrap}
+.detail .d-empty{color:var(--ink-soft);text-align:center;padding-top:150px}
+
+/* ── 滑鼠懸停預覽 ── */
+.card-tip{
+  position:fixed;left:0;top:0;z-index:80;display:none;
+  width:260px;padding:12px 14px;border-radius:12px;
+  background:var(--panel);border:1px solid var(--gold);
+  box-shadow:0 6px 22px rgba(40,32,10,.28);
+  pointer-events:none;
+}
+.card-tip.show{display:block}
+.card-tip .t-name{font-size:15px;font-weight:800;line-height:1.35;
+  border-bottom:2px solid var(--gold);padding-bottom:5px}
+.card-tip .t-meta{font-size:11px;color:var(--ink-soft);margin-top:6px}
+.card-tip .t-stats{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.card-tip .t-stats span{background:#fff;border:1px solid var(--line);border-radius:7px;
+  padding:2px 7px;font-size:11.5px;font-weight:700}
+.card-tip .t-life{color:#b3341f}
+.card-tip .t-eff{background:#fff8e2;border-left:3px solid var(--gold);
+  padding:7px 9px;border-radius:6px;font-size:12px;line-height:1.55;white-space:pre-wrap}
+.card-tip .t-prov{color:#b3341f;font-size:10.5px;font-weight:700;margin-top:5px}
+.card-tip .t-flavor{color:#7a6fa0;font-size:11px;font-style:italic;margin-top:6px;line-height:1.5}
+
+/* ── 結算 ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(30,26,20,.55);
+  align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.result-box{background:var(--panel);border-radius:18px;padding:34px 46px;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);min-width:320px}
+.result-box h2{font-size:34px;margin-bottom:10px}
+.result-box h2.win{color:var(--gold)} .result-box h2.lose{color:var(--ink-soft)}
+.result-box #resultBody{color:var(--ink-soft);font-size:13px;line-height:1.9}
+
+@media(max-width:1100px){
+  .battle-wrap{grid-template-columns:1fr}
+  .detail{position:static;min-height:0}
+}
+
+/* ═══════════ S2 大廳 ═══════════ */
+.lobby{max-width:560px}
+.lobby-bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.lobby-menu{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lobby-menu button{padding:14px}
+.lobby-tip{margin-top:16px;color:var(--ink-soft);font-size:12px;line-height:1.7;text-align:left}
+.hint{font-size:12px;color:var(--ink-soft);font-weight:400}
+.hint.left{text-align:left}
+.sec{margin-top:22px;color:#6b5410;text-align:left}
+textarea{width:100%;font:12px/1.5 Consolas,monospace;padding:8px;border:1px solid var(--line);
+  border-radius:8px;background:#fff;resize:vertical}
+.save-msg{margin-top:10px;font-size:12px;color:var(--ok);min-height:1.4em}
+.save-msg.bad{color:var(--bad)}
+
+/* ═══════════ 卡片清單（牌組編輯 / 圖鑑共用） ═══════════ */
+.crow{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#fff;
+  border:1px solid var(--line);border-left:5px solid var(--neutral);border-radius:8px;
+  margin-bottom:4px;cursor:pointer;font-size:12.5px;transition:.1s}
+.crow:hover{background:#fffdf3;transform:translateX(2px)}
+.crow.f-vita{border-left-color:var(--vita)} .crow.f-academy{border-left-color:var(--academy)}
+.crow.f-crux{border-left-color:var(--crux)} .crow.f-darklore{border-left-color:var(--darklore)}
+.crow.type-spell{background:linear-gradient(90deg,#faf8ff,#fff)}
+.crow.dim{opacity:.45}
+.crow.disabled{opacity:.4;cursor:not-allowed}
+.crow.disabled:hover{transform:none;background:#fff}
+.crow.on{outline:2px solid var(--gold);background:#fff8e2}
+.c-fac{flex:none;width:44px;font-size:10px;font-weight:700;color:var(--ink-soft)}
+.c-name{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-prov{color:var(--bad);font-style:normal}
+.c-stats{flex:none;display:flex;gap:5px;align-items:center}
+.c-size{min-width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;
+  font-size:11px;font-weight:800;display:grid;place-items:center}
+.c-num{min-width:20px;text-align:center;font-weight:800}
+.c-spell{font-size:11px;color:#5a3fa0;font-weight:700}
+.c-life{color:#b3341f;font-weight:800}
+.c-badge{flex:none;min-width:46px;text-align:right;font-size:11px;font-weight:700;color:var(--ink-soft)}
+.empty{color:var(--ink-soft);font-size:12px;text-align:center;padding:20px 0}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.filters select,.filters input{font-size:12px;padding:4px 8px}
+.filters input[type=search]{flex:1;min-width:110px}
+.chk{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-soft)}
+.pool{overflow-y:auto;max-height:calc(100vh - 300px);min-height:200px;padding-right:4px}
+
+/* ═══════════ S6 牌組編輯 ═══════════ */
+.editor{display:grid;grid-template-columns:230px 1fr 300px;gap:12px;
+  max-width:1340px;margin:12px auto;padding:0 12px;align-items:start}
+.ed-col{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:12px;box-shadow:var(--shadow)}
+.ed-col h3{font-size:14px;color:#6b5410;margin-bottom:10px}
+.deck-list{list-style:none;max-height:340px;overflow-y:auto}
+.deck-list li{padding:7px 9px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;
+  cursor:pointer;background:#fff;font-size:12px;line-height:1.5}
+.deck-list li:hover{background:#fffdf3}
+.deck-list li.on{outline:2px solid var(--gold);background:#fff8e2}
+.deck-list li.active .dk-name::before{content:'▶ ';color:var(--gold)}
+.dk-name{display:block;font-weight:700;font-size:13px}
+.dk-info{display:block;color:var(--ink-soft);font-size:11px}
+.dk-ok{color:var(--ok);font-size:11px} .dk-bad{color:var(--bad);font-size:11px}
+.ed-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px}
+.ed-actions button{padding:6px 4px;font-size:12px}
+.ed-actions button:first-child{grid-column:1/-1}
+
+.deck-char{margin-bottom:8px}
+.deck-stats{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+  font-size:12px;margin-bottom:8px}
+.ds-top b.ok{color:var(--ok)} .ds-top b.bad{color:var(--bad)}
+.ds-mix{color:var(--ink-soft);font-size:11px;margin:3px 0 6px}
+.sz{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-soft)}
+.sz-l{width:44px} .sz-n{width:16px;text-align:right}
+.sz-bar{flex:1;height:7px;background:#eee6d5;border-radius:4px;overflow:hidden}
+.sz-bar i{display:block;height:100%;background:var(--gold)}
+.deck-cards{max-height:calc(100vh - 520px);min-height:120px;overflow-y:auto}
+.deck-errors{margin-top:8px;font-size:11.5px;color:var(--ok);line-height:1.7}
+.deck-errors.bad{color:var(--bad)}
+.deck-errors ul{margin-left:16px}
+
+/* ═══════════ S7 卡片圖鑑 ═══════════ */
+.gallery{display:grid;grid-template-columns:1fr 300px;gap:12px;
+  max-width:1200px;margin:12px auto;padding:0 12px;align-items:start}
+.gl-list,.gl-detail{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:12px;box-shadow:var(--shadow)}
+.gl-detail{min-height:420px;position:sticky;top:12px}
+.gl-count{font-size:12px;color:var(--ink-soft);margin-bottom:6px}
+.gl-detail .d-name{font-size:17px;font-weight:800;border-bottom:2px solid var(--gold);padding-bottom:6px}
+.gl-detail .d-meta{font-size:12px;color:var(--ink-soft);margin:8px 0;line-height:1.7}
+.gl-detail .d-stats{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.gl-detail .d-stats span{background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:3px 9px;font-size:12px;font-weight:700}
+.gl-detail .t-life{color:#b3341f}
+.gl-detail .d-eff{background:#fff8e2;border-left:3px solid var(--gold);padding:8px 10px;
+  border-radius:6px;font-size:12.5px;margin:10px 0;white-space:pre-wrap;line-height:1.7}
+.gl-detail .d-prov{color:var(--bad);font-size:11px;font-weight:700}
+.gl-detail .d-flavor{color:#7a6fa0;font-size:11.5px;font-style:italic;line-height:1.6;margin-top:8px}
+.gl-detail .d-jp{color:var(--ink-soft);font-size:11px;margin-top:10px;
+  border-top:1px dotted var(--line);padding-top:8px}
+.gl-detail .d-empty{color:var(--ink-soft);text-align:center;padding-top:150px}
+
+@media(max-width:1100px){
+  .editor{grid-template-columns:1fr}
+  .gallery{grid-template-columns:1fr}
+  .gl-detail{position:static;min-height:0}
+  .pool{max-height:340px}
+  .deck-cards{max-height:260px}
+}
+.card-tip .t-hint{margin-top:8px;padding-top:6px;border-top:1px dotted var(--line);
+  color:#6b5410;font-size:11px;font-weight:700}
+.pool-faction{font-size:12px;color:var(--ink-soft);background:#fff;border:1px solid var(--line);
+  border-radius:8px;padding:5px 10px;margin-bottom:8px}
+.pool-faction b{font-weight:800}
+.pool-faction b.f-vita{color:var(--vita)} .pool-faction b.f-academy{color:var(--academy)}
+.pool-faction b.f-crux{color:var(--crux)} .pool-faction b.f-darklore{color:var(--darklore)}
+button.small{padding:4px 10px;font-size:11.5px;margin-top:8px}
+
+/* ═══════════ S3 / S4 副本 ═══════════ */
+.dg-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.dg-row{display:flex;justify-content:space-between;gap:14px;background:#fff;
+  border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;
+  padding:10px 14px;cursor:pointer;transition:.12s}
+.dg-row:hover{background:#fffdf3;transform:translateX(2px)}
+.dg-name{font-size:15px;font-weight:800}
+.dg-tier{font-size:10px;font-weight:700;color:#fff;background:var(--gold);
+  border-radius:8px;padding:1px 7px;margin-left:8px;vertical-align:2px}
+.dg-desc{font-size:12px;color:var(--ink-soft);margin-top:3px}
+.dg-stat{flex:none;text-align:right;font-size:12px;color:var(--ink-soft);line-height:1.7}
+.dg-reward{color:#6b5410} .dg-reward.got{color:var(--ok);font-weight:700}
+
+.fl-head{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.fl-floors{max-height:min(52vh,460px);overflow-y:auto;border:1px solid var(--line);
+  border-radius:10px;background:#fff;padding:6px}
+.fl-row{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:7px;
+  font-size:12.5px;border-bottom:1px dotted #eee}
+.fl-row.done{opacity:.5}
+.fl-row.now{background:#fff8e2;outline:2px solid var(--gold);font-weight:700}
+.fl-row.boss{background:linear-gradient(90deg,#fff2f0,#fff)}
+.fl-row.boss .fl-no{background:var(--bad);color:#fff}
+.fl-no{flex:none;width:46px;text-align:center;font-weight:800;font-size:11px;
+  background:#efe7d4;border-radius:6px;padding:2px 0}
+.fl-foe{flex:none;width:150px;font-weight:700}
+.fl-tl{font-style:normal;font-size:9px;color:var(--ink-soft);border:1px solid var(--line);
+  border-radius:5px;padding:0 3px;margin-left:5px}
+.fl-life{flex:none;width:56px;color:#b3341f;font-weight:800}
+.fl-eff{flex:1;color:var(--ink-soft);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.rs-dg{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);
+  font-weight:700;color:#6b5410}
+.rs-drops{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.rs-drops .drop{background:#fff8e2;border:1px solid var(--gold);border-radius:8px;
+  padding:2px 9px;font-size:12px;font-weight:700;color:#6b5410}
+.rs-reward{margin-top:10px;color:var(--ok);font-weight:800}
+
+/* ═══════════ S10 合成工房 ═══════════ */
+.craft{display:grid;grid-template-columns:1fr 300px;gap:12px;
+  max-width:1200px;margin:12px auto;padding:0 12px;align-items:start}
+.cf-list,.cf-side{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:12px;box-shadow:var(--shadow)}
+.cf-side{position:sticky;top:12px}
+.cf-list h3,.cf-side h3{font-size:14px;color:#6b5410;margin-bottom:10px}
+.cf-count{font-size:12px;color:var(--ink-soft);margin-bottom:6px}
+.crow.maxed .c-badge{color:var(--ok)}
+.cf-recipe{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;
+  font-size:12px;margin-bottom:10px}
+.rc-name{font-weight:800;font-size:14px}
+.rc-meta{color:var(--ink-soft);font-size:11px;margin:4px 0 8px}
+.rc{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #eee}
+.rc b{color:var(--ok)} .rc.short b{color:var(--bad)}
+.rc-warn{margin-top:8px;color:var(--bad);font-size:11px}
+#btnCraft{width:100%}
+.cf-bag{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px}
+.bag-row{display:flex;justify-content:space-between;padding:2px 0}
+.bag-row.zero{color:#b8b0a2}
+.bag-row.unused i{font-style:normal;font-size:10px;color:#b8b0a2}
+@media(max-width:1100px){.craft{grid-template-columns:1fr}.cf-side{position:static}}
+.fl-deck{display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.fl-deck label{font-size:12px;color:var(--ink-soft);font-weight:700;flex:none}
+.fl-deck select{flex:1;max-width:320px;font-size:13px}
+.fl-deckinfo{font-size:12px;color:var(--ink-soft)}
+.fl-deckinfo b.f-vita{color:var(--vita)} .fl-deckinfo b.f-academy{color:var(--academy)}
+.fl-deckinfo b.f-crux{color:var(--crux)} .fl-deckinfo b.f-darklore{color:var(--darklore)}
+.fl-deckinfo .bad{color:var(--bad)}
+
+/* ── 自動儲存提示 ── */
+.toast{position:fixed;right:16px;bottom:16px;z-index:90;opacity:0;transform:translateY(8px);
+  pointer-events:none;transition:.25s;background:#3a352e;color:#fff8e2;font-size:12.5px;
+  font-weight:700;padding:8px 16px;border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.toast.show{opacity:.95;transform:translateY(0)}
+.toast.bad{background:var(--bad)}
+
+/* ── 設定頁的紀錄區 ── */
+.save-status{font-size:12.5px;line-height:1.8;color:#2e6b4a;background:#eef8f2;
+  border:1px solid #bfe3ce;border-radius:10px;padding:10px 14px;text-align:left}
+.save-status.bad{color:#8a2b1c;background:#fdeeeb;border-color:#f0c3b9}
+.save-sum{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+button.danger{border-color:var(--bad);background:linear-gradient(#fff0ed,#f8d9d2);color:#8a2b1c}
+.adv{margin-top:22px;text-align:left;border-top:1px solid var(--line);padding-top:14px}
+.adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+.adv summary:hover{color:var(--ink)}
+.adv textarea{margin-top:8px}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sword Girls 復刻版</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════ S1 標題 ══════════ -->
+<section id="scr-title" class="screen active">
+  <div class="title-box">
+    <h1>SWORD GIRLS</h1>
+    <p class="sub">文字復刻版 · v0.3（戰鬥 ＋ 卡片效果 ＋ 牌組編輯）</p>
+    <div class="menu">
+      <button data-go="menu">開始遊戲</button>
+      <button data-go="rules">遊戲規則</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 對戰設定（P1 暫用） ══════════ -->
+<section id="scr-battle-setup" class="screen">
+  <div class="panel">
+    <h2>選擇牌組</h2>
+    <div class="row">
+      <label>我方</label><select id="selMine"></select>
+    </div>
+    <div class="row">
+      <label>敵方</label><select id="selFoe"></select>
+    </div>
+    <p class="hint" id="setupWarn"></p>
+    <div class="row">
+      <label>亂數種子</label><input id="inpSeed" type="text" value="" placeholder="留空＝隨機">
+    </div>
+    <div class="menu">
+      <button id="btnStart">開始戰鬥</button>
+      <button data-go="menu" class="ghost">返回大廳</button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════ S2 主選單（大廳） ══════════ -->
+<section id="scr-menu" class="screen">
+  <div class="panel lobby">
+    <div class="lobby-bar">
+      <span class="pname" id="lbName">玩家</span>
+      <span class="chip">使用中牌組　<b id="lbDeck">－</b></span>
+      <span class="chip">持有卡片　<b id="lbCards">0</b> 張</span>
+      <span class="chip">戰績　<b id="lbRecord">－</b></span>
+    </div>
+    <div class="lobby-menu">
+      <button data-go="dungeon">副　本</button>
+      <button data-go="battle-setup">對　戰</button>
+      <button data-go="deck">牌組編輯</button>
+      <button data-go="craft">合成工房</button>
+      <button data-go="gallery">卡片圖鑑</button>
+      <button data-go="rules">遊戲規則</button>
+      <button data-go="settings">設定 / 存檔</button>
+    </div>
+    <p class="lobby-tip" id="lbTip"></p>
+    <div class="menu"><button data-go="title" class="ghost">回標題</button></div>
+  </div>
+</section>
+
+
+<!-- ══════════ S3 副本選擇 ══════════ -->
+<section id="scr-dungeon" class="screen">
+  <div class="panel wide">
+    <h2>副　本</h2>
+    <p class="hint left">打贏往上一層，輸了往下一層；輸給 BOSS 直接退回第 1 層。
+      打贏 BOSS 算通關一次，<b>通關滿 10 次可獲得該 BOSS 的角色卡</b>。</p>
+    <div class="dg-list" id="dgList"></div>
+    <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+  </div>
+</section>
+
+<!-- ══════════ S4 副本樓層 ══════════ -->
+<section id="scr-floor" class="screen">
+  <div class="panel wide">
+    <h2 id="flTitle">副本</h2>
+    <div class="fl-head" id="flHead"></div>
+    <div class="fl-deck">
+      <label for="flDeck">出戰牌組</label>
+      <select id="flDeck"></select>
+      <span class="fl-deckinfo" id="flDeckInfo"></span>
+    </div>
+    <div class="fl-floors" id="flFloors"></div>
+    <div class="menu">
+      <button id="btnChallenge">挑　戰</button>
+      <button data-go="dungeon" class="ghost">離開副本</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S10 合成工房 ══════════ -->
+<section id="scr-craft" class="screen">
+  <div class="craft">
+    <section class="cf-list">
+      <h3>可合成的卡片<span class="hint">　點一下選取</span></h3>
+      <div class="filters">
+        <select id="cFaction"></select>
+        <select id="cType"></select>
+        <select id="cSort"></select>
+        <input id="cText" type="search" placeholder="搜尋卡名 / 效果">
+        <label class="chk"><input type="checkbox" id="cReady" checked> 只看素材足夠</label>
+      </div>
+      <div class="cf-count" id="cfCount"></div>
+      <div class="pool" id="cfList"></div>
+    </section>
+    <aside class="cf-side">
+      <h3>配　方</h3>
+      <div id="cfRecipe" class="cf-recipe"></div>
+      <button id="btnCraft" disabled>合　成</button>
+      <p class="save-msg" id="cfMsg"></p>
+      <h3 class="sec">素材庫存</h3>
+      <div id="cfBag" class="cf-bag"></div>
+    </aside>
+  </div>
+  <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+</section>
+
+<!-- ══════════ S6 牌組編輯 ══════════ -->
+<section id="scr-deck" class="screen">
+  <div class="editor">
+
+    <aside class="ed-col">
+      <h3>我的牌組</h3>
+      <ul class="deck-list" id="deckList"></ul>
+      <div class="ed-actions">
+        <button id="btnDeckUse">設為使用中</button>
+        <button id="btnDeckNew" class="ghost">新增</button>
+        <button id="btnDeckCopy" class="ghost">複製</button>
+        <button id="btnDeckRename" class="ghost">改名</button>
+        <button id="btnDeckDel" class="ghost">刪除</button>
+      </div>
+    </aside>
+
+    <section class="ed-col ed-pool">
+      <h3>卡片庫存<span class="hint">　點一下加入牌組</span></h3>
+      <p class="pool-faction" id="poolFaction"></p>
+      <div class="filters">
+        <select id="fFaction"></select>
+        <select id="fType"></select>
+        <select id="fSort"></select>
+        <input id="fText" type="search" placeholder="搜尋卡名 / 效果">
+      </div>
+      <div class="pool" id="poolList"></div>
+    </section>
+
+    <aside class="ed-col ed-cur">
+      <h3>目前牌組<span class="hint">　點一下移除</span></h3>
+      <div class="deck-char" id="deckChar"></div>
+      <div class="deck-stats" id="deckStats"></div>
+      <div class="deck-cards" id="deckCards"></div>
+      <div class="deck-errors" id="deckErrors"></div>
+    </aside>
+
+  </div>
+  <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+</section>
+
+<!-- ══════════ S7 卡片圖鑑 ══════════ -->
+<section id="scr-gallery" class="screen">
+  <div class="gallery">
+    <section class="gl-list">
+      <div class="filters">
+        <select id="gFaction"></select>
+        <select id="gType"></select>
+        <select id="gSort"></select>
+        <input id="gText" type="search" placeholder="搜尋卡名 / 效果">
+        <label class="chk"><input type="checkbox" id="gOwned"> 只看持有</label>
+      </div>
+      <div class="gl-count" id="glCount"></div>
+      <div class="pool" id="glList"></div>
+    </section>
+    <aside class="gl-detail" id="glDetail"></aside>
+  </div>
+  <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+</section>
+
+<!-- ══════════ S14 設定 / 存檔 ══════════ -->
+<section id="scr-settings" class="screen">
+  <div class="panel">
+    <h2>設定</h2>
+    <div class="row"><label>玩家名稱</label><input id="setName" maxlength="16"></div>
+    <div class="row"><label>戰鬥速度</label><select id="setSpeed"></select></div>
+
+    <h3 class="sec">遊戲紀錄</h3>
+    <div class="save-status" id="saveStatus"></div>
+    <div class="save-sum" id="saveSum"></div>
+    <div class="menu">
+      <button id="btnReset" class="danger">清除記錄（回到初始狀態）</button>
+    </div>
+
+    <details class="adv">
+      <summary>進階：備份 / 搬到別台電腦</summary>
+      <p class="hint left">紀錄只存在這台瀏覽器。想搬到別台電腦或備份，
+        按「匯出」把文字複製起來，在另一邊貼上再按「匯入」即可。</p>
+      <textarea id="saveText" rows="4" spellcheck="false"></textarea>
+      <div class="menu">
+        <button id="btnExport">匯出到上框</button>
+        <button id="btnImport">匯入</button>
+      </div>
+      <p class="save-msg" id="saveMsg"></p>
+    </details>
+
+    <div class="menu"><button data-go="menu" class="ghost">返回大廳</button></div>
+  </div>
+</section>
+
+<!-- ══════════ S13 規則 ══════════ -->
+<section id="scr-rules" class="screen">
+  <div class="panel wide">
+    <h2>遊戲規則</h2>
+    <div id="rulesBody"></div>
+    <div class="menu">
+      <button data-go="menu" class="ghost">返回大廳</button>
+      <button data-go="title" class="ghost">回標題</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ S8 戰鬥 ══════════ -->
+<section id="scr-battle" class="screen">
+ <div class="battle-wrap">
+  <div class="board">
+
+    <div class="fields">
+      <div class="field field-mine" id="fieldMine"></div>
+
+      <div class="center">
+        <div class="turn-no" id="turnNo">第 1 回合</div>
+        <div class="phase-banner" id="phaseBanner">回合開始</div>
+        <div class="log" id="log"></div>
+      </div>
+
+      <div class="field field-foe" id="fieldFoe"></div>
+
+      <!-- 擲硬幣決定先後 -->
+      <div class="coin-fx" id="coinFx">
+        <div class="coin" id="coin">
+          <div class="face f-front">我</div>
+          <div class="face f-back">敵</div>
+        </div>
+        <div class="coin-label" id="coinLabel">先攻</div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="side mine">
+        <span class="pname" id="mineName">我方</span>
+        <span class="chip" title="牌庫">▤ <b id="mineDeck">0</b></span>
+        <span class="chip" title="墓地">⚰ <b id="mineGrave">0</b></span>
+        <span class="chip" title="剩餘洗牌">↻ <b id="mineShuf">2</b></span>
+      </div>
+      <div class="side foe">
+        <span class="chip" title="剩餘洗牌">↻ <b id="foeShuf">2</b></span>
+        <span class="chip" title="墓地">⚰ <b id="foeGrave">0</b></span>
+        <span class="chip" title="牌庫">▤ <b id="foeDeck">0</b></span>
+        <span class="pname" id="foeName">敵方</span>
+      </div>
+    </div>
+
+    <div class="handbar">
+      <div class="hand" id="hand"></div>
+      <div class="controls">
+        <div class="sizebox">SIZE <b id="sizeNow">0</b><span>/10</span></div>
+        <button id="btnReady">確 定</button>
+        <button id="btnShuffle">洗牌 <b id="shufLeft">2</b></button>
+        <button id="btnSpeed" class="ghost">速度 普通</button>
+        <button id="btnQuit" class="ghost">投降</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="detail" id="detail"></aside>
+ </div>
+
+ <div class="overlay" id="resultOverlay">
+   <div class="result-box">
+     <h2 id="resultTitle">勝利</h2>
+     <div id="resultBody"></div>
+     <div class="menu">
+       <button id="btnAgain">再戰一場</button>
+       <button data-go="menu" class="ghost">返回大廳</button>
+     </div>
+   </div>
+ </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data/cards.js"></script>
+<script src="js/data/cards_npc.js"></script>
+<script src="js/data/materials.js"></script>
+<script src="js/data/decks.js"></script>
+<script src="js/data/dungeons.js"></script>
+<script src="js/core/save.js"></script>
+<script src="js/core/battle.js"></script>
+<script src="js/core/effects.js"></script>
+<script src="js/core/ai.js"></script>
+<script src="js/ui/card_ui.js"></script>
+<script src="js/ui/battle_ui.js"></script>
+<script src="js/ui/screen_deck.js"></script>
+<script src="js/ui/screen_gallery.js"></script>
+<script src="js/ui/screen_dungeon.js"></script>
+<script src="js/ui/screen_craft.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
