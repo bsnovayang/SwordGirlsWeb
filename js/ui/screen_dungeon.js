@@ -154,7 +154,7 @@ var SG = window.SG || (window.SG = {});
 
     SG.go('battle');
     SG.startBattle(dk, foe.deck, '',
-      { onEnd: function (g) { return settle(dg, g, dk, floor); } });
+      { dungeon: true, onEnd: function (g) { return settle(dg, g, dk, floor); } });
   }
 
   /* 評價明細（參考遊戲王 Duel Links 的結算加分） */

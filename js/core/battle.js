@@ -108,11 +108,14 @@ var SG = window.SG || (window.SG = {});
   SG.fieldSize = fieldSize;
 
   /* ── 建立對局 ── */
-  SG.createGame = function (deckA, deckB, seed) {
+  /* opts.dungeon ＝ true 表示這是副本戰。
+     有些卡的效果原作寫「副本限定」，只有在副本裡才會發動。 */
+  SG.createGame = function (deckA, deckB, seed, opts) {
     seed = (seed === undefined || seed === null || seed === '') ? (Date.now() ^ (Math.random() * 1e9 | 0)) : hashSeed(seed);
     var g = {
       seed: seed, rnd: mulberry32(hashSeed(seed)),
       turn: 0, phase: 'init', over: false, winner: -1, reason: '',
+      dungeon: !!(opts && opts.dungeon),
       /* 戰鬥統計，給結算評價用（kills[i] ＝ 玩家 i 被擊破的隨從數） */
       stats: { kills: [0, 0] },
       firstPlayer: 0, players: [mkPlayer(deckA, 0), mkPlayer(deckB, 1)]
@@ -663,7 +666,8 @@ var SG = window.SG || (window.SG = {});
     for (var i = 0; i < list.length; i++) {
       var e = SG.Effects[list[i]];
       if (!e) continue;
-      if (e.dungeonOnly) { handled = true; continue; }   // 副本限定：不發動但算已處理
+      /* 副本限定的效果只在副本戰發動；一般對戰算「已處理」但不發動 */
+      if (e.dungeonOnly && !g.dungeon) { handled = true; continue; }
       if (typeof e[when] !== 'function') continue;
       e[when](makeCtx(g, ev, card, pi, slot, extra));
       handled = true;
@@ -694,6 +698,7 @@ var SG = window.SG || (window.SG = {});
   SG.cloneGame = function (g, seed) {
     var ng = {
       seed: seed, rnd: mulberry32(hashSeed(String(seed))), quiet: true,
+      dungeon: g.dungeon,
       turn: g.turn, phase: g.phase, over: g.over,
       winner: g.winner, reason: g.reason, firstPlayer: g.firstPlayer,
       players: []

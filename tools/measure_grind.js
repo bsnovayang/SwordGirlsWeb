@@ -11,7 +11,8 @@ const R = path.join(__dirname, '..');
 const N = parseInt(process.argv[2] || '40', 10);
 
 function play(deck, foe, seed) {
-  const g = SG.createGame(deck, foe, seed);
+  /* 副本戰要標記，「副本限定」的卡才會發動（敵方牌組裡有女僕長等四張） */
+  const g = SG.createGame(deck, foe, seed, { dungeon: true });
   let guard = 0;
   while (!g.over && guard++ < 300) {
     SG.beginTurn(g); if (g.over) break;

@@ -684,6 +684,26 @@ console.log('══════ 卡包 ══════');
      }), '分解不會拆掉還組得進牌組的張數');
 }
 
+console.log('══════ 副本戰要標記成 dungeon ══════');
+{
+  /* 「副本限定」的卡靠 g.dungeon 判斷，所以副本畫面開戰時一定要傳這個旗標。
+     這條線斷掉的話那四張卡會默默失效，不會有任何錯誤。 */
+  d.querySelector('[data-go="dungeon"]').click();
+  d.querySelectorAll('#dgList .dg-row')[0].click();
+  eq(active(), 'scr-floor', '進入樓層畫面');
+  $('btnChallenge').click();
+  eq(active(), 'scr-battle', '開始副本戰');
+  ok(!!w.SG.game && w.SG.game.dungeon === true, '副本戰的 g.dungeon 是 true');
+  $('btnQuit').click();
+
+  /* 對照組：自由對戰不該是副本戰 */
+  d.querySelector('[data-go="battle-setup"]').click();
+  $('btnStart').click();
+  eq(active(), 'scr-battle', '開始自由對戰');
+  ok(w.SG.game && w.SG.game.dungeon === false, '自由對戰的 g.dungeon 是 false');
+  $('btnQuit').click();
+}
+
 console.log('══════ 存檔 ══════');
 {
   d.querySelector('[data-go="settings"]').click();

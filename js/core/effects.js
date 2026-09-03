@@ -18,8 +18,8 @@
      UI 會在 ability 事件時讓該卡亮一下，代表「這張卡的效果要發動了」，
      之後才播放送墓地／數值增減等後續事件。順序寫反的話會先看到結果才看到亮光。
 
-   ※ 標記 dungeonOnly 的卡：原作寫「副本限定」，一般對戰不發動。
-     本專案還沒有副本模式，所以只是不觸發，不會被當成「未實作」。
+   ※ 標記 dungeonOnly 的卡：原作寫「副本限定」，只有在副本戰才會發動。
+     引擎用 g.dungeon 判斷（createGame 的 opts.dungeon）。
    ═══════════════════════════════════════════════════════════ */
 var SG = window.SG || (window.SG = {});
 
@@ -82,7 +82,15 @@ var SG = window.SG || (window.SG = {});
     return true;
   }
 
-  var DUNGEON = { dungeonOnly: true };
+  /* 「副本限定：攻擊前，此卡攻/體 +1」—— Episode 0 有四張同款。
+     dungeonOnly 讓它只在副本戰發動（見 battle.js 的 fireAbility）。 */
+  var DUNGEON = {
+    dungeonOnly: true,
+    beforeAttack: function (c) {
+      c.say('副本限定　攻擊前　攻/體 +1');
+      c.mod(c.self, { atk: 1, sta: 1 });
+    }
+  };
 
   SG.Effects = {
 

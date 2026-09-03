@@ -184,14 +184,43 @@ console.log('══════ 隨從 ══════');
   eq(hit, 2, '卡塔：敵方隨機 2 張 攻/體 -1');
 }
 
-console.log('══════ 副本限定（一般對戰不得發動） ══════');
-['cook_club_dir_jamie', 'head_maid', 'crux_knight_mitil', 'scardel_pinot_noir'].forEach(slug => {
-  const g = board();
-  const self = put(g, 0, 0, slug);
-  const before = stats(self);
-  const ev = fire(g, 0, 0, 'beforeAttack');
-  ok(stats(self) === before && ev.length === 0, '副本限定不發動：' + SG.getCard(slug).name);
-});
+console.log('══════ 副本限定：一般對戰不發動、副本戰才發動 ══════');
+{
+  /* 這四張原作寫「副本限定：攻擊前，此卡攻/體 +1」。
+     引擎用 g.dungeon 判斷（createGame 的 opts.dungeon）。 */
+  const SLUGS = ['cook_club_dir_jamie', 'head_maid', 'crux_knight_mitil', 'scardel_pinot_noir'];
+
+  SLUGS.forEach(slug => {
+    const g = board();                       // 一般對戰
+    const self = put(g, 0, 0, slug);
+    const before = stats(self);
+    const ev = fire(g, 0, 0, 'beforeAttack');
+    ok(stats(self) === before && ev.length === 0,
+       '一般對戰不發動：' + SG.getCard(slug).name);
+  });
+
+  SLUGS.forEach(slug => {
+    const mk = (ch) => ({ name: 't', character: ch, cards: [] });
+    const g = SG.createGame(mk('sita_vilosa'), mk('cinia_pacifica'), 'dg', { dungeon: true });
+    g.phase = 'battle';
+    const self = put(g, 0, 0, slug);
+    const a0 = self.atk, s0 = self.sta;
+    const ev = fire(g, 0, 0, 'beforeAttack');
+    ok(self.atk === a0 + 1 && self.sta === s0 + 1,
+       '副本戰會發動（攻/體 +1）：' + SG.getCard(slug).name +
+       '　' + a0 + '/' + s0 + ' → ' + self.atk + '/' + self.sta);
+    ok(ev.some(e => e.t === 'ability'), '會寫進戰鬥紀錄：' + SG.getCard(slug).name);
+  });
+
+  /* 旗標要跟著 cloneGame 走，否則 AI 推演會估錯 */
+  {
+    const mk = (ch) => ({ name: 't', character: ch, cards: [] });
+    const g = SG.createGame(mk('sita_vilosa'), mk('cinia_pacifica'), 'dg2', { dungeon: true });
+    eq(SG.cloneGame(g, 'c1').dungeon, true, 'cloneGame 會帶著副本旗標');
+    const n = SG.createGame(mk('sita_vilosa'), mk('cinia_pacifica'), 'dg3');
+    eq(n.dungeon, false, '沒指定就不是副本戰');
+  }
+}
 
 console.log('══════ 咒語 ══════');
 {

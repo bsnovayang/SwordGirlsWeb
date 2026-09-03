@@ -27,7 +27,7 @@ var SG = window.SG || (window.SG = {});
     endHook = (opts && opts.onEnd) || null;
     aiLevel = (opts && opts.ai) || 'basic';
     aiOpts = (opts && opts.aiOpts) || null;
-    g = SG.createGame(deckA, deckB, seed);
+    g = SG.createGame(deckA, deckB, seed, { dungeon: !!(opts && opts.dungeon) });
     SG.game = g;
     busy = false;
     $('resultOverlay').classList.remove('show');
