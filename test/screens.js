@@ -71,7 +71,7 @@ console.log('══════ 初始存檔 ══════');
   const kinds = Object.keys(s.owned).length;
   const collectible = w.SG.collectibleCards().length;
   eq(kinds, 56, '初始持有 Episode 0 的 56 種卡');
-  eq(collectible, 182, '可收集卡片 182 種（EP0 的 56 + 5 張副本獎勵 + EP1 的 61 + EP2 的 60）');
+  eq(collectible, 185, '可收集卡片 185 種（EP0 的 56 + 5 張副本獎勵 + EP1 的 61 + EP2 的 63）');
   ok(w.SG.allCards().length > collectible, 'NPC 卡不算在可收集之列');
   s.decks.forEach(dk => {
     ok(w.SG.deckErrors(dk).length === 0, '預設牌組可用：' + dk.name,
@@ -311,7 +311,7 @@ console.log('══════ 卡片圖鑑 ══════');
 
   $('gType').value = 'character';
   $('gType').dispatchEvent(new w.Event('change'));
-  eq(d.querySelectorAll('#glList .crow').length, 10, '只看角色卡 → 10 張（4 主角 + 5 副本獎勵 + EP1 維若妮卡）');
+  eq(d.querySelectorAll('#glList .crow').length, 12, '只看角色卡 → 12 張（4 主角 + 5 副本獎勵 + EP1 維若妮卡 + EP2 兩張）');
   $('gType').value = '';
   $('gType').dispatchEvent(new w.Event('change'));
 }

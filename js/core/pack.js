@@ -62,7 +62,8 @@ var SG = window.SG || (window.SG = {});
     (SG.DUNGEONS || []).forEach(function (d) { rewards[d.reward] = 1; });
     return SG.collectibleCards().filter(function (c) {
       if (rewards[c.slug]) return false;
-      if (filter.faction && c.faction !== filter.faction) return false;
+      /* 無所屬的卡任何牌組都放得進去，所以每個陣營包都該有 */
+      if (filter.faction && c.faction !== filter.faction && c.faction !== 'neutral') return false;
       if (filter.ep !== '' && filter.ep !== null && filter.ep !== undefined &&
           (c.ep || 0) !== filter.ep) return false;
       return true;

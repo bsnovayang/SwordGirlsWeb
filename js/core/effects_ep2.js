@@ -603,6 +603,54 @@ var SG = window.SG || (window.SG = {});
       }
     },
 
+    /* ═════════ 沒有官方譯名的三張 ═════════ */
+
+    // 薔薇魔女、蘿莎（角色卡）
+    rose_witch_rosa: {
+      turnStart: function (c) {
+        var t = pick(c, folls(c.foeField), 1)[0];
+        if (!t) return;
+        var n = up(Math.abs(t.def - t.size) / 2);
+        if (!n) return;
+        c.say('敵方隨機 1 張隨從　攻/體 −' + n + '（防禦力與 SIZE 差的一半）');
+        c.mod(t, { atk: -n, sta: -n });
+      }
+    },
+
+    // 雷瓦汀（角色卡）
+    laevateinn: {
+      turnStart: function (c) {
+        var seen = {}, dup = 0;
+        c.myHand.forEach(function (x) {
+          var s2 = x.size || 0;
+          seen[s2] = (seen[s2] || 0) + 1;
+          if (seen[s2] === 2 && s2 > dup) dup = s2;
+        });
+        if (!dup) return;
+        var n = up(dup / 2);
+        c.say('手牌有兩張以上 SIZE ' + dup + ' 的卡　→　我方生命 +' + n);
+        c.life(c.me, n);
+      }
+    },
+
+    // 訪問者、奧菲莉亞（無所屬隨從）
+    visitor_ophelia: {
+      beforeAttack: function (c) {
+        if (c.self.size <= 1) return;
+        c.say('攻擊前　此卡 SIZE −1');
+        c.mod(c.self, { size: -1 });
+      },
+      beforeDefend: function (c) {
+        c.say('防禦前　此卡防禦力 −1');
+        c.mod(c.self, { def: -1 });
+        if (!c.attacker) return;
+        var n = Math.min(5, Math.abs(c.self.def - c.self.size));
+        if (!n) return;
+        c.say('攻擊隨從 攻/防/體 −' + n + '（此卡防禦力與 SIZE 的差，最多 5）');
+        c.mod(c.attacker, { atk: -n, def: -n, sta: -n });
+      }
+    },
+
     fatal_blow: {
       spell: function (c) {
         var lim = cards(c.myField).length + c.myHand.length;

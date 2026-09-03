@@ -133,6 +133,37 @@ console.log('══════ 合成 ══════');
   ok(topUp.length > 0, '初始狀態就有 ' + topUp.length + ' 張卡沒到牌組上限，可以靠合成補滿');
 }
 
+console.log('══════ 無所屬（neutral）的處理 ══════');
+{
+  /* 規則：無所屬的卡任何陣營的牌組都放得進去；
+     用無所屬「角色卡」組牌時也不鎖陣營。 */
+  const S = SG.Save;
+  const oph = SG.getCard('visitor_ophelia');
+  ok(!!oph && oph.faction === 'neutral', '訪問者、奧菲莉亞是無所屬隨從');
+
+  const dk = { name: 't', character: 'sita_vilosa', cards: [] };
+  ok(S.factionOk(dk, oph), '無所屬隨從放得進公立牌組');
+
+  const nd = { name: 't', character: 'cannelle', cards: [] };   // 卡涅魯是無所屬角色
+  eq(S.deckFaction(nd), 'neutral', '無所屬角色的牌組陣營是 neutral');
+  ['cook_club_student', 'guard_maid', 'crux_knight_mitil', 'scardel_merlot']
+    .forEach(sl => ok(S.factionOk(nd, SG.getCard(sl)),
+                      '無所屬角色的牌組放得進 ' + SG.getCard(sl).faction + ' 的卡'));
+
+  /* 無所屬的卡沒有專屬礦石，配方要用白礦石代替，而且不能出現重複項目 */
+  const r = SG.recipeOf(oph);
+  ok(!!r, '無所屬的卡做得出來（不是 null）');
+  const mats = r.map(x => x.mat);
+  eq(mats.length, new Set(mats).size, '配方裡不會有重複的素材項目');
+  ok(r.some(x => x.mat === 'ore_white'), '用白色礦石代替陣營礦石');
+
+  /* 每個陣營的卡包都要有無所屬的卡 */
+  ['vita', 'academy', 'crux', 'darklore'].forEach(f => {
+    ok(SG.packPool({ faction: f }).some(c => c.slug === 'visitor_ophelia'),
+       f + ' 卡包裡有無所屬的卡');
+  });
+}
+
 console.log('══════ 戰鬥評價與掉落 ══════');
 {
   /* 假的對局狀態，只放評價會讀到的欄位 */

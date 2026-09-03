@@ -44,11 +44,23 @@ var SG = window.SG || (window.SG = {});
   };
 
   /* 一張卡的合成配方，回傳 [{mat, n}, …]；無法合成則回傳 null */
+  /* 同一種素材出現兩次就合併（無所屬的卡陣營礦石也是白礦石，會撞在一起） */
+  function merge(list) {
+    var out = [], idx = {};
+    list.forEach(function (m) {
+      if (idx[m.mat] === undefined) { idx[m.mat] = out.length; out.push({ mat: m.mat, n: m.n }); }
+      else out[idx[m.mat]].n += m.n;
+    });
+    return out;
+  }
+
   SG.recipeOf = function (card) {
     if (typeof card === 'string') card = SG.getCard(card);
     if (!card) return null;
-    var ore = FACTION_ORE[card.faction];
-    if (!ore) return null;                       // 無所屬／NPC 卡不能合成
+    /* 無所屬（neutral）的卡沒有專屬礦石，用白色礦石代替 ——
+       否則這種卡完全拿不到（test/dungeon.js 會抓）。 */
+    var ore = FACTION_ORE[card.faction] || (card.faction === 'neutral' ? 'ore_white' : null);
+    if (!ore) return null;                       // 其餘沒有陣營的卡不能合成
     if (card.npc) return null;                   // 副本 BOSS 卡只能靠通關取得
     /* 副本通關 10 次的獎勵角色卡：原作沒有配方（英文 wiki 上 Nold／Cannelle／
        Gart／Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能靠通關拿。
@@ -56,12 +68,12 @@ var SG = window.SG || (window.SG = {});
     if (card.reward) return null;
     if (card.type === 'character') {
       var cm = card.ep ? 40 : 30, co = card.ep ? 25 : 20, cw = card.ep ? 60 : 50;
-      return [{ mat: 'sword', n: cm }, { mat: ore, n: co }, { mat: 'ore_white', n: cw }];
+      return merge([{ mat: 'sword', n: cm }, { mat: ore, n: co }, { mat: 'ore_white', n: cw }]);
     }
     var base = card.type === 'spell' ? 'book' : 'cat_doll';
     if (!card.ep) {
       /* Episode 0：這條規則是從 31 張 wiki 配方推導出來的，test/dungeon.js 有驗證 */
-      return [{ mat: base, n: 3 }, { mat: ore, n: 2 }, { mat: 'ore_white', n: 2 }];
+      return merge([{ mat: base, n: 3 }, { mat: ore, n: 2 }, { mat: 'ore_white', n: 2 }]);
     }
     /* Episode 1 以後：原作配方會用到眼鏡／絲襪／聖獸之淚等本作還沒有的素材，
        所以改用現有素材依「分數」代表的稀有度換算。這是推導值，卡片會標 provRecipe。 */
@@ -71,8 +83,8 @@ var SG = window.SG || (window.SG = {});
        原作是用眼鏡／絲襪／聖獸之淚等更後面的素材，精神一樣 ——
        想做新章節的卡，就得去打新的副本。 */
     var special = p >= 13 ? { mat: 'ruins', n: p >= 50 ? 8 : 4 } : { mat: 'bamboo', n: p >= 3 ? 4 : 2 };
-    return [{ mat: base, n: tier[0] }, { mat: ore, n: tier[1] },
-            { mat: 'ore_white', n: tier[2] }, special];
+    return merge([{ mat: base, n: tier[0] }, { mat: ore, n: tier[1] },
+                  { mat: 'ore_white', n: tier[2] }, special]);
   };
 
   /* 配方是否湊得齊 */

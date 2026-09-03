@@ -91,7 +91,9 @@ var SG = window.SG || (window.SG = {});
 
       e.innerHTML =
         '<span class="c-fac">' + SG.UI.facShort(card.faction) + '</span>' +
-        '<span class="c-name">' + card.name + (card.prov ? ' <i class="c-prov">※</i>' : '') + '</span>' +
+        '<span class="c-name">' + card.name +
+          (card.prov ? ' <i class="c-prov">※</i>' : '') +
+          (card.tl ? ' <i class="c-tl" title="卡名為本專案自譯">暫譯</i>' : '') + '</span>' +
         '<span class="c-stats">' + stat + '</span>' +
         (opts.badge ? '<span class="c-badge">' + opts.badge + '</span>' : '');
       if (!opts.noTip) SG.UI.attachTip(e, card, card.slug, opts.hint);
@@ -117,6 +119,7 @@ var SG = window.SG || (window.SG = {});
         '<div class="d-stats">' + stats + '</div>' +
         '<div class="d-eff">' + (card.effect || '（此卡無效果）') + '</div>' +
         (card.prov ? '<div class="d-prov">※ 攻/防/體為暫定值，尚待考據</div>' : '') +
+        (card.tl ? '<div class="d-prov">※ 繁中 wiki 未收錄這張卡，卡名為本專案自譯</div>' : '') +
         (card.flavor ? '<div class="d-flavor">' + card.flavor + '</div>' : '') +
         (card.jp ? '<div class="d-jp">日文卡名：' + card.jp + '　／　' + (card.en || '') + '</div>' : '');
     },

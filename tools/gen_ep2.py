@@ -55,10 +55,14 @@ def flavor(zh):
 
 def main():
     fd = json.load(open(os.path.join(D, 'fandom_cards.json'), encoding='utf-8'))
+    # 同名不同卡時取「頁面標題＝卡名」的那筆（見 tools/verify.py 的說明）
     BY = {}
     for c in fd:
-        if c.get('name'):
-            BY.setdefault(c['name'], c)
+        n = c.get('name')
+        if not n:
+            continue
+        if n not in BY or (c.get('title') == n and BY[n].get('title') != n):
+            BY[n] = c
     mp = json.load(open(os.path.join(D, 'map_ep2.json'), encoding='utf-8'))
 
     rows = []

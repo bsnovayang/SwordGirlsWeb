@@ -96,7 +96,7 @@ var SG = window.SG || (window.SG = {});
       var c = SG.getCard(k);
       if (!c) continue;
       if (count[k] > (c.limit || 3)) errs.push(c.name + ' 超過上限（' + count[k] + '/' + c.limit + '）');
-      if (ch && c.faction !== 'neutral' && c.faction !== ch.faction) {
+      if (ch && ch.faction !== 'neutral' && c.faction !== 'neutral' && c.faction !== ch.faction) {
         errs.push(c.name + ' 陣營不符（' + SG.FACTIONS[c.faction].name + '）');
       }
     }

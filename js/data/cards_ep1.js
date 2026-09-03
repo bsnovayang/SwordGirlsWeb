@@ -188,7 +188,7 @@ var SG = window.SG || (window.SG = {});
     {
       slug: 'curious_vernika', id: '100040',
       name: '好奇心少女維若妮卡', jp: '好奇心少女ヴェルニカ', en: 'Curious Vernika',
-      type: 'character', faction: 'vita', life: 36, points: 20, limit: 1,
+      type: 'character', faction: 'vita', life: 30, points: 20, limit: 1,
       ep: 1, provRecipe: true, rarity: 'Rare',
       effect: '回合開始時，對方場上防禦最高的隨從，防禦力 = 0。',
       flavor: '［黃昏之狼？西塔要去狩獵嗎？也帶我去吧！］'

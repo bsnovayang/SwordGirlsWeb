@@ -7,8 +7,11 @@
      · 攻/防/體、SIZE、分數、張數上限、卡號、稀有度 → Sword Girls Wiki（英文）
        繁中 wiki 從 Episode 1 起這幾欄是空模板
 
-   ★ 目前收錄「繁中 wiki 有官方譯名」的 60 張（隨從 32 ＋ 咒語 28）。
-     英文 wiki 另有 36 張 Episode 2 卡片沒有官方中文名，尚未收錄。
+   ★ 共 63 張。其中 60 張有繁中 wiki 的官方譯名（隨從 32 ＋ 咒語 28），
+     另外 3 張（薔薇魔女蘿莎／雷瓦汀／訪問者奧菲莉亞）繁中 wiki 沒有收錄，
+     卡名是本專案自譯，標了 tl，UI 會顯示「暫譯」。
+
+  ★ 不含「變化後角色卡」—— 那些要變身才拿得到，是還沒實作的系統。
 
    ★ 兩邊數值有出入時一律以英文 wiki 為準 —— 繁中 wiki 的分數／上限欄
      有幾處筆誤（例如「高速送件」SIZE 寫 3、「神聖研究會的拉芙拉」分數寫 5）。
@@ -39,6 +42,16 @@ var SG = window.SG || (window.SG = {});
       slug: slug, id: id, name: name, jp: jp, en: en, type: 'spell', faction: faction,
       size: size, limit: limit, points: points,
       ep: 2, provRecipe: true, rarity: rarity(points),
+      effect: effect || '', flavor: flavor || ''
+    };
+  }
+
+  /* 角色卡。tl ＝ 卡名為本專案自譯（繁中 wiki 沒有收錄），UI 會標「暫譯」 */
+  function chara(slug, id, name, en, faction, life, limit, points, effect, flavor) {
+    return {
+      slug: slug, id: id, name: name, jp: '', en: en, type: 'character', faction: faction,
+      life: life, limit: limit, points: points,
+      ep: 2, provRecipe: true, rarity: rarity(points), tl: true,
       effect: effect || '', flavor: flavor || ''
     };
   }
@@ -239,7 +252,27 @@ var SG = window.SG || (window.SG = {});
     spell('fatal_blow', '200068', '一擊必殺', '一擊必殺', 'Fatal Blow', 'darklore', 5, 1, 50,
       '場上的卡片SIZE在 自己陣地的牌+手牌 數量以下的所有卡送入墓地。自己角色生命下降對手被送入墓地的卡片數。',
       '［做好覺悟準備償還吧。］'),
+    /* ── 沒有官方繁中譯名的三張（卡名為自譯，UI 會標「暫譯」）──
+       繁中 wiki 的 Episode 2 頁面沒有收錄這三張，數值與效果來自英文 wiki。 */
+
+    chara('rose_witch_rosa', '100030', '薔薇魔女、蘿莎', 'Rose Witch Rosa', 'darklore', 30, 1, 20,
+      '回合開始時，對手場上隨機一張隨從，攻/體 減少「該隨從防禦力與 SIZE 的差的一半」（進位）。',
+      '［不要等我了。我已經不是妳記憶中的那個姊姊了…我很想妳…希妮亞。］'),
+
+    chara('laevateinn', '100041', '雷瓦汀', 'Laevateinn', 'darklore', 30, 1, 25,
+      '回合開始時，手牌中有兩張以上 SIZE 相同的卡時，我方生命上升「該 SIZE 的一半」（進位）。',
+      '［喜歡嗎？只要是在夢裡，我什麼都能為你做，也能變成任何模樣。］'),
+
+    /* 無所屬隨從 —— 任何陣營的牌組都放得進去 */
+    foll('visitor_ophelia', '300105', '訪問者、奧菲莉亞', '', 'Visitor Ophelia', 'neutral', 4, 6, 5, 8, 1, 50,
+      '攻擊前，此卡 SIZE −1（最低 1）。' + '\n' +
+      '防禦前，此卡防禦力 −1，接著攻擊隨從的 攻/防/體 減少「此卡防禦力與 SIZE 的差」（最多 5）。',
+      ''),
+
   ];
+
+  /* 「訪問者、奧菲莉亞」的卡名也是自譯（foll() 沒有 tl 參數，這裡補上） */
+  LIST.forEach(function (c) { if (c.slug === 'visitor_ophelia') c.tl = true; });
 
   LIST.forEach(function (c) { SG.CARDS[c.slug] = c; });
 })();

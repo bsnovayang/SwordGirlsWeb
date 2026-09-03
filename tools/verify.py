@@ -18,11 +18,16 @@ def norm(s):
 def main():
     mine = json.load(open(os.path.join(D, 'mine.json'), encoding='utf-8'))
     fd = json.load(open(os.path.join(D, 'fandom_cards.json'), encoding='utf-8'))
+    # 有同名不同卡的情況（例如 Lib. Milka 有 Episode 2 與 Episode 5 兩個版本，
+    # 後者的頁面標題是 'Lib. Milka(Ep5)'）。以「標題＝卡名」的那筆為準。
     FD = {}
     for c in fd:
+        exact = (c.get('title') or '') == (c.get('name') or '')
         for n in {norm(c.get('name')), norm(c.get('title'))}:
-            if n:
-                FD.setdefault(n, c)
+            if not n:
+                continue
+            if n not in FD or (exact and (FD[n].get('title') != FD[n].get('name'))):
+                FD[n] = c
 
     # 已知且已裁決過的分歧：不算失敗，但每次都列出來提醒
     KNOWN = {

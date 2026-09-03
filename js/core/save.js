@@ -195,6 +195,7 @@ var SG = window.SG || (window.SG = {});
       if (card.faction === 'neutral') return true;          // 無所屬任何牌組都能放
       var f = SG.Save.deckFaction(deck);
       if (f === null) return false;
+      if (f === 'neutral') return true;   // 無所屬角色（卡涅魯等）不鎖陣營
       return card.faction === f;
     },
 
