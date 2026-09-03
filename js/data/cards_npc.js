@@ -56,12 +56,15 @@ var SG = window.SG || (window.SG = {});
       effect: '回合開始時，對手場上隨機選一張隨從變成行動終了狀態。'
     }),
 
-    /* ── 竹林鄉的樓層敵人（英文 wiki 有名單，LIFE 沒有記載，依樓層深度估算） ── */
+    /* ── 竹林鄉的樓層敵人 ──
+       這些是拿原作隨從卡當樓層角色用。隨從卡本身沒有 LIFE，
+       原作副本裡這些敵人的 LIFE 也查不到，所以依樓層深度估算。
+       en 欄位指的是「取材自哪張原作卡」，供 tools/verify.py 對照。 */
     npc('npc_bg_knight', '110101', '新入騎士團員（哨兵）', 'New Knight', 'crux', 20, { tl: true }),
     npc('npc_bg_chief',  '110102', '首席女僕（守衛）',     'Chief Maid', 'academy', 25, { tl: true }),
-    npc('npc_bg_frett',  '110103', '旗手佛雷特（哨戒）',   'Frett',      'crux', 30, { tl: true }),
+    npc('npc_bg_frett',  '110103', '旗手佛雷特（哨戒）',   'Flag Knight Frett', 'crux', 30, { tl: true }),
     npc('npc_bg_mop',    '110104', '拖把女僕（巡邏）',     'Mop Maid',   'academy', 30, { tl: true }),
-    npc('npc_bg_layna',  '110105', '風紀部長蕾娜',         'Layna Scentriver', 'vita', 35, { tl: true }),
+    npc('npc_bg_layna',  '110105', '風紀部長蕾娜',         'Prefect Layna',    'vita', 35, { tl: true }),
 
     /* ── 兩座新副本的 BOSS（繁中 wiki 頁面 37） ── */
     npc('boss_panica', '120004', '希妮亞的寵物、佩妮卡', "Cinia's Pet Panica", 'academy', 50, {

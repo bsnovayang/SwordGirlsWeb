@@ -24,7 +24,13 @@ def main():
             if n:
                 FD.setdefault(n, c)
 
-    PAIRS = [('atk', 'attack'), ('df', 'defense'), ('sta', 'stamina'),
+    # 已知且已裁決過的分歧：不算失敗，但每次都列出來提醒
+    KNOWN = {
+        ("Saint's Blessing", 'size'):
+            'atwiki 說 2、Fandom 說 3，其餘欄位一致；第三份表格沒有 SIZE 欄可裁決，暫留 2',
+    }
+
+    PAIRS = [('atk', 'attack'), ('def', 'defense'), ('sta', 'stamina'),
              ('size', 'size'), ('life', 'life'), ('points', 'points'),
              ('limit', 'limit')]
     hit = 0
@@ -48,9 +54,14 @@ def main():
 
     print('配對 %d 張（未命中 %d 張＝自製 NPC 卡）' % (hit, len(nomatch)))
     prov = [c for c in conflicts if c[4]]
-    real = [c for c in conflicts if not c[4]]
-    print('數值衝突 %d 筆（其中 %d 筆是標記 prov 的暫定值，屬預期）'
-          % (len(conflicts), len(prov)))
+    known = [c for c in conflicts if (c[0], c[1]) in KNOWN]
+    real = [c for c in conflicts
+            if not c[4] and (c[0], c[1]) not in KNOWN]
+    print('數值衝突 %d 筆（prov 暫定值 %d、已知未裁決 %d、未處理 %d）'
+          % (len(conflicts), len(prov), len(known), len(real)))
+    for c in known:
+        print('  ~ %-24s %-6s 我方 %s / Fandom %s' % (c[0], c[1], c[2], c[3]))
+        print('      %s' % KNOWN[(c[0], c[1])])
     for c in real:
         print('  ✗ %-24s %-6s 我方 %s → Fandom %s' % (c[0], c[1], c[2], c[3]))
     return 1 if real else 0

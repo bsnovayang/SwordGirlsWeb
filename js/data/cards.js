@@ -4,10 +4,12 @@
    資料來源：
      · 繁中卡名 / 效果 / 風味文字 / 數值 → SwordGirls@wiki（繁中）
        https://w.atwiki.jp/swordgirls/  頁面 31 / 74 / 80 / 86 / 92 / 110-124
-     · 卡號、南十字隨從的攻防體 → Sword Girls Wiki（英文，archive.org 存檔）
+     · 卡號、南十字隨從的攻防體 → Sword Girls Wiki（英文）
+       https://swordgirls.fandom.com/  取得方式見 tools/README.md
 
    ★ prov: true ＝ 兩處來源皆查無該欄數值，依同 SIZE 卡片曲線估算，
-     詳情面板會標示「※ 數值為暫定值」。目前僅 2 張。
+     詳情面板會標示「※ 數值為暫定值」。目前 0 張 —— 原本估算的
+     `新入騎士團員` 與 `騎士團的旗手、佛雷特` 已換成英文 wiki 的真實數值。
 
    欄位：size 尺寸 / atk 攻擊 / def 防禦 / sta 體力 / life 生命
         points 分數 / limit 牌組張數上限
@@ -314,12 +316,11 @@ var SG = window.SG || (window.SG = {});
       type: 'follower',
       faction: 'crux',
       size: 1,
-      atk: 4,
+      atk: 5,
       def: 1,
-      sta: 6,
+      sta: 3,
       points: 1,
       limit: 3,
-      prov: true,
       effect: ''
     },
     military_knight_sillit: {
@@ -345,12 +346,11 @@ var SG = window.SG || (window.SG = {});
       type: 'follower',
       faction: 'crux',
       size: 3,
-      atk: 5,
+      atk: 3,
       def: 1,
-      sta: 8,
+      sta: 9,
       points: 1,
       limit: 3,
-      prov: true,
       effect: '攻擊前，自己場上第3格的隨從攻/體+1。'
     },
     knight_adjt_sarisen: {
