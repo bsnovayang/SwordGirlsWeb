@@ -715,6 +715,32 @@ var SG = window.SG || (window.SG = {});
         return true;
       },
 
+      foeDeckSize: function () { return theirs.deck.length; },
+
+      /* 對手抽到手牌有 n 張為止，回傳實際抽了幾張 */
+      foeDrawUpTo: function (n) {
+        var got = 0;
+        while (theirs.hand.length < Math.min(n, HAND_MAX) && theirs.deck.length) {
+          theirs.hand.push(instance(theirs.deck.shift(), 1 - pi));
+          got++;
+        }
+        if (got) E(ev, g, { t: 'draw', player: 1 - pi, count: got });
+        return got;
+      },
+
+      /* 場上的卡回到擁有者手牌 */
+      fieldToHand: function (target) {
+        if (!target) return false;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 < 0) return false;
+        var p2 = g.players[op];
+        if (p2.hand.length >= HAND_MAX) return false;
+        p2.field[s2] = null;
+        p2.hand.push(target);
+        E(ev, g, { t: 'toHand', player: op, card: target });
+        return true;
+      },
+
       /* 看牌組最上面那張的卡片定義（不會拿走） */
       peekDeck: function (playerPi) {
         var p2 = g.players[playerPi];

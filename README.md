@@ -120,7 +120,7 @@ node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷
 
 ## 卡片資料來源
 
-目前收錄 **Episode 0～4 ＋ EX1**，可收集共 **374 種**（含 5 張副本獎勵卡；代幣卡不算）。
+目前收錄 **Episode 0～5 ＋ EX1**，可收集共 **419 種**（含 5 張副本獎勵卡；代幣卡不算）。
 
 ### Episode 0（56 張）
 
@@ -227,7 +227,7 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
 
 ## 卡片效果
 
-有效果文字的 **303 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ～ `effects_ep4.js` ＋ `effects_ex1.js`）。觸發時機四種：
+有效果文字的 **344 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ～ `effects_ep4.js` ＋ `effects_ex1.js` ＋ `effects_ep5.js`）。觸發時機四種：
 
 | 時機 | 說明 |
 |---|---|
@@ -364,6 +364,15 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
 `首席女僕` 與 `新入騎士團員` 在 EX1 是**角色卡**，與 Episode 0 的同名隨從
 是不同卡（原作就同名），slug 加 `_char` 區別。
 
+### Episode 5（45 張）
+
+繁中 wiki 只收錄了公立咒語那一頁，所以**只有 7 張有官方譯名**，
+其餘 38 張的**卡名與效果文都是本專案自譯**（`tools/ep5_names.json`／`ep5_effects.json`），
+標了 `tl`，UI 會顯示「暫譯」。
+
+這一章開始用 `tools/gen_late.py` ＋ `build_late.py` 產生，
+之後的 Episode 6／EX2 也會沿用（自譯表換成該章節的就好）。
+
 ### 代幣卡
 
 `token: true` 的卡不算可收集 —— 不會出現在圖鑑、卡包、牌組編輯，也不能合成。
@@ -499,7 +508,7 @@ ctx 對應的 API：`hasSkill(target)` / `loseSkills([target])` /
 ## 待辦
 
 ### 卡池
-- **Episode 5～6**（45 / 40 張）與 **EX2**（33 張）尚未收錄。
+- **Episode 6**（40 張）與 **EX2**（33 張）尚未收錄。
   > 繁中 wiki 的卡片頁**到 EX1 就結束了** —— Episode 5 只有公立咒語一頁（7 張），
   > Episode 6 與 EX2 完全沒有。所以這三個章節的卡名幾乎都要自譯，
   > 跟前面「95% 有官方譯名」的情況完全不同。

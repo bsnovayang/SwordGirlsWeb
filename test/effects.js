@@ -8,6 +8,7 @@ load('js/data/cards_ep2.js');
 load('js/data/cards_ep3.js');
 load('js/data/cards_ep4.js');
 load('js/data/cards_ex1.js');
+load('js/data/cards_ep5.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -19,6 +20,7 @@ load('js/core/effects_ep2.js');
 load('js/core/effects_ep3.js');
 load('js/core/effects_ep4.js');
 load('js/core/effects_ex1.js');
+load('js/core/effects_ep5.js');
 load('js/core/ai.js');
 
 let pass = 0, fail = 0;
@@ -1578,6 +1580,103 @@ console.log('══════ EX1 牌組實戰不會爆 ══════');
   console.log('  跑了 ' + games + ' 場');
   ok(err === 0, 'EX1 牌組對打不會丟例外', err + ' 次：' + msg);
   ok(unfinished === 0, 'EX1 牌組對打不會卡死', unfinished + ' 場未結束');
+}
+
+console.log('══════ Episode 5 ══════');
+{
+  /* 交換兩張隨從的數值「與能力」 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'striker');            // 有能力
+    const b = put(g, 1, 0, 'lib_serie');          // 有能力
+    const sa = stats(a), sb = stats(b);
+    put(g, 0, 1, 'minds_in_conflict');
+    fire(g, 0, 1, 'spell');
+    eq(stats(a), sb, '我方那張拿到對手的數值');
+    eq(stats(b), sa, '對手那張拿到我方的數值');
+    eq(a.skills[0], 'lib_serie', '能力也一起換');
+    eq(b.skills[0], 'striker', '對手拿到我方的能力');
+  }
+
+  /* 雙方手牌全部放回牌組，依張數差回血 */
+  {
+    const g = board();
+    hand(g, 0, ['kouhai', 'volcano', 'latecomer']);
+    g.players[1].hand = [SG._test.mkCard('curse', 1)];
+    g.players[0].deck = []; g.players[1].deck = [];
+    const life0 = g.players[0].character.life;
+    put(g, 0, 0, 'a_single_flower');
+    fire(g, 0, 0, 'spell');
+    eq(g.players[0].hand.length, 0, '我方手牌清空');
+    eq(g.players[1].hand.length, 0, '對手手牌清空');
+    eq(g.players[0].deck.length, 3, '我方 3 張回到牌組');
+    eq(g.players[0].character.life, life0 + 2, '生命 +2（3 − 1）');
+  }
+
+  /* SIZE 等於隨從數才吃到 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'basketball_player');   // SIZE 2
+    const b = put(g, 0, 1, 'kouhai');              // SIZE 3
+    const a0 = a.atk, b0 = b.atk;
+    put(g, 0, 2, 'protective_chant');
+    fire(g, 0, 2, 'spell');
+    eq(a.atk, a0 + 3, 'SIZE 2 ＝ 隨從數 2 → 吃到 攻 +3');
+    eq(b.atk, b0, 'SIZE 3 ≠ 2 → 沒吃到');
+  }
+
+  /* 依格號送墓 */
+  {
+    const g = board();
+    put(g, 0, 0, 'kouhai');                        // SIZE 3
+    const t = put(g, 1, 2, 'latecomer');           // 敵方第 3 格
+    put(g, 0, 1, 'maximum_drive');
+    fire(g, 0, 1, 'spell');
+    ok(!g.players[0].field[0], '我方第一張隨從送墓');
+    ok(!g.players[1].field[2], '敵方第 3 格（＝送墓隨從的 SIZE）也送墓');
+  }
+
+  /* 此卡 SIZE 決定是回手還是除外 */
+  {
+    const g = board('cinia_pacifica');
+    const sp = put(g, 0, 0, 'el_mundo');           // SIZE 1
+    g.players[0].hand = [];
+    fire(g, 0, 0, 'spell');
+    eq(g.players[0].hand.length, 1, 'SIZE < 3 → 回到手牌');
+    eq(g.players[0].hand[0].size, 2, '而且 SIZE +1');
+  }
+}
+
+console.log('══════ Episode 5 牌組實戰不會爆 ══════');
+{
+  const decks = ['vita', 'academy', 'crux', 'darklore'].map(f => {
+    const pool = SG.allCards().filter(c => c.ep === 5 && !c.token &&
+      (c.faction === f || c.faction === 'neutral') && c.type !== 'character');
+    const cs = [];
+    pool.forEach(c => { for (let i = 0; i < Math.min(c.limit, 3) && cs.length < 30; i++) cs.push(c.slug); });
+    while (cs.length < 30) cs.push(pool[0].slug);
+    const ch = SG.allCards().find(c => c.type === 'character' && c.faction === f && !c.npc);
+    return { name: 'EP5-' + f, faction: f, character: ch.slug, cards: cs.slice(0, 30) };
+  });
+  let err = 0, games = 0, unfinished = 0, msg = '';
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    if (i === j) continue;
+    for (let k = 0; k < 8; k++) {
+      try {
+        const g = SG.createGame(decks[i], decks[j], 'ep5t' + i + j + k);
+        let guard = 0;
+        while (!g.over && guard++ < 300) {
+          SG.beginTurn(g); if (g.over) break;
+          SG.aiPlay(g, 0); SG.aiPlay(g, 1); SG.resolveTurn(g);
+        }
+        games++;
+        if (!g.over) unfinished++;
+      } catch (e) { err++; if (!msg) msg = e.message; }
+    }
+  }
+  console.log('  跑了 ' + games + ' 場');
+  ok(err === 0, 'EP5 牌組對打不會丟例外', err + ' 次：' + msg);
+  ok(unfinished === 0, 'EP5 牌組對打不會卡死', unfinished + ' 場未結束');
 }
 
 console.log('══════ 涵蓋率 ══════');
