@@ -5,6 +5,7 @@ function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8'));
 load('js/data/cards.js');
 load('js/data/cards_ep1.js');
 load('js/data/cards_ep2.js');
+load('js/data/cards_ep3.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -13,6 +14,7 @@ load('js/core/battle.js');
 load('js/core/effects.js');
 load('js/core/effects_ep1.js');
 load('js/core/effects_ep2.js');
+load('js/core/effects_ep3.js');
 load('js/core/ai.js');
 
 let pass = 0, fail = 0;
@@ -977,7 +979,9 @@ console.log('══════ Episode 2 ══════');
     const g = board();
     const a = put(g, 0, 0, 'genius_student_nanai');
     const atk = put(g, 1, 0, 'kouhai');           // SIZE 3
-    g.players[0].grave = ['kouhai', 'lib_serie', 'latecomer'];  // SIZE 3/3/1
+    /* 墓地放的是卡片實體，不是卡號 */
+    g.players[0].grave = ['kouhai', 'lib_serie', 'latecomer']      // SIZE 3/3/1
+      .map(sl => SG._test.mkCard(sl, 0));
     fire(g, 0, 0, 'beforeDefend', { attacker: atk });
     eq(g.players[0].grave.length, 1, '墓地與攻擊者同 SIZE 的卡被除外');
     eq(atk.atk, 4 - 2, '攻擊者攻擊力 −2（除外張數）');
@@ -1173,6 +1177,185 @@ console.log('══════ 檢索 / 招喚 / 複製 / 恢復技能 ══�
   ['__t_tutor', '__t_summon', '__t_copy', '__t_restore'].forEach(k => { delete SG.Effects[k]; });
 }
 
+console.log('══════ 墓地存的是「卡片實體」不是卡號 ══════');
+{
+  /* 這件事寫錯不會報錯，只會讓條件永遠不成立、效果靜默失效。
+     EP2/EP3 一度把墓地當成卡號陣列處理，300 場實戰才炸出來。 */
+  const g = board();
+  const a = put(g, 0, 0, 'kouhai');
+  SG._test.attack(g, [], 0, 0);            // 隨便打一場讓墓地有東西
+  g.players[0].grave = [];
+  const c = put(g, 0, 1, 'latecomer');
+  const ev = [];
+  SG._test.fire(g, ev, c, 0, 1, 'turnStart');
+  g.players[0].grave.push(SG._test.mkCard('volcano', 0));
+  const e = g.players[0].grave[0];
+  ok(typeof e === 'object' && !!e.name && !!e.type,
+     '墓地放的是有 name / type 的實體，不是字串卡號');
+
+  /* millDeck 也要放實體進去，不能放卡號 */
+  {
+    const g2 = board();
+    g2.players[0].deck = ['kouhai', 'volcano', 'latecomer'];
+    g2.players[0].grave = [];
+    const sp = put(g2, 0, 0, 'shrink');
+    SG.Effects.__t_mill = { spell: cc => { box.got = cc.millDeck(cc.me, 2); } };
+    const box = {};
+    SG.Effects.__t_mill = { spell: cc => { box.got = cc.millDeck(cc.me, 2); } };
+    sp.skills = ['__t_mill'];
+    fire(g2, 0, 0, 'spell');
+    eq(g2.players[0].grave.length, 2, 'millDeck：兩張進墓地');
+    ok(g2.players[0].grave.every(x => typeof x === 'object' && !!x.type),
+       'millDeck：進墓地的是實體');
+    ok(box.got.every(x => typeof x === 'object'), 'millDeck：回傳的也是實體');
+    delete SG.Effects.__t_mill;
+  }
+
+  /* graveToDeckBottom 反過來要放卡號回牌庫 */
+  {
+    const g3 = board();
+    g3.players[0].deck = [];
+    g3.players[0].grave = [SG._test.mkCard('volcano', 0), SG._test.mkCard('kouhai', 0)];
+    const sp = put(g3, 0, 0, 'shrink');
+    SG.Effects.__t_g2d = { spell: cc => { cc.graveToDeckBottom(cc.me, 2); } };
+    sp.skills = ['__t_g2d'];
+    fire(g3, 0, 0, 'spell');
+    eq(g3.players[0].deck.length, 2, '墓地兩張回到牌庫');
+    ok(g3.players[0].deck.every(x => typeof x === 'string'),
+       '牌庫放的是字串卡號（跟墓地相反）');
+    ok(g3.players[0].deck.every(x => !!SG.getCard(x)), '而且是查得到的卡號');
+    delete SG.Effects.__t_g2d;
+  }
+}
+
+console.log('══════ Episode 3 ══════');
+{
+  /* EP3 有很多「四張同款、只差陣營」的卡，用工廠函式產生，抽代表測 */
+
+  /* 攻擊前把防禦者防禦歸零，然後自己換成「回合開始變回原能力」 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_daisy');
+    const d = put(g, 1, 0, 'acolyte');            // def 3
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(d.def, 0, '防禦隨從防禦力歸零');
+    ok(a.skills.indexOf('__ep3_restore') >= 0, '自己換成「回合開始變回原能力」');
+    fire(g, 0, 0, 'turnStart');
+    eq(a.skills[0], 'lib_daisy', '回合開始變回原本的能力');
+  }
+
+  /* 攻擊前奪走防禦者的技能，然後自己失去這個能力 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_manager_lotte');
+    const d = put(g, 1, 0, 'striker');
+    ok(SG.hasSkill(d), '防禦者本來有技能');
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    ok(!SG.hasSkill(d), '防禦者失去技能');
+    ok(!SG.hasSkill(a), '自己也失去這個能力');
+  }
+
+  /* 場上同時有含關鍵字與不含關鍵字的同陣營隨從才發動 */
+  {
+    const g = board();
+    put(g, 0, 0, 'council_casey');                 // 名字含「學生會」
+    const other = put(g, 0, 1, 'kouhai');          // 公立、不含「學生會」
+    const sp = put(g, 0, 2, 'court_jester');
+    const a0 = other.atk;
+    fire(g, 0, 2, 'spell');
+    ok(other.atk > a0 || g.players[0].field[0].atk > 4, '兩種都有 → 有隨從吃到 攻/體 +3');
+
+    const g2 = board();
+    put(g2, 0, 0, 'kouhai');                       // 只有不含「學生會」的
+    const o2 = g2.players[0].field[0];
+    const b0 = o2.atk;
+    put(g2, 0, 2, 'court_jester');
+    fire(g2, 0, 2, 'spell');
+    eq(o2.atk, b0, '只有一種 → 不發動');
+  }
+
+  /* 牌組上方送墓後依內容給生命 */
+  {
+    const g = board();
+    g.players[0].deck = ['kouhai', 'latecomer', 'volcano'];   // 前兩張是公立隨從
+    const life0 = g.players[0].character.life;
+    put(g, 0, 0, 'shameless_ambition');
+    fire(g, 0, 0, 'spell');
+    eq(g.players[0].grave.length, 3, '牌組上方 3 張送墓');
+    eq(g.players[0].character.life, life0 + 6, '每張公立隨從 +3 → 兩張共 +6');
+  }
+
+  /* 補到 4 張手牌，並依手牌同陣營數強化自己 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'vanguard_knight');
+    g.players[0].hand = [];
+    g.players[0].deck = ['crux_knight_mitil', 'crux_knight_terra', 'kouhai', 'volcano', 'latecomer'];
+    const atk0 = a.atk;
+    fire(g, 0, 0, 'turnStart');
+    eq(g.players[0].hand.length, 4, '補到 4 張手牌');
+    ok(a.atk > atk0, '依手牌「南十字」數強化自己：' + atk0 + ' → ' + a.atk);
+  }
+
+  /* 逮捕：手牌全放回牌組下方，再把敵方大隻的收進我方牌組 */
+  {
+    const g = board();
+    hand(g, 0, ['kouhai', 'volcano', 'latecomer']);
+    const big = put(g, 1, 0, 'apprentice');        // SIZE 5
+    g.players[0].deck = [];
+    put(g, 0, 0, 'arrest');
+    fire(g, 0, 0, 'spell');
+    eq(g.players[0].hand.length, 0, '手牌清空');
+    ok(g.players[0].deck.length >= 3, '手牌回到牌組下方');
+    ok(!g.players[1].field[0], '敵方 SIZE 4 以上的隨從被收走');
+    ok(g.players[0].deck.indexOf('apprentice') >= 0, '而且是進到「我方」牌組');
+  }
+
+  /* 無所屬的賢者：奪取攻擊者技能並強化自己 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'sage_esprit');
+    const foe = put(g, 1, 0, 'striker');
+    const s0 = [a.atk, a.def, a.sta].join('/');
+    fire(g, 0, 0, 'beforeDefend', { attacker: foe });
+    ok(!SG.hasSkill(foe), '攻擊者失去技能');
+    eq([a.atk, a.def, a.sta].join('/'), (8 + 1) + '/' + (0 + 1) + '/' + (8 + 1),
+       '此卡 攻/防/體 +1（原本 ' + s0 + '）');
+  }
+}
+
+console.log('══════ Episode 3 牌組實戰不會爆 ══════');
+{
+  const decks = ['vita', 'academy', 'crux', 'darklore'].map(f => {
+    const pool = SG.allCards().filter(c => c.ep === 3 &&
+      (c.faction === f || c.faction === 'neutral') && c.type !== 'character');
+    const cs = [];
+    pool.forEach(c => { for (let i = 0; i < Math.min(c.limit, 3) && cs.length < 30; i++) cs.push(c.slug); });
+    while (cs.length < 30) cs.push(pool[0].slug);
+    const ch = SG.allCards().find(c => c.type === 'character' && c.faction === f && !c.npc);
+    return { name: 'EP3-' + f, faction: f, character: ch.slug, cards: cs.slice(0, 30) };
+  });
+  let err = 0, games = 0, unfinished = 0, msg = '';
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    if (i === j) continue;
+    for (let k = 0; k < 8; k++) {
+      try {
+        const g = SG.createGame(decks[i], decks[j], 'ep3t' + i + j + k);
+        let guard = 0;
+        while (!g.over && guard++ < 300) {
+          SG.beginTurn(g); if (g.over) break;
+          SG.aiPlay(g, 0); SG.aiPlay(g, 1); SG.resolveTurn(g);
+        }
+        games++;
+        if (!g.over) unfinished++;
+      } catch (e) { err++; if (!msg) msg = e.message; }
+    }
+  }
+  console.log('  跑了 ' + games + ' 場');
+  ok(err === 0, 'EP3 牌組對打不會丟例外', err + ' 次：' + msg);
+  ok(unfinished === 0, 'EP3 牌組對打不會卡死', unfinished + ' 場未結束');
+}
+
 console.log('══════ 涵蓋率 ══════');
 {
   const all = SG.allCards();
@@ -1183,8 +1366,11 @@ console.log('══════ 涵蓋率 ══════');
   if (missing.length) console.log('未實作：' + missing.map(c => c.name).join('、'));
   ok(missing.length === 0, '所有有效果文字的卡都已實作');
 
-  const extra = Object.keys(SG.Effects).filter(k => !SG.getCard(k));
+  /* __ 開頭的是「合成技能」，給 grantSkill 用的，本來就沒有對應卡片 */
+  const extra = Object.keys(SG.Effects).filter(k => !k.startsWith('__') && !SG.getCard(k));
   ok(extra.length === 0, '沒有掛在不存在卡片上的效果', extra.join(','));
+  const synth = Object.keys(SG.Effects).filter(k => k.startsWith('__'));
+  console.log('合成技能（grantSkill 用）：' + (synth.join('、') || '無'));
 }
 
 console.log('');

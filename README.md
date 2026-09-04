@@ -120,8 +120,7 @@ node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷
 
 ## 卡片資料來源
 
-目前收錄 **Episode 0 全 56 張** ＋ **Episode 1 的 61 張** ＋ **Episode 2 全 63 張**，
-可收集共 **185 種**（含 5 張副本獎勵卡）。
+目前收錄 **Episode 0～3**，可收集共 **253 種**（含 5 張副本獎勵卡）。
 
 ### Episode 0（56 張）
 
@@ -228,7 +227,7 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
 
 ## 卡片效果
 
-有效果文字的 **138 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ＋ `effects_ep2.js`）。觸發時機四種：
+有效果文字的 **194 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ～ `effects_ep3.js`）。觸發時機四種：
 
 | 時機 | 說明 |
 |---|---|
@@ -329,6 +328,17 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
    **正確是 30**
 3. **同名不同卡** —— `Lib. Milka` 有 Episode 2 版（7/3/9）與 Episode 5 版（5/3/13），
    後者頁名是 `Lib. Milka(Ep5)`。工具改成優先取「頁面標題＝卡名」的那筆
+
+### Episode 3（68 張）
+
+跟前面一樣兩邊合併，但配對改用**順序對齊** —— 繁中 wiki 的頁面順序與英文 wiki 的
+卡號順序一致，所以直接按順序配。這個方法拿 Episode 2 當對照組驗證過，**60 張全中**，
+比逐張比對效果文可靠也快得多。固化結果在 `tools/map_ep3.json`。
+
+65 張有官方譯名，3 張（`嚮導、莉歐`／`賢者、艾斯普利`／`西格瑪`）是自譯，標了 `tl`。
+
+繁中 wiki 的表格有時把繁中卡名與日文卡名拆成兩列（只有後者帶數值），
+`tools/at_ep.py` 會把它們合併回一張。
 
 ### 卡片清單的篩選
 
@@ -455,7 +465,7 @@ ctx 對應的 API：`hasSkill(target)` / `loseSkills([target])` /
 ## 待辦
 
 ### 卡池
-- **Episode 3～6**（68 / 66 / 45 / 40 張）與 **EX1／EX2**（56 / 33 張）尚未收錄
+- **Episode 4～6**（66 / 45 / 40 張）與 **EX1／EX2**（56 / 33 張）尚未收錄
 - Episode 0～2 剩下的都是 `Event` 活動卡（Morning 系列角色、Thank You 等 10 張）
 - **變化後角色卡** 10 張 —— 需要先做「變身」系統
 - ~~Episode 3 以後的效果需要的機制~~ —— **檢索／招喚／複製／恢復技能已經做好**

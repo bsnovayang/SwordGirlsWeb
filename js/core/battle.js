@@ -546,7 +546,8 @@ var SG = window.SG || (window.SG = {});
         return n;
       },
 
-      /* 依條件把墓地的卡除外，最多 n 張，回傳實際除外的張數 */
+      /* 依條件把墓地的卡除外，最多 n 張，回傳實際除外的張數。
+         ★ fn 拿到的是「卡片實體」（墓地存的就是實體），不是卡號。 */
       exileWhere: function (playerPi, fn, n) {
         var gr = g.players[playerPi].grave, took = 0;
         for (var i = gr.length - 1; i >= 0 && (!n || took < n); i--) {
@@ -625,6 +626,94 @@ var SG = window.SG || (window.SG = {});
       },
       move: function (fromPi, fromSlot, toPi) { return moveCard(g, ev, fromPi, fromSlot, toPi); },
       slotOf: function (target) { var op = sideOf(g, target); return slotOfCard(g, op, target); },
+
+      /* ── 牌庫／手牌／墓地的搬運（Episode 3 起的卡會用到）────── */
+
+      myDeckSize: function () { return mine.deck.length; },
+
+      /* 手牌的卡放到牌組最下方 */
+      toDeckBottomHand: function (idx) {
+        if (idx < 0 || idx >= mine.hand.length) return null;
+        var c2 = mine.hand.splice(idx, 1)[0];
+        mine.deck.push(c2.id);
+        E(ev, g, { t: 'toDeck', player: pi, card: c2 });
+        return c2;
+      },
+
+      /* 牌庫最上方 n 張送入墓地，回傳送掉的卡片實體
+         ★ 墓地存的是「卡片實體」不是卡號，這裡要一致 */
+      millDeck: function (playerPi, n) {
+        var p2 = g.players[playerPi], out = [];
+        for (var i = 0; i < n && p2.deck.length; i++) {
+          var c2 = instance(p2.deck.shift(), playerPi);
+          p2.grave.push(c2);
+          out.push(c2);
+        }
+        if (out.length) E(ev, g, { t: 'mill', player: playerPi, count: out.length });
+        return out;
+      },
+
+      /* 墓地隨機 n 張放回牌組最下方 */
+      graveToDeckBottom: function (playerPi, n) {
+        var p2 = g.players[playerPi], moved = 0;
+        for (var i = 0; i < n && p2.grave.length; i++) {
+          var k = Math.floor(g.rnd() * p2.grave.length);
+          p2.deck.push(p2.grave.splice(k, 1)[0].id);
+          moved++;
+        }
+        if (moved) E(ev, g, { t: 'toDeck', player: playerPi, count: moved });
+        return moved;
+      },
+
+      /* 抽到手牌有 n 張為止，回傳實際抽了幾張 */
+      drawUpTo: function (n) {
+        var got = 0;
+        while (mine.hand.length < Math.min(n, HAND_MAX) && mine.deck.length) {
+          mine.hand.push(instance(mine.deck.shift(), pi));
+          got++;
+        }
+        if (got) E(ev, g, { t: 'draw', player: pi, count: got });
+        return got;
+      },
+
+      /* 把這張卡本身從遊戲中除外（不進墓地） */
+      exileSelf: function () {
+        var op = sideOf(g, card), s2 = slotOfCard(g, op, card);
+        if (s2 < 0) return false;
+        g.players[op].field[s2] = null;
+        E(ev, g, { t: 'exile', player: op, card: card, count: 1 });
+        return true;
+      },
+
+      /* 把我方場上的一張卡送到對手場上 */
+      giveToFoe: function (target) {
+        if (!target) return false;
+        var s2 = slotOfCard(g, pi, target);
+        if (s2 < 0) return false;
+        return moveCard(g, ev, pi, s2, 1 - pi);
+      },
+
+      /* 搶走對手手牌的一張卡 */
+      stealHand: function (idx) {
+        if (idx < 0 || idx >= theirs.hand.length) return null;
+        if (mine.hand.length >= HAND_MAX) return null;
+        var c2 = theirs.hand.splice(idx, 1)[0];
+        c2.owner = pi;
+        mine.hand.push(c2);
+        E(ev, g, { t: 'steal', player: pi, card: c2 });
+        return c2;
+      },
+
+      /* 把場上的一張卡放到「我方」牌組下方（逮捕） */
+      toMyDeckBottom: function (target) {
+        if (!target) return false;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 < 0) return false;
+        g.players[op].field[s2] = null;
+        mine.deck.push(target.id);
+        E(ev, g, { t: 'toDeck', player: pi, card: target });
+        return true;
+      },
 
       /* ── 牌庫檢索／招喚／複製（Episode 3 起的卡會用到）──────
 

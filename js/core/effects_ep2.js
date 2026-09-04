@@ -89,8 +89,8 @@ var SG = window.SG || (window.SG = {});
       beforeDefend: function (c) {
         var a = c.attacker;
         if (!a) return;
-        var n = c.exileWhere(c.me, function (id) {
-          var d = SG.getCard(id); return d && d.size === a.size;
+        var n = c.exileWhere(c.me, function (d) {
+          return d && d.size === a.size;
         });
         if (!n) return;
         c.say('防禦前　墓地與攻擊者同 SIZE 的卡除外 ' + n + ' 張　→　攻擊者 攻/體 −' + n);
@@ -207,8 +207,8 @@ var SG = window.SG || (window.SG = {});
 
     stigma_flint: {
       beforeAttack: function (c) {
-        var n = c.exileWhere(c.me, function (id) {
-          var d = SG.getCard(id); return d && d.name === '聖痕的證人、布莉西亞';
+        var n = c.exileWhere(c.me, function (d) {
+          return d && d.name === '聖痕的證人、布莉西亞';
         }, 1);
         if (!n) return;
         var t = pick(c, folls(c.foeField), 1)[0];
@@ -220,8 +220,8 @@ var SG = window.SG || (window.SG = {});
 
     fated_rival_seven: {
       beforeAttack: function (c) {
-        var n = c.exileWhere(c.me, function (id) {
-          var d = SG.getCard(id); return d && d.faction === 'academy';
+        var n = c.exileWhere(c.me, function (d) {
+          return d && d.faction === 'academy';
         }, 2);
         if (n < 2) return;
         var t = [];
@@ -374,8 +374,8 @@ var SG = window.SG || (window.SG = {});
 
     crux_knight_sinclair: {
       beforeDefend: function (c) {
-        var n = c.exileWhere(c.me, function (id) {
-          var d = SG.getCard(id); return d && d.faction === 'crux';
+        var n = c.exileWhere(c.me, function (d) {
+          return d && d.faction === 'crux';
         }, 2);
         if (n < 2) return;
         c.say('除外墓地 2 張「南十字」　→　此卡 攻/體 +2');
@@ -443,8 +443,8 @@ var SG = window.SG || (window.SG = {});
         var put = c.handToField(idx, 3);
         if (!put) return;
         c.say('手牌 SIZE ' + lim + ' 以下的「' + name + '」放到第 Ⅳ 格');
-        var half = up(c.myGrave.filter(function (id) {
-          var d = SG.getCard(id); return d && d.faction === 'crux';
+        var half = up(c.myGrave.filter(function (d) {
+          return d && d.faction === 'crux';
         }).length / 2);
         if (half) {
           c.say('墓地「南十字」的一半　→　攻/體 +' + half);
@@ -465,8 +465,8 @@ var SG = window.SG || (window.SG = {});
 
     luthicas_ward: {
       spell: function (c) {
-        var n = c.exileWhere(c.me, function (id) {
-          var d = SG.getCard(id); return d && d.faction === 'crux';
+        var n = c.exileWhere(c.me, function (d) {
+          return d && d.faction === 'crux';
         }, 4);
         if (!n) return;
         c.say('除外墓地 ' + n + ' 張「南十字」');
@@ -527,8 +527,8 @@ var SG = window.SG || (window.SG = {});
       beforeAttack: function (c) {
         var n = 0;
         [c.me, c.foe].forEach(function (p) {
-          n += c.exileWhere(p, function (id) {
-            var d = SG.getCard(id); return d && d.type === 'follower';
+          n += c.exileWhere(p, function (d) {
+            return d && d.type === 'follower';
           }, 1);
         });
         if (!n) return;
