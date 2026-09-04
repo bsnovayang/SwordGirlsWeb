@@ -815,8 +815,10 @@ var SG = window.SG || (window.SG = {});
   };
 
   /* 玩家收集得到的卡（排除只有副本敵人在用的 NPC 卡） */
+  /* 可收集的卡：排除副本 NPC 與「代幣」（代幣是別張卡在場上生出來的，
+     不能放進牌組、也不會出現在圖鑑或卡包） */
   SG.collectibleCards = function () {
-    return SG.allCards().filter(function (c) { return !c.npc; });
+    return SG.allCards().filter(function (c) { return !c.npc && !c.token; });
   };
 
   /* 陣營顯示名稱（沿用台版譯名，卡片效果文字也是用這組詞） */

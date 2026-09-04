@@ -14,11 +14,52 @@ from at_parse import parse_page
 
 
 def _named(c):
-    return bool(c['name'].strip("' "))
+    if not c['name'].strip("' "):
+        return False
+    # 代幣卡（由別張卡產生，不是可收集的卡）不算
+    if '代幣' in (c.get('effect') or ''):
+        return False
+    return True
 
 
 def _has_data(c):
     return c.get('size') is not None
+
+
+KANA = set(range(0x3041, 0x30FF))
+BAD = ('攻', '防', '體', '体', '回合', '自己', '對手', '此卡', 'SIZE', '牌組', '手牌')
+
+
+def _is_jp(t):
+    return any(ord(ch) in KANA for ch in t)
+
+
+def _looks_like_name(t):
+    return 0 < len(t) <= 12 and not any(b in t for b in BAD)
+
+
+def _fix_split_names(cards):
+    """卡名在 wiki 上常被斷成兩行 —— 後半（有時連同日文後半）會被折進效果欄。
+    例如「GS」＋「戰鬥員 戦闘員」、「煉金術師」＋「克菈莉絲 クラリス」。
+    這裡把那些片段接回卡名／日文名，並從效果文裡拿掉。"""
+    for c in cards:
+        eff = (c.get('effect') or '').strip()
+        if not eff:
+            continue
+        head = eff.split('［')[0].strip()
+        if not head or head == eff and '［' not in eff:
+            # 整段都沒有風味文時，只在開頭真的像名字片段才動它
+            pass
+        parts = head.split()
+        if not parts or len(parts) > 2 or not all(_looks_like_name(t) for t in parts):
+            continue
+        for t in parts:
+            if _is_jp(t):
+                c['jp'] = (c.get('jp') or '') + t
+            else:
+                c['name'] = c['name'] + t
+        c['effect'] = eff[len(head):].strip()
+    return cards
 
 
 def cards_of(page, ctype, faction):
@@ -38,7 +79,7 @@ def cards_of(page, ctype, faction):
             continue
         out.append(c)
         i += 1
-    return out
+    return _fix_split_names(out)
 
 
 def collect(pages):

@@ -715,6 +715,63 @@ var SG = window.SG || (window.SG = {});
         return true;
       },
 
+      /* 手牌的卡從遊戲中除外 */
+      exileHand: function (idx) {
+        if (idx < 0 || idx >= mine.hand.length) return null;
+        var c2 = mine.hand.splice(idx, 1)[0];
+        E(ev, g, { t: 'exile', player: pi, card: c2, count: 1 });
+        return c2;
+      },
+
+      /* 對手手牌的卡放到「對手」牌組下方 */
+      foeHandToDeckBottom: function (idx) {
+        if (idx < 0 || idx >= theirs.hand.length) return null;
+        var c2 = theirs.hand.splice(idx, 1)[0];
+        theirs.deck.push(c2.id);
+        E(ev, g, { t: 'toDeck', player: 1 - pi, card: c2 });
+        return c2;
+      },
+
+      /* 場上的卡放到自己牌組最上方 */
+      fieldToDeckTop: function (target) {
+        if (!target) return false;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 < 0) return false;
+        g.players[op].field[s2] = null;
+        g.players[op].deck.unshift(target.id);
+        E(ev, g, { t: 'toDeck', player: op, card: target, top: true });
+        return true;
+      },
+
+      /* 牌庫裡第一張符合條件的卡送入墓地，回傳那張（沒有就 null） */
+      deckDiscardFirst: function (fn) {
+        for (var i = 0; i < mine.deck.length; i++) {
+          var def = SG.getCard(mine.deck[i]);
+          if (fn && !fn(def)) continue;
+          var c2 = instance(mine.deck.splice(i, 1)[0], pi);
+          mine.grave.push(c2);
+          E(ev, g, { t: 'mill', player: pi, count: 1, card: c2 });
+          return c2;
+        }
+        return null;
+      },
+
+      /* 生成一張指定卡片放到場上（代幣用）。last ＝ 放最後一個空格 */
+      spawnById: function (cardId, last) {
+        var slot2 = -1, i;
+        if (last) {
+          for (i = 4; i >= 0; i--) if (!mine.field[i]) { slot2 = i; break; }
+        } else {
+          slot2 = emptySlot(mine.field);
+        }
+        if (slot2 < 0 || !SG.getCard(cardId)) return null;
+        var c2 = instance(cardId, pi);
+        c2.faceDown = false; c2.activated = true;
+        mine.field[slot2] = c2;
+        E(ev, g, { t: 'summon', player: pi, slot: slot2, card: c2, token: true });
+        return c2;
+      },
+
       /* ── 牌庫檢索／招喚／複製（Episode 3 起的卡會用到）──────
 
          fn(def) 拿到的是卡片「定義」（SG.getCard 的結果），不是場上實體。 */

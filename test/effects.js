@@ -6,6 +6,7 @@ load('js/data/cards.js');
 load('js/data/cards_ep1.js');
 load('js/data/cards_ep2.js');
 load('js/data/cards_ep3.js');
+load('js/data/cards_ep4.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -15,6 +16,7 @@ load('js/core/effects.js');
 load('js/core/effects_ep1.js');
 load('js/core/effects_ep2.js');
 load('js/core/effects_ep3.js');
+load('js/core/effects_ep4.js');
 load('js/core/ai.js');
 
 let pass = 0, fail = 0;
@@ -1354,6 +1356,123 @@ console.log('══════ Episode 3 牌組實戰不會爆 ═════�
   console.log('  跑了 ' + games + ' 場');
   ok(err === 0, 'EP3 牌組對打不會丟例外', err + ' 次：' + msg);
   ok(unfinished === 0, 'EP3 牌組對打不會卡死', unfinished + ' 場未結束');
+}
+
+console.log('══════ Episode 4 ══════');
+{
+  /* 攻擊前把防禦者撐大（四張同款抽一張測） */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_student');
+    const d = put(g, 1, 0, 'kouhai');
+    const s0 = d.size;
+    fire(g, 0, 0, 'beforeAttack', { defender: d });
+    eq(d.size, s0 + 1, '防禦隨從 SIZE +1');
+    ok(!SG.hasSkill(a), '發動後失去這個能力');
+  }
+
+  /* 青十字會系列：手牌少會受罰、手牌多會失去能力 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'blue_cross_aurora');
+    hand(g, 0, ['kouhai', 'kouhai']);                 // 2 張 → 受罰
+    const st = [a.atk, a.sta];
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(a.atk, st[0] - 1, '手牌 2 張 → 攻擊力 −1');
+    eq(a.sta, st[1] - 1, '手牌 2 張 → 體力 −1');
+
+    const g2 = board();
+    const b = put(g2, 0, 0, 'blue_cross_aurora');
+    hand(g2, 0, ['kouhai', 'kouhai', 'kouhai', 'kouhai']);   // 4 張 → 失去能力
+    fire(g2, 0, 0, 'beforeAttack', {});
+    ok(!SG.hasSkill(b), '手牌 4 張 → 失去這個能力');
+  }
+
+  /* 交換攻擊力 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'council_weekly_help');
+    const f = put(g, 1, 0, 'apprentice');
+    const before = [a.atk, f.atk];
+    fire(g, 0, 0, 'beforeDefend', { attacker: f });
+    eq(a.atk, before[1], '此卡拿到攻擊者的攻擊力');
+    eq(f.atk, before[0], '攻擊者拿到此卡的攻擊力');
+  }
+
+  /* 代幣：煉金術師會生出「人造護衛」，而且代幣不算可收集 */
+  {
+    const g = board();
+    put(g, 0, 0, 'alchemist_clarice');
+    fire(g, 0, 0, 'turnStart');
+    const tok = g.players[0].field.filter(Boolean).find(x => x.id === 'artificial_guard');
+    ok(!!tok, '生出了「人造護衛」代幣');
+    eq(g.players[0].field[4], tok, '放在最後一個空格');
+    ok(!SG.collectibleCards().some(c => c.slug === 'artificial_guard'),
+       '代幣不算可收集的卡（不會出現在圖鑑／卡包／牌組）');
+    ok(SG.recipeOf('artificial_guard') === null || !SG.Save,
+       '代幣也不能合成');
+
+    /* 再跑一次會先清掉舊的，不會越疊越多 */
+    fire(g, 0, 0, 'turnStart');
+    eq(g.players[0].field.filter(x => x && x.id === 'artificial_guard').length, 1,
+       '重複發動不會疊出兩張代幣');
+  }
+
+  /* 從牌庫招喚「換裝」系列並改寫數值 */
+  {
+    const g = board();
+    put(g, 0, 0, 'dress_up_ride');
+    put(g, 0, 1, 'dress_up_lucerrie');            // 場上要有「換裝」才發動
+    g.players[0].deck = ['kouhai', 'dress_up_lucerrie'];
+    fire(g, 0, 0, 'spell');
+    const got = g.players[0].field.filter(Boolean)
+      .find(x => x.id === 'dress_up_lucerrie' && x !== g.players[0].field[1]);
+    ok(!!got, '牌庫的「換裝」被叫到場上');
+    if (got) eq(got.size, 5, '被叫出來的 SIZE = 5');
+  }
+
+  /* 得到對手隨從的能力 */
+  {
+    const g = board();
+    const mine = put(g, 0, 0, 'kouhai');          // 純數值卡，沒有能力
+    put(g, 1, 0, 'striker');                      // 有能力
+    put(g, 0, 1, 'breakdown');
+    fire(g, 0, 1, 'spell');
+    ok(SG.hasSkill(mine), '我方沒能力的隨從得到了對手的能力');
+    eq(mine.skills[0], 'striker', '得到的是對手那張的能力');
+  }
+}
+
+console.log('══════ Episode 4 牌組實戰不會爆 ══════');
+{
+  const decks = ['vita', 'academy', 'crux', 'darklore'].map(f => {
+    const pool = SG.allCards().filter(c => c.ep === 4 && !c.token &&
+      (c.faction === f || c.faction === 'neutral') && c.type !== 'character');
+    const cs = [];
+    pool.forEach(c => { for (let i = 0; i < Math.min(c.limit, 3) && cs.length < 30; i++) cs.push(c.slug); });
+    while (cs.length < 30) cs.push(pool[0].slug);
+    const ch = SG.allCards().find(c => c.type === 'character' && c.faction === f && !c.npc);
+    return { name: 'EP4-' + f, faction: f, character: ch.slug, cards: cs.slice(0, 30) };
+  });
+  let err = 0, games = 0, unfinished = 0, msg = '';
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    if (i === j) continue;
+    for (let k = 0; k < 8; k++) {
+      try {
+        const g = SG.createGame(decks[i], decks[j], 'ep4t' + i + j + k);
+        let guard = 0;
+        while (!g.over && guard++ < 300) {
+          SG.beginTurn(g); if (g.over) break;
+          SG.aiPlay(g, 0); SG.aiPlay(g, 1); SG.resolveTurn(g);
+        }
+        games++;
+        if (!g.over) unfinished++;
+      } catch (e) { err++; if (!msg) msg = e.message; }
+    }
+  }
+  console.log('  跑了 ' + games + ' 場');
+  ok(err === 0, 'EP4 牌組對打不會丟例外', err + ' 次：' + msg);
+  ok(unfinished === 0, 'EP4 牌組對打不會卡死', unfinished + ' 場未結束');
 }
 
 console.log('══════ 涵蓋率 ══════');
