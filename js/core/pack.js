@@ -42,11 +42,26 @@ var SG = window.SG || (window.SG = {});
 
   /* 卡包種類：陣營 × 章節。值為 null／'' ＝ 不限。 */
   SG.PACK_FACTIONS = ['', 'vita', 'academy', 'crux', 'darklore'];
-  SG.PACK_EPISODES = ['', 0, 1, 2];
+  /* 卡包的章節選項＝資料裡實際有的章節（動態，加新章節不用改這裡）。
+     值一律是字串，'' 代表不限 —— EX1／EX2 這種特別彈不是數字。 */
+  SG.packEpisodes = function () {
+    var seen = {}, out = [];
+    SG.collectibleCards().forEach(function (c) {
+      var e = String(c.ep === undefined || c.ep === null ? 0 : c.ep);
+      if (!seen[e]) { seen[e] = 1; out.push(e); }
+    });
+    out.sort(function (a, b) {
+      var na = /^\d+$/.test(a), nb = /^\d+$/.test(b);
+      if (na && nb) return +a - +b;
+      if (na !== nb) return na ? -1 : 1;
+      return a.localeCompare(b);
+    });
+    return [''].concat(out);
+  };
 
   /* Episode 2 要先通關一座 Normal 副本才開放 */
   SG.packEpisodeLocked = function (ep, save) {
-    if (ep !== 2) return null;
+    if (String(ep) !== '2') return null;
     var d = (save || (SG.Save && SG.Save.data) || {}).dungeons || {};
     var ok = (SG.DUNGEONS || []).some(function (dg) {
       return dg.tier !== 'Easy' && d[dg.id] && d[dg.id].clears > 0;
@@ -65,7 +80,7 @@ var SG = window.SG || (window.SG = {});
       /* 無所屬的卡任何牌組都放得進去，所以每個陣營包都該有 */
       if (filter.faction && c.faction !== filter.faction && c.faction !== 'neutral') return false;
       if (filter.ep !== '' && filter.ep !== null && filter.ep !== undefined &&
-          (c.ep || 0) !== filter.ep) return false;
+          String(c.ep === undefined || c.ep === null ? 0 : c.ep) !== String(filter.ep)) return false;
       return true;
     });
   }

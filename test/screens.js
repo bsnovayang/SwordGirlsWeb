@@ -521,6 +521,17 @@ console.log('══════ 所屬卡包篩選 ══════');
   /* 三個畫面（牌組編輯 / 卡片圖鑑 / 合成工房）都要能依卡包篩 */
   const eps = w.SG.UI.episodes();
   ok(eps.length >= 3, '資料裡有 ' + eps.length + ' 個卡包：' + eps.join('、'));
+  ok(eps.some(e => !/^\d+$/.test(e)),
+     '卡包代號不只有數字（EX1 這種特別彈也要在）：' + eps.join('、'));
+
+  /* 每個卡包都要篩得出卡 —— EX1 曾經因為用 +f.ep 轉數字（NaN）而全空 */
+  const all = w.SG.collectibleCards();
+  eps.forEach(e => {
+    const got = w.SG.UI.filter(all, { ep: e, owned: {} });
+    ok(got.length > 0, '卡包「' + w.SG.UI.epName(e) + '」篩得出 ' + got.length + ' 張');
+    ok(got.every(c => w.SG.UI.epKey(c.ep) === String(e)),
+       '卡包「' + w.SG.UI.epName(e) + '」篩出來的都屬於該卡包');
+  });
 
   /* 牌組編輯只列「持有且放得進目前這副牌組」的卡，
      所以先把該陣營的 Episode 2 卡片發給玩家，篩選才有東西可看 */
@@ -629,7 +640,14 @@ console.log('══════ 卡包 ══════');
   {
     const fs2 = $('pkFaction'), es = $('pkEp');
     ok(fs2.options.length === w.SG.PACK_FACTIONS.length, '陣營選單有 5 個選項');
-    ok(es.options.length === w.SG.PACK_EPISODES.length, '章節選單有 4 個選項');
+    eq(es.options.length, w.SG.packEpisodes().length,
+       '章節選單的選項數＝資料裡實際有的章節數（含「全部」）');
+    /* 每個章節選項都要真的抽得到卡 —— EX1 曾經因為章節被當成數字比較而全空 */
+    Array.from(es.options).forEach(o => {
+      if (o.value === '') return;
+      ok(w.SG.packPool({ ep: o.value }).length > 0,
+         '卡包章節「' + o.textContent + '」的卡池不是空的');
+    });
 
     const all = w.SG.packPool({}).length;
     const dark = w.SG.packPool({ faction: 'darklore' }).length;

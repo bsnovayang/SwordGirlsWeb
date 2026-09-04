@@ -42,18 +42,25 @@ var SG = window.SG || (window.SG = {});
     facName:  function (f) { var x = SG.FACTIONS[f]; return x ? x.name : f; },
 
     /* 卡包（章節）名稱。0 就是最初的那批，之後章節照號碼走。 */
-    epName: function (ep) {
-      return (ep || 0) === 0 ? 'Episode 0' : 'Episode ' + ep;
-    },
+    /* 卡包代號一律當成字串處理 —— EX1／EX2 這種特別彈不是數字 */
+    epKey: function (ep) { return String(ep === undefined || ep === null ? 0 : ep); },
 
-    /* 目前資料裡實際存在的卡包，由小到大 —— 之後加 Episode 3 會自動出現 */
+    epName: function (ep) { return 'Episode ' + SG.UI.epKey(ep); },
+
+    /* 目前資料裡實際存在的卡包：數字章節在前（由小到大），EX 系列排後面。
+       之後加新章節會自動出現，不用改 UI。 */
     episodes: function () {
       var seen = {}, out = [];
       SG.collectibleCards().forEach(function (c) {
-        var e = c.ep || 0;
+        var e = SG.UI.epKey(c.ep);
         if (!seen[e]) { seen[e] = 1; out.push(e); }
       });
-      return out.sort(function (a, b) { return a - b; });
+      return out.sort(function (a, b) {
+        var na = /^\d+$/.test(a), nb = /^\d+$/.test(b);
+        if (na && nb) return +a - +b;
+        if (na !== nb) return na ? -1 : 1;      // 數字章節排在 EX 前面
+        return a.localeCompare(b);
+      });
     },
 
     /* 建立篩選下拉的選項。selEp 可省略（沒有「所屬卡包」欄的畫面） */
@@ -80,7 +87,7 @@ var SG = window.SG || (window.SG = {});
         if (f.faction && c.faction !== f.faction) return false;
         if (f.type && c.type !== f.type) return false;
         if (f.ep !== '' && f.ep !== null && f.ep !== undefined &&
-            (c.ep || 0) !== +f.ep) return false;
+            SG.UI.epKey(c.ep) !== String(f.ep)) return false;
         if (f.ownedOnly && !(f.owned[c.slug] > 0)) return false;
         if (!kw) return true;
         return (c.name + ' ' + (c.en || '') + ' ' + (c.effect || '')).toLowerCase().indexOf(kw) >= 0;

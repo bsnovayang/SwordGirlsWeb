@@ -12,13 +12,11 @@ var SG = window.SG || (window.SG = {});
 
   var FAC_NAME = { '': '全部', vita: '公立學校', academy: '私立學校',
                    crux: '南十字', darklore: '暗黑族' };
-  var EP_NAME = { '': '全部', 0: 'Episode 0', 1: 'Episode 1', 2: 'Episode 2' };
+  function epLabel(v) { return v === '' ? '全部' : 'Episode ' + v; }
 
-  /* 目前選的卡包 */
+  /* 目前選的卡包。章節一律用字串 —— EX1 這種不是數字。 */
   function filter() {
-    var f = $('pkFaction').value;
-    var e = $('pkEp').value;
-    return { faction: f, ep: e === '' ? '' : +e };
+    return { faction: $('pkFaction').value, ep: $('pkEp').value };
   }
 
   function fillPickers() {
@@ -29,10 +27,10 @@ var SG = window.SG || (window.SG = {});
       o.value = v; o.textContent = FAC_NAME[v];
       fs.appendChild(o);
     });
-    SG.PACK_EPISODES.forEach(function (v) {
+    SG.packEpisodes().forEach(function (v) {
       var o = document.createElement('option');
-      o.value = v === '' ? '' : String(v);
-      o.textContent = EP_NAME[v];
+      o.value = v;
+      o.textContent = epLabel(v);
       es.appendChild(o);
     });
   }
