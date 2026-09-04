@@ -7,6 +7,7 @@ load('js/data/cards_ep1.js');
 load('js/data/cards_ep2.js');
 load('js/data/cards_ep3.js');
 load('js/data/cards_ep4.js');
+load('js/data/cards_ex1.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -17,6 +18,7 @@ load('js/core/effects_ep1.js');
 load('js/core/effects_ep2.js');
 load('js/core/effects_ep3.js');
 load('js/core/effects_ep4.js');
+load('js/core/effects_ex1.js');
 load('js/core/ai.js');
 
 let pass = 0, fail = 0;
@@ -1473,6 +1475,109 @@ console.log('══════ Episode 4 牌組實戰不會爆 ═════�
   console.log('  跑了 ' + games + ' 場');
   ok(err === 0, 'EP4 牌組對打不會丟例外', err + ' 次：' + msg);
   ok(unfinished === 0, 'EP4 牌組對打不會卡死', unfinished + ' 場未結束');
+}
+
+console.log('══════ Episode EX1 ══════');
+{
+  /* 墓地操作（三張同款抽一張） */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'fortune_lady');
+    g.players[0].grave = ['kouhai', 'volcano', 'latecomer'].map(sl => SG._test.mkCard(sl, 0));
+    g.players[0].deck = [];
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(g.players[0].grave.length, 1, '墓地一張除外、一張放回牌組');
+    eq(g.players[0].deck.length, 1, '牌組多一張');
+    ok(typeof g.players[0].deck[0] === 'string', '放回牌組的是卡號');
+  }
+
+  /* 與角色同陣營才發動，發動後失去能力 */
+  {
+    const g = board('sita_vilosa');                 // 公立角色
+    const a = put(g, 0, 0, 'sanctuary_hunter_asmis'); // 公立隨從
+    const life0 = g.players[0].character.life;
+    fire(g, 0, 0, 'beforeDefend', {});
+    eq(g.players[0].character.life, life0 + 8, '同陣營 → 生命 +8');
+    ok(!SG.hasSkill(a), '發動後失去這個能力');
+
+    const g2 = board('iri_flina');                   // 暗黑角色
+    const b = put(g2, 0, 0, 'sanctuary_hunter_asmis');
+    const l2 = g2.players[0].character.life;
+    fire(g2, 0, 0, 'beforeDefend', {});
+    eq(g2.players[0].character.life, l2, '不同陣營 → 不發動');
+  }
+
+  /* 對手牌組最底移到對手手牌 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, '2s_agent_fourteen');
+    g.players[1].hand = [];
+    g.players[1].deck = ['kouhai', 'volcano', 'latecomer'];
+    const s0 = a.sta;
+    fire(g, 0, 0, 'turnStart');
+    ok(g.players[1].hand.length > 0, '對手手牌被補牌');
+    eq(a.sta, s0 + 2, '此卡體力 +2');
+  }
+
+  /* SIZE 總和比較 */
+  {
+    const g = board();
+    put(g, 0, 0, 'chief_maid_char');
+    put(g, 0, 1, 'apprentice');                      // SIZE 5
+    const life0 = g.players[1].character.life;
+    fire(g, 0, 0, 'turnStart');
+    eq(g.players[1].character.life, life0 - 1, '我方 SIZE 總和較高 → 敵方生命 −1');
+
+    const g2 = board();
+    put(g2, 0, 0, 'chief_maid_char');
+    put(g2, 1, 0, 'apprentice');
+    const l2 = g2.players[1].character.life;
+    fire(g2, 0, 0, 'turnStart');
+    eq(g2.players[1].character.life, l2, '我方 SIZE 總和較低 → 不發動');
+  }
+
+  /* 把攻擊者退回牌組最上方 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'sweet_lady_isfeldt');    // SIZE 4
+    const foe = put(g, 1, 0, 'kouhai');              // SIZE 3 ≤ 4
+    g.players[1].deck = [];
+    fire(g, 0, 0, 'beforeDefend', { attacker: foe });
+    ok(!g.players[1].field[0], '攻擊者離開場上');
+    eq(g.players[1].deck[0], 'kouhai', '被放到其擁有者的牌組最上方');
+  }
+}
+
+console.log('══════ EX1 牌組實戰不會爆 ══════');
+{
+  const decks = ['vita', 'academy', 'crux', 'darklore'].map(f => {
+    const pool = SG.allCards().filter(c => c.ep === 'EX1' && !c.token &&
+      (c.faction === f || c.faction === 'neutral') && c.type !== 'character');
+    const cs = [];
+    pool.forEach(c => { for (let i = 0; i < Math.min(c.limit, 3) && cs.length < 30; i++) cs.push(c.slug); });
+    while (cs.length < 30) cs.push(pool[0].slug);
+    const ch = SG.allCards().find(c => c.type === 'character' && c.faction === f && !c.npc);
+    return { name: 'EX1-' + f, faction: f, character: ch.slug, cards: cs.slice(0, 30) };
+  });
+  let err = 0, games = 0, unfinished = 0, msg = '';
+  for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+    if (i === j) continue;
+    for (let k = 0; k < 8; k++) {
+      try {
+        const g = SG.createGame(decks[i], decks[j], 'ex1t' + i + j + k);
+        let guard = 0;
+        while (!g.over && guard++ < 300) {
+          SG.beginTurn(g); if (g.over) break;
+          SG.aiPlay(g, 0); SG.aiPlay(g, 1); SG.resolveTurn(g);
+        }
+        games++;
+        if (!g.over) unfinished++;
+      } catch (e) { err++; if (!msg) msg = e.message; }
+    }
+  }
+  console.log('  跑了 ' + games + ' 場');
+  ok(err === 0, 'EX1 牌組對打不會丟例外', err + ' 次：' + msg);
+  ok(unfinished === 0, 'EX1 牌組對打不會卡死', unfinished + ' 場未結束');
 }
 
 console.log('══════ 涵蓋率 ══════');

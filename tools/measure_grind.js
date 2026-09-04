@@ -3,9 +3,9 @@
 const fs = require('fs'), path = require('path');
 global.window = global;
 const R = path.join(__dirname, '..');
-['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_npc.js', 'js/data/materials.js',
+['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_ex1.js', 'js/data/cards_npc.js', 'js/data/materials.js',
  'js/data/decks.js', 'js/data/dungeons.js', 'js/data/ladder.js', 'js/core/battle.js',
- 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/ai.js', 'js/core/score.js', 'js/core/pack.js']
+ 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/effects_ex1.js', 'js/core/ai.js', 'js/core/score.js', 'js/core/pack.js']
   .forEach(p => eval(fs.readFileSync(path.join(R, p), 'utf8')));
 
 const N = parseInt(process.argv[2] || '40', 10);

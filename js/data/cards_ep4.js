@@ -278,7 +278,7 @@ var SG = window.SG || (window.SG = {});
 
     /* ── 沒有官方繁中譯名的一張（卡名為自譯，UI 會標「暫譯」）── */
 
-    foll('1st_witness_kana_dkd', '300213', '初始見證者、卡娜．DKD', '', '1st Witness Kana.DKD', 'neutral', 5, 6, 3, 13, 1, 50,
+    foll('1st_witness_kana_dkd', '300202', '初始見證者、卡娜．DKD', '', '1st Witness Kana.DKD', 'neutral', 5, 6, 3, 13, 1, 50,
       '攻擊前，此卡防禦力 1 以上時防禦力 −1。有下降時，牌組第一張卡若與自己角色同陣營，' +
       '把該卡放到場上並使其 攻/體 +3。',
       ''),

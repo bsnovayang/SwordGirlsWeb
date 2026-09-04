@@ -76,27 +76,29 @@ var SG = window.SG || (window.SG = {});
     })
   ];
 
-  /* ── 通關 10 次可獲得的獎勵角色卡（可自己拿來組牌） ── */
+  /* ── 通關 10 次可獲得的獎勵角色卡（可自己拿來組牌） ──
+       卡號一度是依序猜的（100005～100009），後來用英文 wiki 的卡號校正過。
+       「佩妮卡」的真名是 Miracle Panda Panica（100058）。 */
   var REWARDS = [
     { slug: 'nold', id: '100005', name: '諾爾德', en: 'Nold',
       type: 'character', faction: 'academy', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
       effect: '回合開始時，自己手牌隨機一張卡 SIZE +1；自己場上隨機一張 SIZE 2 以上的卡 SIZE -1。' },
-    { slug: 'cannelle', id: '100006', name: '卡涅魯', en: 'Cannelle',
+    { slug: 'cannelle', id: '100008', name: '卡涅魯', en: 'Cannelle',
       type: 'character', faction: 'neutral', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
       effect: '回合開始時，自己 SIZE 最小的卡，攻/體上升「與對方 SIZE 最大的卡的 SIZE 差」。' },
-    { slug: 'gart', id: '100007', name: '蓋托', en: 'Gart',
+    { slug: 'gart', id: '100009', name: '蓋托', en: 'Gart',
       type: 'character', faction: 'vita', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
       effect: '回合開始時，對手場上一張與此卡所屬不同的隨從 攻/體 -2；沒有的話，對手場上隨機兩張隨從 攻/體 -1。' },
-    { slug: 'panica', id: '100008', name: '佩妮卡', en: 'Panica',
+    { slug: 'panica', id: '100058', name: '佩妮卡', en: 'Panica',
       type: 'character', faction: 'academy', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
       effect: '回合開始時，回合數為奇數 → 自己場上隨機兩張隨從 攻 +1；' + '\n' +
               '回合數為偶數 → 自己場上隨機一張隨從 體力 +2。',
       flavor: '［有事想請你幫忙！絕對不是因為在意你！我只為了必要和利益而行動的存在！］' },
-    { slug: 'ginger', id: '100009', name: '辛西亞', en: 'Ginger',
+    { slug: 'ginger', id: '100006', name: '辛西亞', en: 'Ginger',
       type: 'character', faction: 'darklore', life: 30, points: 25, limit: 1,
       rarity: 'Uncommon', reward: true,
       effect: '回合開始時，自己場上 SIZE 在 X 以上的所有隨從 攻 +1 / 體 +2。（X ＝ 自己場上的卡片數量）',

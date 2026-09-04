@@ -9,9 +9,9 @@ const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
 const w = dom.window, d = w.document;
 
 // 手動注入 script（jsdom 不會自動載相對路徑的 script）
-['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
+['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_ex1.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
  'js/data/dungeons.js', 'js/data/ladder.js', 'js/data/quests.js', 'js/core/save.js', 'js/core/score.js', 'js/core/pack.js', 'js/core/battle.js',
- 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
+ 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/effects_ex1.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
  'js/ui/screen_deck.js', 'js/ui/screen_gallery.js', 'js/ui/screen_dungeon.js',
  'js/ui/screen_craft.js', 'js/ui/screen_pack.js', 'js/ui/screen_ladder.js', 'js/ui/screen_quest.js', 'js/main.js'].forEach(function (p) {
   const s = d.createElement('script');

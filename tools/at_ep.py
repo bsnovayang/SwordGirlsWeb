@@ -88,3 +88,30 @@ def collect(pages):
     for pg, fac, typ in pages:
         got += [(c, fac, typ) for c in cards_of(pg, typ, fac)]
     return got
+
+
+def align(at_cards, fd_cards):
+    """把 atwiki 的卡對到英文 wiki 的卡。
+
+    兩邊的排列順序一致（繁中頁面順序＝英文卡號順序），所以基本上按順序配。
+    但有時 atwiki 少收錄幾張，純用順序會整組錯位 —— 所以先用
+    (SIZE, 分數, 上限) 去唯一比對，剩下的才按順序補。
+    回傳 [(atwiki 卡, 英文 wiki 卡), …]。
+    """
+    def key(c, fd=False):
+        return (c.get('size'), c.get('points'), c.get('limit'))
+
+    left = list(fd_cards)
+    pairs, todo = [], []
+    for a in at_cards:
+        same = [b for b in left if key(b) == key(a)]
+        if len(same) == 1:
+            pairs.append((a, same[0]))
+            left.remove(same[0])
+        else:
+            todo.append(a)
+    for a in todo:                      # 剩下的按原順序補
+        if not left:
+            break
+        pairs.append((a, left.pop(0)))
+    return pairs

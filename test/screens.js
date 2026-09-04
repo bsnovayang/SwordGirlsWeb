@@ -8,9 +8,9 @@ const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
 });
 const w = dom.window, d = w.document;
 
-['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
+['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_ex1.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
  'js/data/dungeons.js', 'js/data/ladder.js', 'js/data/quests.js', 'js/core/save.js', 'js/core/score.js', 'js/core/pack.js', 'js/core/battle.js',
- 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
+ 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/effects_ex1.js', 'js/core/ai.js', 'js/ui/card_ui.js', 'js/ui/battle_ui.js',
  'js/ui/screen_deck.js', 'js/ui/screen_gallery.js', 'js/ui/screen_dungeon.js',
  'js/ui/screen_craft.js', 'js/ui/screen_pack.js', 'js/ui/screen_ladder.js', 'js/ui/screen_quest.js', 'js/main.js'].forEach(function (p) {
   const s = d.createElement('script');
@@ -71,7 +71,7 @@ console.log('══════ 初始存檔 ══════');
   const kinds = Object.keys(s.owned).length;
   const collectible = w.SG.collectibleCards().length;
   eq(kinds, 56, '初始持有 Episode 0 的 56 種卡');
-  eq(collectible, 319, '可收集卡片 319 種（Episode 0～4，代幣卡不算）');
+  eq(collectible, 374, '可收集卡片 374 種（Episode 0～4 ＋ EX1，代幣卡不算）');
   ok(w.SG.allCards().length > collectible, 'NPC 卡不算在可收集之列');
   s.decks.forEach(dk => {
     ok(w.SG.deckErrors(dk).length === 0, '預設牌組可用：' + dk.name,
@@ -311,7 +311,7 @@ console.log('══════ 卡片圖鑑 ══════');
 
   $('gType').value = 'character';
   $('gType').dispatchEvent(new w.Event('change'));
-  eq(d.querySelectorAll('#glList .crow').length, 23, '只看角色卡 → 23 張（4 主角 + 5 副本獎勵 + EP1~4 各章的角色卡）');
+  eq(d.querySelectorAll('#glList .crow').length, 37, '只看角色卡 → 37 張（4 主角 + 5 副本獎勵 + 各章的角色卡）');
   $('gType').value = '';
   $('gType').dispatchEvent(new w.Event('change'));
 }

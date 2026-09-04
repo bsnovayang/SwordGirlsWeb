@@ -8,6 +8,7 @@ load('js/data/cards_ep1.js');
 load('js/data/cards_ep2.js');
 load('js/data/cards_ep3.js');
 load('js/data/cards_ep4.js');
+load('js/data/cards_ex1.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -18,6 +19,7 @@ load('js/core/effects_ep1.js');
 load('js/core/effects_ep2.js');
 load('js/core/effects_ep3.js');
 load('js/core/effects_ep4.js');
+load('js/core/effects_ex1.js');
 load('js/core/ai.js');
 
 const N = parseInt(process.argv[2] || '200', 10);

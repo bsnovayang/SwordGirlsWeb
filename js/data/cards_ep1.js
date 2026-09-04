@@ -186,7 +186,7 @@ var SG = window.SG || (window.SG = {});
     /* ── 角色卡 ──
        ※ 繁中 wiki 的角色卡頁沒有標 LIFE，Episode 0 的四位都是 30，這裡沿用。 */
     {
-      slug: 'curious_vernika', id: '100040',
+      slug: 'curious_vernika', id: '100007',
       name: '好奇心少女維若妮卡', jp: '好奇心少女ヴェルニカ', en: 'Curious Vernika',
       type: 'character', faction: 'vita', life: 30, points: 20, limit: 1,
       ep: 1, provRecipe: true, rarity: 'Rare',

@@ -38,12 +38,19 @@ def main():
     PAIRS = [('atk', 'attack'), ('def', 'defense'), ('sta', 'stamina'),
              ('size', 'size'), ('life', 'life'), ('points', 'points'),
              ('limit', 'limit')]
+    # 卡號是唯一的，優先用它配對 —— 有些卡英文同名但其實是不同卡
+    # （例如 Chief Maid / New Knight 各有 Episode 0 的隨從與 EX1 的角色卡）
+    BY_ID = {}
+    for c in fd:
+        if c.get('id'):
+            BY_ID.setdefault(str(c['id']), c)
+
     hit = 0
     nomatch, conflicts = [], []
     for m in mine:
         if not m.get('en'):
             continue
-        f = FD.get(norm(m['en']))
+        f = BY_ID.get(str(m.get('id'))) or FD.get(norm(m['en']))
         if not f:
             nomatch.append(m['en']); continue
         hit += 1
