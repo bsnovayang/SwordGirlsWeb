@@ -120,7 +120,7 @@ node test/dungeon.js     # 合成配方、副本進度、BOSS 效果（61 個斷
 
 ## 卡片資料來源
 
-目前收錄 **Episode 0～5 ＋ EX1**，可收集共 **419 種**（含 5 張副本獎勵卡；代幣卡不算）。
+**全卡池收錄完成** —— Episode 0～6 ＋ EX1／EX2，可收集共 **492 種**（含 5 張副本獎勵卡；代幣卡不算）。
 
 ### Episode 0（56 張）
 
@@ -227,7 +227,7 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
 
 ## 卡片效果
 
-有效果文字的 **344 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ～ `effects_ep4.js` ＋ `effects_ex1.js` ＋ `effects_ep5.js`）。觸發時機四種：
+有效果文字的 **415 張全部實作完畢**（`js/core/effects.js` ＋ `effects_ep1.js` ～ `effects_ep4.js` ＋ `effects_ex1.js` ～ `effects_ex2.js`）。觸發時機四種：
 
 | 時機 | 說明 |
 |---|---|
@@ -373,6 +373,18 @@ Miracle Panda Panica／Ginger 都沒有 ingredient 欄位），只能通關 10 �
 這一章開始用 `tools/gen_late.py` ＋ `build_late.py` 產生，
 之後的 Episode 6／EX2 也會沿用（自譯表換成該章節的就好）。
 
+### Episode 6（40 張）與 EX2（33 張）
+
+繁中 wiki 完全沒有收錄這兩個章節，**卡名與效果文全部是本專案自譯**
+（`tools/ep6_names.json`／`epex2_names.json` 與對應的 `_effects.json`），
+標了 `tl`，UI 會顯示「暫譯」。
+
+EX2 有兩處**來源資料本身的缺漏**，照原樣收錄並記在檔案開頭：
+
+* `學生會宣傳部員` 英文 wiki 沒填卡號 —— 給了內部編號 `EX2-028`
+* `事務長、艾斯普利` 與 `維若妮卡的解答` 在 wiki 上**共用卡號 100112**，
+  無法判斷哪個才對。`tools/verify.py` 會用卡號比對，所以這筆登記成「已知未裁決」
+
 ### 代幣卡
 
 `token: true` 的卡不算可收集 —— 不會出現在圖鑑、卡包、牌組編輯，也不能合成。
@@ -508,10 +520,7 @@ ctx 對應的 API：`hasSkill(target)` / `loseSkills([target])` /
 ## 待辦
 
 ### 卡池
-- **Episode 6**（40 張）與 **EX2**（33 張）尚未收錄。
-  > 繁中 wiki 的卡片頁**到 EX1 就結束了** —— Episode 5 只有公立咒語一頁（7 張），
-  > Episode 6 與 EX2 完全沒有。所以這三個章節的卡名幾乎都要自譯，
-  > 跟前面「95% 有官方譯名」的情況完全不同。
+- ~~卡池~~ **全部收錄完成**（Episode 0～6 ＋ EX1／EX2，492 種）
 - Episode 0～2 剩下的都是 `Event` 活動卡（Morning 系列角色、Thank You 等 10 張）
 - **變化後角色卡** 10 張 —— 需要先做「變身」系統
 - ~~Episode 3 以後的效果需要的機制~~ —— **檢索／招喚／複製／恢復技能已經做好**

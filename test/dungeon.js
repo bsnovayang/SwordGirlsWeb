@@ -2,8 +2,8 @@
 const fs = require('fs'), path = require('path');
 global.window = global;
 function load(p) { eval(fs.readFileSync(path.join(__dirname, '..', p), 'utf8')); }
-['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_ex1.js', 'js/data/cards_ep5.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
- 'js/data/dungeons.js', 'js/core/save.js', 'js/core/score.js', 'js/core/pack.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/effects_ex1.js', 'js/core/effects_ep5.js',
+['js/data/cards.js', 'js/data/cards_ep1.js', 'js/data/cards_ep2.js', 'js/data/cards_ep3.js', 'js/data/cards_ep4.js', 'js/data/cards_ex1.js', 'js/data/cards_ep5.js', 'js/data/cards_ep6.js', 'js/data/cards_ex2.js', 'js/data/cards_npc.js', 'js/data/materials.js', 'js/data/decks.js',
+ 'js/data/dungeons.js', 'js/core/save.js', 'js/core/score.js', 'js/core/pack.js', 'js/core/battle.js', 'js/core/effects.js', 'js/core/effects_ep1.js', 'js/core/effects_ep2.js', 'js/core/effects_ep3.js', 'js/core/effects_ep4.js', 'js/core/effects_ex1.js', 'js/core/effects_ep5.js', 'js/core/effects_ep6.js', 'js/core/effects_ex2.js',
  'js/core/ai.js'].forEach(load);
 
 /* localStorage 替身 */

@@ -33,6 +33,9 @@ def main():
     KNOWN = {
         ("Saint's Blessing", 'size'):
             'atwiki 說 2、Fandom 說 3，其餘欄位一致；第三份表格沒有 SIZE 欄可裁決，暫留 2',
+        ('Vernika Answer', 'points'):
+            '英文 wiki 上「Vernika Answer」與「Office Chief Esprit」共用卡號 100112，'
+            '所以用卡號比對會拿到另一張的分數。是來源本身的缺漏，兩張都照原樣收錄',
     }
 
     PAIRS = [('atk', 'attack'), ('def', 'defense'), ('sta', 'stamina'),

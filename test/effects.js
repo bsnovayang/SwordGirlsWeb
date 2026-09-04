@@ -9,6 +9,8 @@ load('js/data/cards_ep3.js');
 load('js/data/cards_ep4.js');
 load('js/data/cards_ex1.js');
 load('js/data/cards_ep5.js');
+load('js/data/cards_ep6.js');
+load('js/data/cards_ex2.js');
 load('js/data/cards_npc.js');
 load('js/data/materials.js');
 load('js/data/decks.js');
@@ -21,6 +23,8 @@ load('js/core/effects_ep3.js');
 load('js/core/effects_ep4.js');
 load('js/core/effects_ex1.js');
 load('js/core/effects_ep5.js');
+load('js/core/effects_ep6.js');
+load('js/core/effects_ex2.js');
 load('js/core/ai.js');
 
 let pass = 0, fail = 0;
@@ -1677,6 +1681,83 @@ console.log('══════ Episode 5 牌組實戰不會爆 ═════�
   console.log('  跑了 ' + games + ' 場');
   ok(err === 0, 'EP5 牌組對打不會丟例外', err + ' 次：' + msg);
   ok(unfinished === 0, 'EP5 牌組對打不會卡死', unfinished + ' 場未結束');
+}
+
+console.log('══════ Episode 6 / EX2 ══════');
+{
+  /* 互換能力 —— 原文沒有排除自己，所以場上只放這一張才好驗 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'tennis_lure');     // 我方只有這一張隨從
+    const b = put(g, 1, 0, 'striker');         // 敵方只有這一張
+    fire(g, 0, 0, 'turnStart');
+    eq(a.skills[0], 'striker', '我方那張拿到對手的能力');
+    eq(b.skills[0], 'tennis_lure', '對手那張拿到我方的能力');
+  }
+
+  /* 五成機率的 SIZE 變動，兩種結果都要落在預期內 */
+  {
+    const seen = {};
+    for (let i = 0; i < 20; i++) {
+      const g = SG.createGame({ name: 't', character: 'sita_vilosa', cards: [] },
+                              { name: 't', character: 'cinia_pacifica', cards: [] }, 'lw' + i);
+      g.phase = 'battle';
+      const a = put(g, 0, 0, 'lightning_witch');
+      const s0 = a.size;
+      fire(g, 0, 0, 'turnStart');
+      seen[a.size - s0] = true;
+    }
+    ok(seen[-2] && seen[1], '閃電的魔女：SIZE −2 與 +1 兩種結果都出現過');
+  }
+
+  /* 可重洗次數會被扣 */
+  {
+    const g = board();
+    put(g, 0, 0, 'kouhai');
+    put(g, 0, 1, 'recruitment_act');
+    const sh0 = g.players[1].shuffles, life0 = g.players[1].character.life;
+    fire(g, 0, 1, 'spell');
+    eq(g.players[1].character.life, life0 - 1, '對手生命 −1');
+    eq(g.players[1].shuffles, sh0 - 1, '對手可重洗次數 −1');
+  }
+
+  /* 授予能力：碎裂的大地 */
+  {
+    const g = board();
+    const t = put(g, 0, 0, 'kouhai');          // 公立、沒有能力
+    put(g, 0, 1, 'shattered_land');
+    fire(g, 0, 1, 'spell');
+    ok(SG.hasSkill(t), '被授予了能力');
+    const s0 = t.sta;
+    const foe = put(g, 1, 0, 'apprentice');    // 攻擊力 5
+    fire(g, 0, 0, 'beforeDefend', { attacker: foe });
+    eq(t.sta, s0 + foe.atk, '防禦時體力上升攻擊者的攻擊力');
+    ok(!SG.hasSkill(t), '發動後失去這個能力');
+  }
+
+  /* 複製對手手牌的咒語到我方場上（萬聖節系列） */
+  {
+    const g = board();
+    put(g, 0, 0, 'kouhai');
+    g.players[1].hand = [SG._test.mkCard('curse', 1)];
+    put(g, 0, 1, 'halloween_witch');
+    fire(g, 0, 1, 'spell');
+    const copy = g.players[0].field.filter(Boolean).find(x => x.id === 'curse');
+    ok(!!copy, '對手手牌的咒語被複製到我方場上');
+    eq(g.players[1].hand.length, 1, '對手手牌不會少（是複製不是搶）');
+  }
+
+  /* 牌組中同名卡除外並依張數強化 */
+  {
+    const g = board();
+    const a = put(g, 0, 0, 'lib_advisor');
+    g.players[0].deck = ['lib_advisor', 'lib_advisor', 'kouhai'];
+    const before = [a.atk, a.def, a.sta];
+    fire(g, 0, 0, 'beforeAttack', {});
+    eq(g.players[0].deck.length, 1, '牌組中 2 張同名卡被除外');
+    eq(a.atk, before[0] + 2, '攻 +2');
+    eq(a.sta, before[2] + 4, '體 +4（每張 +2）');
+  }
 }
 
 console.log('══════ 涵蓋率 ══════');

@@ -54,11 +54,12 @@ def main():
           if str(c.get('episode')) == key and (c.get('limit') or 0) > 0
           and not c.get('transform') and c.get('type') in ('Follower', 'Spell', 'Character')]
     cs.sort(key=lambda c: (ORDER.index(FM.get(c.get('faction'), 'neutral')),
-                           ['Follower', 'Spell', 'Character'].index(c['type']), c['id']))
+                           ['Follower', 'Spell', 'Character'].index(c['type']),
+                           c.get('id') or 'zzz'))
 
     # 已經被前面章節用掉的 slug
     taken = set()
-    self_file = 'cards_ep%s.js' % key.lower()
+    self_file = ('cards_%s.js' if key.lower().startswith('ex') else 'cards_ep%s.js') % key.lower()
     for f in os.listdir(os.path.join(D, '..', 'js', 'data')):
         if not f.startswith('cards') or f == self_file:
             continue          # 重新產生時不要跟自己的舊檔撞 slug
@@ -74,22 +75,25 @@ def main():
             cur = head
             out.append('\n    /* ── %s · %s ── */' % (LABEL[fac], TYPE_LABEL[c['type']]))
         zh = official.get(c['name']) or names.get(c['name']) or c['name']
+        cid = c.get('id')
+        if not cid:                      # 英文 wiki 本身沒填卡號，給內部編號
+            cid = '%s-%03d' % (key.upper(), len(out))
         sl = slug(c['name'], taken)
         taken.add(sl)
         if c['name'] not in official:
             tl.append(sl)
         eff = effects.get(c['name'], '')
         if c['type'] == 'Character':
-            args = [q(sl), q(c['id']), q(zh), q(c['name']), q(fac),
+            args = [q(sl), q(cid), q(zh), q(c['name']), q(fac),
                     str(c['life']), str(c['limit']), str(c['points'])]
             out.append('    chara(' + ', '.join(args) + ',')
         elif c['type'] == 'Follower':
-            args = [q(sl), q(c['id']), q(zh), "''", q(c['name']), q(fac),
+            args = [q(sl), q(cid), q(zh), "''", q(c['name']), q(fac),
                     str(c['size']), str(c['attack']), str(c['defense']),
                     str(c['stamina']), str(c['limit']), str(c['points'])]
             out.append('    foll(' + ', '.join(args) + ',')
         else:
-            args = [q(sl), q(c['id']), q(zh), "''", q(c['name']), q(fac),
+            args = [q(sl), q(cid), q(zh), "''", q(c['name']), q(fac),
                     str(c['size']), str(c['limit']), str(c['points'])]
             out.append('    spell(' + ', '.join(args) + ',')
         out.append('      %s,' % q(eff) if eff else "      '',")

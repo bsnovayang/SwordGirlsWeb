@@ -90,7 +90,9 @@ def main():
             + '  LIST.forEach(function (c) { if (TL.indexOf(c.slug) >= 0) c.tl = true; });\n\n'
             + '  LIST.forEach(function (c) { SG.CARDS[c.slug] = c; });\n})();\n')
 
-    out = os.path.join(R, 'js', 'data', 'cards_ep%s.js' % key)
+    # EX 系列的檔名不加 ep 前綴（cards_ex2.js 比 cards_epex2.js 好讀）
+    fname = 'cards_%s.js' % key if key.startswith('ex') else 'cards_ep%s.js' % key
+    out = os.path.join(R, 'js', 'data', fname)
     io.open(out, 'w', encoding='utf-8').write(head + body + '\n' + tail)
     print('%s：%d 張（自譯 %d）' % (os.path.basename(out), body.count('foll(') +
                                   body.count('spell(') + body.count('chara('), len(tl)))

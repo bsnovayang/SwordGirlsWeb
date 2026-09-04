@@ -717,6 +717,56 @@ var SG = window.SG || (window.SG = {});
 
       foeDeckSize: function () { return theirs.deck.length; },
 
+      /* 依條件把牌組裡的卡除外，回傳除外了幾張 */
+      exileDeck: function (fn) {
+        var took = 0;
+        for (var i = mine.deck.length - 1; i >= 0; i--) {
+          if (fn && !fn(SG.getCard(mine.deck[i]))) continue;
+          mine.deck.splice(i, 1);
+          took++;
+        }
+        if (took) E(ev, g, { t: 'exile', player: pi, count: took });
+        return took;
+      },
+
+      /* 場上的卡放到擁有者牌組下方（toDeckBottom 的別名，語意比較清楚） */
+      fieldToDeckBottom: function (target) {
+        if (!target) return false;
+        var op = sideOf(g, target), s2 = slotOfCard(g, op, target);
+        if (s2 < 0) return false;
+        g.players[op].field[s2] = null;
+        g.players[op].deck.push(target.id);
+        E(ev, g, { t: 'toDeck', player: op, card: target });
+        return true;
+      },
+
+      /* 把某張卡複製一份加入我方手牌 */
+      copyToHand: function (card2) {
+        if (!card2 || mine.hand.length >= HAND_MAX) return null;
+        var c2 = instance(card2.id, pi);
+        mine.hand.push(c2);
+        E(ev, g, { t: 'toHand', player: pi, card: c2, copy: true });
+        return c2;
+      },
+
+      /* 牌組最上面那張移到最下面 */
+      deckTopToBottom: function (playerPi) {
+        var p2 = g.players[playerPi];
+        if (!p2.deck.length) return false;
+        p2.deck.push(p2.deck.shift());
+        E(ev, g, { t: 'toDeck', player: playerPi, count: 1 });
+        return true;
+      },
+
+      /* 改變可重洗次數 */
+      shuffles: function (playerPi, delta) {
+        var p2 = g.players[playerPi];
+        var before = p2.shuffles;
+        p2.shuffles = Math.max(0, (p2.shuffles || 0) + delta);
+        if (p2.shuffles !== before) E(ev, g, { t: 'shuffles', player: playerPi, n: p2.shuffles });
+        return p2.shuffles;
+      },
+
       /* 對手抽到手牌有 n 張為止，回傳實際抽了幾張 */
       foeDrawUpTo: function (n) {
         var got = 0;
