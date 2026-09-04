@@ -458,18 +458,30 @@ ctx 對應的 API：`hasSkill(target)` / `loseSkills([target])` /
 - **Episode 3～6**（68 / 66 / 45 / 40 張）與 **EX1／EX2**（56 / 33 張）尚未收錄
 - Episode 0～2 剩下的都是 `Event` 活動卡（Morning 系列角色、Thank You 等 10 張）
 - **變化後角色卡** 10 張 —— 需要先做「變身」系統
-- Episode 3 以後的效果會用到還沒有的機制：**檢索**（牌庫→手牌）、
-  **招喚**（牌庫→場上）、**複製對手手牌的咒語到我方場上**
+- ~~Episode 3 以後的效果需要的機制~~ —— **檢索／招喚／複製／恢復技能已經做好**
+  （`ctx.deckToHand` / `deckToField` / `spawnCopy` / `restoreSkills`），
+  等卡片資料匯入就能用
 
 ### 已知缺口
 - `聖徒的祝福` 的 SIZE：繁中 wiki 說 2、英文 wiki 說 3，第三份表格沒有 SIZE 欄可裁決，暫留 2
-- 124 張卡的合成配方是**推導值**（`provRecipe`），真實配方已在
-  `tools/fandom_cards.json`，要等後段副本做出來才能換上
+- 124 張卡的合成配方是**推導值**（`provRecipe`）。真實配方在
+  `tools/fandom_cards.json`（183 張有），但換不過去，因為：
+  - 需要兩種還沒有的素材：**眼鏡**（26 張卡要）、**心臟石**（33 張卡要），
+    而它們的掉落點在還沒做的副本
+  - **57 張的配方會用「其他卡片」當素材**（例如某張卡要 8 張 `2S Assistant Asmis`），
+    這是卡片融合機制，本作還沒有
+  - 配方裡的卡名用的是舊版英文名（`Library Lucca` vs 現在的 `Lib. Lucca`），
+    要另外做一份對照表
 - 3 張卡名是自譯（標 `tl`，UI 顯示「暫譯」）
 - `craft()` 沒有擋牌組上限（UI 靠 `craftUseful` 擋，但 API 本身允許超過）
 
 ### 內容
-- 副本只有 5 座，且 4 座是 Easy、1 座 Normal —— 原作還有 Hard／Extra
+- **副本只有 5 座**（原作 13 座）。剩下 8 座是
+  Crux Training Dungeon / Dream Island / Exam Hall / Linia's Mansion /
+  Vampire Lands / Vita Public School / Vivid World / Witch's Tower。
+
+  > **這件事卡在卡池**：那 8 座的樓層敵人與通關獎勵角色幾乎都是
+  > Episode 3 以後或 EX 的卡，本作還沒有。要先補卡池才做得下去。
 - 20 個副本樓層 NPC 的中文名是暫譯
 - 5 個竹林鄉樓層敵人的 LIFE 是依樓層深度估算（原作查不到）
 

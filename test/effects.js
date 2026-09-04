@@ -1089,6 +1089,90 @@ console.log('══════ Episode 2 牌組實戰不會爆 ═════�
   ok(unfinished === 0, 'EP2 牌組對打不會卡死', unfinished + ' 場未結束');
 }
 
+console.log('══════ 檢索 / 招喚 / 複製 / 恢復技能 ══════');
+{
+  /* Episode 3 以後的卡會用到這四個機制，先把引擎的部分測起來。
+     測試用 SG.Effects 裡臨時註冊的假卡來驅動。 */
+  const box = {};
+  SG.Effects.__t_tutor = { spell: c => { box.got = c.deckToHand(d => d.type === 'spell', 2); } };
+  SG.Effects.__t_summon = { spell: c => { box.got = c.deckToField(d => d.type === 'follower', 1); } };
+  SG.Effects.__t_copy = { spell: c => { box.got = c.spawnCopy(c.foeHand[0]); } };
+  SG.Effects.__t_restore = { spell: c => { box.ok = c.restoreSkills(box.target); } };
+
+  /* 檢索：牌庫 → 手牌 */
+  {
+    const g = board();
+    const p = g.players[0];
+    p.deck = ['kouhai', 'volcano', 'latecomer', 'curse'];
+    p.hand = [];
+    const sp = put(g, 0, 0, 'shrink');
+    sp.skills = ['__t_tutor'];
+    const d0 = p.deck.length;
+    fire(g, 0, 0, 'spell');
+    eq(box.got.length, 2, '檢索：拿到 2 張符合條件的卡');
+    ok(box.got.every(c => c.type === 'spell'), '檢索：拿到的都是咒語');
+    eq(p.hand.length, 2, '檢索：進到手牌');
+    eq(p.deck.length, d0 - 2, '檢索：牌庫少 2 張');
+    ok(!p.deck.includes('volcano') && !p.deck.includes('curse'), '檢索：牌庫裡不會留著同一張');
+  }
+
+  /* 檢索：手牌滿了就停 */
+  {
+    const g = board();
+    const p = g.players[0];
+    p.deck = ['volcano', 'curse'];
+    hand(g, 0, ['kouhai', 'kouhai', 'kouhai', 'kouhai', 'kouhai']);   // 已滿 5 張
+    const sp = put(g, 0, 0, 'shrink');
+    sp.skills = ['__t_tutor'];
+    fire(g, 0, 0, 'spell');
+    eq(box.got.length, 0, '檢索：手牌滿了就不再拿');
+    eq(p.deck.length, 2, '檢索：牌庫沒被動到');
+  }
+
+  /* 招喚：牌庫 → 場上 */
+  {
+    const g = board();
+    const p = g.players[0];
+    p.deck = ['volcano', 'kouhai', 'latecomer'];
+    const sp = put(g, 0, 0, 'shrink');
+    sp.skills = ['__t_summon'];
+    fire(g, 0, 0, 'spell');
+    eq(box.got.length, 1, '招喚：叫出 1 張');
+    eq(box.got[0].id, 'kouhai', '招喚：挑到第一張符合條件的隨從');
+    ok(g.players[0].field.indexOf(box.got[0]) > 0, '招喚：放到編號最小的空格');
+    ok(box.got[0].activated, '招喚：當回合不再行動');
+    eq(p.deck.length, 2, '招喚：牌庫少 1 張');
+  }
+
+  /* 複製：把對手手牌的卡複製到我方場上 */
+  {
+    const g = board();
+    g.players[1].hand = [SG._test.mkCard('curse', 1)];
+    const sp = put(g, 0, 0, 'shrink');
+    sp.skills = ['__t_copy'];
+    fire(g, 0, 0, 'spell');
+    ok(!!box.got && box.got.id === 'curse', '複製：在我方場上生出一張同名卡');
+    eq(box.got.owner, 0, '複製：擁有者是我方');
+    eq(g.players[1].hand.length, 1, '複製：對手手牌不會少（是複製不是搶）');
+  }
+
+  /* 恢復技能 */
+  {
+    const g = board();
+    const t = put(g, 0, 1, 'striker');
+    t.skills = [];
+    ok(!SG.hasSkill(t), '先把技能拿掉');
+    box.target = t;
+    const sp = put(g, 0, 0, 'shrink');
+    sp.skills = ['__t_restore'];
+    fire(g, 0, 0, 'spell');
+    ok(SG.hasSkill(t), '恢復技能之後又有技能了');
+    eq(t.skills[0], 'striker', '恢復的是這張卡原本的技能');
+  }
+
+  ['__t_tutor', '__t_summon', '__t_copy', '__t_restore'].forEach(k => { delete SG.Effects[k]; });
+}
+
 console.log('══════ 涵蓋率 ══════');
 {
   const all = SG.allCards();

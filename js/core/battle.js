@@ -626,6 +626,65 @@ var SG = window.SG || (window.SG = {});
       move: function (fromPi, fromSlot, toPi) { return moveCard(g, ev, fromPi, fromSlot, toPi); },
       slotOf: function (target) { var op = sideOf(g, target); return slotOfCard(g, op, target); },
 
+      /* ── 牌庫檢索／招喚／複製（Episode 3 起的卡會用到）──────
+
+         fn(def) 拿到的是卡片「定義」（SG.getCard 的結果），不是場上實體。 */
+
+      /* 從牌庫找出符合條件的卡放到手牌，最多 n 張，回傳實際拿到的實體 */
+      deckToHand: function (fn, n) {
+        var out = [], want = n || 1;
+        for (var i = 0; i < mine.deck.length && out.length < want; i++) {
+          if (mine.hand.length >= HAND_MAX) break;      // 手牌滿了就停
+          var def = SG.getCard(mine.deck[i]);
+          if (fn && !fn(def)) continue;
+          var c = instance(mine.deck.splice(i, 1)[0], pi);
+          mine.hand.push(c);
+          out.push(c);
+          i--;
+        }
+        if (out.length) E(ev, g, { t: 'tutor', player: pi, cards: out, to: 'hand' });
+        return out;
+      },
+
+      /* 從牌庫找出符合條件的卡直接放到場上（編號最小的空格），最多 n 張 */
+      deckToField: function (fn, n) {
+        var out = [], want = n || 1;
+        for (var i = 0; i < mine.deck.length && out.length < want; i++) {
+          var slot2 = emptySlot(mine.field);
+          if (slot2 < 0) break;                          // 場上滿了就停
+          var def = SG.getCard(mine.deck[i]);
+          if (fn && !fn(def)) continue;
+          var c = instance(mine.deck.splice(i, 1)[0], pi);
+          c.faceDown = false; c.activated = true;        // 當回合不再行動
+          mine.field[slot2] = c;
+          out.push(c);
+          E(ev, g, { t: 'summon', player: pi, slot: slot2, card: c });
+          i--;
+        }
+        return out;
+      },
+
+      /* 把某張卡複製一份放到我方場上（萬聖節系列會複製對手手牌的咒語） */
+      spawnCopy: function (card) {
+        if (!card) return null;
+        var slot2 = emptySlot(mine.field);
+        if (slot2 < 0) return null;
+        var c = instance(card.id, pi);
+        c.faceDown = false; c.activated = true;
+        mine.field[slot2] = c;
+        E(ev, g, { t: 'summon', player: pi, slot: slot2, card: c, copy: true });
+        return c;
+      },
+
+      /* 恢復卡片原本的技能（被 loseSkills 拿掉之後可以還原） */
+      restoreSkills: function (target) {
+        var t = target || card;
+        if (!t) return false;
+        t.skills = SG.Effects[t.id] ? [t.id] : [];
+        E(ev, g, { t: 'skill', player: pi, card: t, mode: 'restore' });
+        return true;
+      },
+
       /* ── 技能的增刪（Episode 2 起才有的機制）──────────────
          技能用 SG.Effects 的鍵表示，跟著場上這張實體走。       */
       hasSkill: function (target) { return SG.hasSkill(target); },
